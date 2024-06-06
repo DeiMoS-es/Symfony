@@ -7,3 +7,4 @@
 
 # Crear entidades
 - Hay una herramienta que se llama maker bundle, que nos permite crear entidades, controladores...con el comando "php bin/console make:user"
+- Si queremos editar una entidad porque necesitamos añadir más atributos usamos el comando "php bin/console make:entity", introducimos en primer lugar el nombre de la entidad existente y añadimos los nuevos atributos.
