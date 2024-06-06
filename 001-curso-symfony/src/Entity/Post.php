@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\PostRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -31,6 +33,21 @@ class Post
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $url = null;
+
+    #[ORM\ManyToOne(inversedBy: 'post')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
+    /**
+     * @var Collection<int, Interaction>
+     */
+    #[ORM\OneToMany(targetEntity: Interaction::class, mappedBy: 'post', orphanRemoval: true)]
+    private Collection $interactions;
+
+    public function __construct()
+    {
+        $this->interactions = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -105,6 +122,48 @@ class Post
     public function setUrl(string $url): static
     {
         $this->url = $url;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Interaction>
+     */
+    public function getInteractions(): Collection
+    {
+        return $this->interactions;
+    }
+
+    public function addInteraction(Interaction $interaction): static
+    {
+        if (!$this->interactions->contains($interaction)) {
+            $this->interactions->add($interaction);
+            $interaction->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInteraction(Interaction $interaction): static
+    {
+        if ($this->interactions->removeElement($interaction)) {
+            // set the owning side to null (unless already changed)
+            if ($interaction->getPost() === $this) {
+                $interaction->setPost(null);
+            }
+        }
 
         return $this;
     }

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -37,6 +39,24 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
+
+    /**
+     * @var Collection<int, Post>
+     */
+    #[ORM\OneToMany(targetEntity: Post::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $post;
+
+    /**
+     * @var Collection<int, Interaction>
+     */
+    #[ORM\OneToMany(targetEntity: Interaction::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $interactions;
+
+    public function __construct()
+    {
+        $this->post = new ArrayCollection();
+        $this->interactions = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -133,6 +153,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Post>
+     */
+    public function getPost(): Collection
+    {
+        return $this->post;
+    }
+
+    public function addPost(Post $post): static
+    {
+        if (!$this->post->contains($post)) {
+            $this->post->add($post);
+            $post->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePost(Post $post): static
+    {
+        if ($this->post->removeElement($post)) {
+            // set the owning side to null (unless already changed)
+            if ($post->getUser() === $this) {
+                $post->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Interaction>
+     */
+    public function getInteractions(): Collection
+    {
+        return $this->interactions;
+    }
+
+    public function addInteraction(Interaction $interaction): static
+    {
+        if (!$this->interactions->contains($interaction)) {
+            $this->interactions->add($interaction);
+            $interaction->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInteraction(Interaction $interaction): static
+    {
+        if ($this->interactions->removeElement($interaction)) {
+            // set the owning side to null (unless already changed)
+            if ($interaction->getUser() === $this) {
+                $interaction->setUser(null);
+            }
+        }
 
         return $this;
     }

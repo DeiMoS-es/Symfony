@@ -9,3 +9,9 @@
 - Hay una herramienta que se llama maker bundle, que nos permite crear entidades, controladores...con el comando "php bin/console make:entity".
 - Para crear la entidad usuario lanzamos el comando "php bin/console make:user"
 - Si queremos editar una entidad porque necesitamos añadir más atributos usamos el comando "php bin/console make:entity", introducimos en primer lugar el nombre de la entidad existente y añadimos los nuevos atributos.
+
+## Relaciones entre entidades
+- Primeramente editamos la entidad por ejemplo User con el comando "php bin/console make:user", le añadimos un nuevo campo, por ejemplo post, le decimos que va a ser de tipo OneToMany y que estará relacionada con la entidad Post.
+- El siguiente paso, pregunta que como quieres que se llame la relación dentro e Post y le decimos user y si puede ser nulo.
+- Por último nos pregunta que hago cuando no exista el usuario (se elimine) si elimina o no también los post.
+- Para pasar las entidades a la BBDD lo hacemos con el comando "php bin/console doctrine:schema:update --force"
