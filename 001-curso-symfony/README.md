@@ -6,5 +6,6 @@
 - Para crear una BBDD podemos ejecutar el comando "php/bin/console" y nos dará un listado de los comandos admitidos, si los exploramos podemos ver en la parte de Doctrine que existe uno que es "doctrine:database:create", eso lo que hará es ir al archivo .env y ver en la parte de BBDD cual es el nombre que le hemos dado previamente, el nombre de usuario y la contraseña y nos creará la BBDD
 
 # Crear entidades
-- Hay una herramienta que se llama maker bundle, que nos permite crear entidades, controladores...con el comando "php bin/console make:user"
+- Hay una herramienta que se llama maker bundle, que nos permite crear entidades, controladores...con el comando "php bin/console make:entity".
+- Para crear la entidad usuario lanzamos el comando "php bin/console make:user"
 - Si queremos editar una entidad porque necesitamos añadir más atributos usamos el comando "php bin/console make:entity", introducimos en primer lugar el nombre de la entidad existente y añadimos los nuevos atributos.
