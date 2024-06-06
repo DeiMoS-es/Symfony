@@ -1,0 +1,2 @@
+## Proyecto empezado
+- Si nos pasan un proyecto, o tenemos que clonar un proyecto, debemos ejecutar el comando "composer install" ya que este comando nos instalará todas las dependencias o bundles que necesita el proyecto para funcionar en el estado en el que se encuentra (se regenera la carpete vendor).
