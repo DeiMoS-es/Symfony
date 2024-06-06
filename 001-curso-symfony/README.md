@@ -14,4 +14,7 @@
 - Primeramente editamos la entidad por ejemplo User con el comando "php bin/console make:user", le añadimos un nuevo campo, por ejemplo post, le decimos que va a ser de tipo OneToMany y que estará relacionada con la entidad Post.
 - El siguiente paso, pregunta que como quieres que se llame la relación dentro e Post y le decimos user y si puede ser nulo.
 - Por último nos pregunta que hago cuando no exista el usuario (se elimine) si elimina o no también los post.
-- Para pasar las entidades a la BBDD lo hacemos con el comando "php bin/console doctrine:schema:update --force"
+- Para pasar las entidades a la BBDD lo hacemos con el comando "php bin/console doctrine:schema:update --force".
+
+## Para crear un Controlador
+- Lanzamos el comando "php bin/console make:controller" y además del controlador, se creará en templates una plantilla (vista) para ese controlador.
