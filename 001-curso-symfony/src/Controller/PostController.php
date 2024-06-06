@@ -1,18 +1,24 @@
 <?php
 
 namespace App\Controller;
-
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Entity\Post;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class PostController extends AbstractController
 {
-    #[Route('/post', name: 'app_post')]
-    public function index(): Response
-    {
+    private $em;
+    public function __construct(EntityManagerInterface $em){
+        $this->em = $em;
+    }
+
+    #[Route('/post/{id}', name: 'app_post')]
+    public function index($id): Response{
+        $posts = $this->em->getRepository(Post::class)->findAll();
         return $this->render('post/index.html.twig', [
-        'controller_name' => ['saludo' => 'Podemos pasarle valores al template', 'datos' => 'cualquier tipo de datos'],
+            'posts' => $posts
         ]);
     }
 }
