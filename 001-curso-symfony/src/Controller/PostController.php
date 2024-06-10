@@ -16,9 +16,10 @@ class PostController extends AbstractController
 
     #[Route('/post/{id}', name: 'app_post')]
     public function index($id): Response{
-        $posts = $this->em->getRepository(Post::class)->findAll();
+        $post = $this->em->getRepository(Post::class)->find($id); // método mágico de symfony
+        $custom_post = $this->em->getRepository(Post::class)->findPost($id);
         return $this->render('post/index.html.twig', [
-            'posts' => $posts
+            'post' => $custom_post
         ]);
     }
 }
