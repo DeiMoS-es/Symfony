@@ -41,3 +41,8 @@
             // ->getResult();
             ->getSingleResult();
     }
+
+## Formularios
+- Para crear un formulario lanzamos desde la terminal el comando 'php bin/console make:form'
+- A la hora de crear el formulario nos preguntará si quieremos relacionar dicho formulario con alguna entidad.
+- Podemos personalizar los campos del formulario siguiente la documentación (https://symfony.com/doc/current/reference/forms/types.html)

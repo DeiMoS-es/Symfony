@@ -3,7 +3,9 @@
 namespace App\Controller;
 use App\Entity\Post;
 use App\Entity\User;
+use App\Form\PostType;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,40 +18,57 @@ class PostController extends AbstractController
         $this->em = $em;
     }
 
-    #[Route('/post/{id}', name: 'app_post')]
-    public function index($id): Response{
-        $post = $this->em->getRepository(Post::class)->find($id); // método mágico de symfony
-        $custom_post = $this->em->getRepository(Post::class)->findPost($id);
+    #[Route('/', name: 'app_post')]
+    public function index(Request $request): Response{
+        $post = new Post();
+        $form = $this->createForm(PostType::class, $post); //relacionamos el formulario con la entidad, y si no existe lo crea
+        $form->handleRequest($request); //obtenemos la petición del formulario
+        if($form->isSubmitted() && $form->isValid()){
+            $user = $this->em->getRepository(User::class)->find(1);
+            $post->setUser($user);
+            $this->em->persist($post);
+            $this->em->flush();
+            return $this->redirectToRoute('app_post');
+        }
         return $this->render('post/index.html.twig', [
-            'post' => $custom_post
+            'form' => $form->createView()
         ]);
     }
 
-    #[Route('/insert/post', name: 'insert_post')]
-    public function insert(){
-        $post = new Post('Post insertado 2', 'opinion', 'Descripción del post insertado', 'file', 'miUrl', new \DateTime());
-        $user = $this->em->getRepository(User::class)->find(1);
-        $post->setUser($user);
-        // Una vez creado el constructor para el post, no hace falta hacer set de cada propiedad, podemos pasarle los valores directamente al crear el post
-        // $post->setTittle('Post insertado')->setDescription('Descripción del post insertado')->setCreationDate(new \DateTime())->setUrl('miUrl')->setFile('file')->setType('opinion')->setUser($user);
-        $this->em->persist($post);
-        $this->em->flush();// se encarga deescribir en la bbdd
-        return new JsonResponse(['success' => true]);
-    }
+    // #[Route('/post/{id}', name: 'app_post')]
+    // public function index($id): Response{
+    //     $post = $this->em->getRepository(Post::class)->find($id); // método mágico de symfony
+    //     $custom_post = $this->em->getRepository(Post::class)->findPost($id);
+    //     return $this->render('post/index.html.twig', [
+    //         'post' => $custom_post
+    //     ]);
+    // }
 
-    #[Route('/update/post', name: 'insert_post')]
-    public function update(){
-        $post = $this->em->getRepository(Post::class)->find(4);
-        $post->setTittle('Mi nuevo titulo');
-        $this->em->flush();// se encarga deescribir en la bbdd
-        return new JsonResponse(['success' => true]);
-    }
+    // #[Route('/insert/post', name: 'insert_post')]
+    // public function insert(){
+    //     $post = new Post('Post insertado 2', 'opinion', 'Descripción del post insertado', 'file', 'miUrl', new \DateTime());
+    //     $user = $this->em->getRepository(User::class)->find(1);
+    //     $post->setUser($user);
+    //     // Una vez creado el constructor para el post, no hace falta hacer set de cada propiedad, podemos pasarle los valores directamente al crear el post
+    //     // $post->setTittle('Post insertado')->setDescription('Descripción del post insertado')->setCreationDate(new \DateTime())->setUrl('miUrl')->setFile('file')->setType('opinion')->setUser($user);
+    //     $this->em->persist($post);
+    //     $this->em->flush();// se encarga deescribir en la bbdd
+    //     return new JsonResponse(['success' => true]);
+    // }
 
-    #[Route('/delete/post', name: 'insert_post')]
-    public function delete(){
-        $post = $this->em->getRepository(Post::class)->find(4);
-        $this->em->remove($post);
-        $this->em->flush();// se encarga deescribir en la bbdd
-        return new JsonResponse(['success' => true]);
-    }
+    // #[Route('/update/post', name: 'insert_post')]
+    // public function update(){
+    //     $post = $this->em->getRepository(Post::class)->find(4);
+    //     $post->setTittle('Mi nuevo titulo');
+    //     $this->em->flush();// se encarga deescribir en la bbdd
+    //     return new JsonResponse(['success' => true]);
+    // }
+
+    // #[Route('/delete/post', name: 'insert_post')]
+    // public function delete(){
+    //     $post = $this->em->getRepository(Post::class)->find(4);
+    //     $this->em->remove($post);
+    //     $this->em->flush();// se encarga deescribir en la bbdd
+    //     return new JsonResponse(['success' => true]);
+    // }
 }

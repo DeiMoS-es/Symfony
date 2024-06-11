@@ -12,6 +12,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 class Post
 {
+    const TYPES = ['Opinion' => 'opinion', 'Noticia' => 'noticia', 'Tutorial' => 'tutorial',];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
