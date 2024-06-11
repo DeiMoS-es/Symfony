@@ -18,3 +18,26 @@
 
 ## Para crear un Controlador
 - Lanzamos el comando "php bin/console make:controller" y además del controlador, se creará en templates una plantilla (vista) para ese controlador.
+
+## Métodos mágicos de Symfony
+- Symfony posee unos métodos que se denominan mágicos, para consultas a una base de datos por ejemplo.
+- Para hacer uso de ellos podemos directamente en el controlador: creando una variable privada con nombre por ejemplo $em (de Entity Manager ya que será la clase a usar) habría que importar dicha clase de 'use Doctrine\ORM\EntityManagerInterface;' y creando un constructor:
+- Ej: 'public function __construc(EntityManagerInterface $em){
+            $this->em = $em;
+        }'
+- Y por último en un método para buscar un post podemos hacer: $post = $this->em->getRepository(Post::class)->find($id); Para realizar la búsqueda de un Post.
+
+## Repositorios
+- Si no deseamos usar los métodos mágicos, podemos usar el repositorio para crear nuestros métodos personalizados usando Doctrine Query Languaje.
+- Nuestro método para buscar un Post por su id sería por ejemplo:  
+- public function findPost($id){
+        return $this->getEntityManager()
+            ->createQuery(
+                'SELECT post.id, post.tittle, post.type
+                FROM App\Entity\Post post
+                WHERE post.id = :id'
+            )
+            ->setParameter('id', $id)
+            // ->getResult();
+            ->getSingleResult();
+    }
