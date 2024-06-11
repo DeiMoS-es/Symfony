@@ -36,4 +36,20 @@ class PostController extends AbstractController
         $this->em->flush();// se encarga deescribir en la bbdd
         return new JsonResponse(['success' => true]);
     }
+
+    #[Route('/update/post', name: 'insert_post')]
+    public function update(){
+        $post = $this->em->getRepository(Post::class)->find(4);
+        $post->setTittle('Mi nuevo titulo');
+        $this->em->flush();// se encarga deescribir en la bbdd
+        return new JsonResponse(['success' => true]);
+    }
+
+    #[Route('/delete/post', name: 'insert_post')]
+    public function delete(){
+        $post = $this->em->getRepository(Post::class)->find(4);
+        $this->em->remove($post);
+        $this->em->flush();// se encarga deescribir en la bbdd
+        return new JsonResponse(['success' => true]);
+    }
 }
