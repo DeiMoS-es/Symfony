@@ -2,11 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\PostRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use DateTime;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\PostRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 class Post
@@ -44,8 +45,14 @@ class Post
     #[ORM\OneToMany(targetEntity: Interaction::class, mappedBy: 'post', orphanRemoval: true)]
     private Collection $interactions;
 
-    public function __construct()
+    public function __construct($tittle = null, $type = null, $description = null, $file = null, $url = null)
     {
+        $this->tittle = $tittle;
+        $this->type = $type;
+        $this->description = $description;
+        $this->file = $file;
+        $this->url = $url;
+        $this->creation_date = new DateTime();
         $this->interactions = new ArrayCollection();
     }
 
