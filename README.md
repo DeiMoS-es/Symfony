@@ -15,3 +15,10 @@
 - Una vez instalado composer, vamos a la carpeta de nuestro servidor apache, en mi caso uso Xamp, así que en la carpeta htcdocs, abrimos una terminal y escribimos "composer create-project symfony/website-skeleton nombreCarpetaProyecto".
 - Una vez instalado todo, necesitamos instalar el componente del servidor apache para poder ejecutar el proyecto, asi que usamos el comando dentro de la carpeta del proyecto "composer require symfony/apache-pack".
 - Para comprobar que está todo correcto entramos en mi caso: "http://localhost/WsSymfony/curso-symfony/public/"  y deberíamos de ver la versión de symfony y algunos datos más.
+
+## Crear un proyecto:
+### Primeros - Pasos:
+- Si estás construyendo un aplicación web tradicional: symfony new --webapp my_project
+- Si estás construyendo un microservicio, aplicación de consola o API: symfony new my_project
+- Una vez creado el proyecto levantamos el servidor con el comando: symfony server:start
+- Una vez levantado accedemos en el navegador a la url: http://127.0.0.1:8000/
