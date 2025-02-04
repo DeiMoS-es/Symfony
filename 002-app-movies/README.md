@@ -23,3 +23,9 @@
     ```sh
     php bin/console doctrine:database:create
     ```
+    
+- Instalar HttpClient
+    ```sh
+    composer require symfony/http-client
+    ```
+  
