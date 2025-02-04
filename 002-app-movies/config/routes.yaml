@@ -1,5 +1,11 @@
-controllers:
-    resource:
-        path: ../src/Controller/
-        namespace: App\Controller
+tmdb_controllers:
+    resource: '../src/Tmdb/Controller/'
+    type: attribute
+
+movie_controllers:
+    resource: '../src/Movie/Controller/'
+    type: attribute
+
+user_controllers:
+    resource: '../src/User/Controller/'
     type: attribute
