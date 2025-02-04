@@ -1,9 +1,8 @@
 <?php
-namespace App\Tmbd\Service;
+// src/Tmdb/Service/TmdbService.php
+namespace App\Tmdb\Service;
 
-interface TmdbService{
-    
+interface TmdbService
+{
     public function fetchMovieFromTMDB();
-    public function getMovie(int $id);
 }
-?>
