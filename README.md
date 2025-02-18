@@ -18,7 +18,20 @@
 
 ## Crear un proyecto:
 ### Primeros - Pasos:
-- Si estás construyendo un aplicación web tradicional: symfony new --webapp my_project
-- Si estás construyendo un microservicio, aplicación de consola o API: symfony new my_project
-- Una vez creado el proyecto levantamos el servidor con el comando: symfony server:start
+- Si estás construyendo un aplicación web tradicional: 
+    ```sh
+    symfony new --webapp my_project
+    ```
+- Si estás construyendo un microservicio, aplicación de consola o API: 
+    ```sh
+    symfony new my_project
+    ```
+- Si hemos clonado un proyecto existente, antes de levantar el servidor conviene asegurarnos de tener todas las dependencias instaladas con el comando: 
+    ```sh
+    composer install
+    ```
+- Una vez creado el proyecto levantamos el servidor con el comando:
+    ```sh
+     symfony server:start
+    ```
 - Una vez levantado accedemos en el navegador a la url: http://127.0.0.1:8000/
