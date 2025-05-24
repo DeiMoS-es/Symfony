@@ -20,7 +20,7 @@ class Movie
     #[ORM\Column(length: 255)]
     private ?string $title_original = null;
 
-    #[ORM\Column(type: Types::ARRAY)]
+    #[ORM\Column(type: Types::JSON)]
     private array $genre_ids = [];
 
     #[ORM\Column(length: 255)]
@@ -106,12 +106,12 @@ class Movie
         return $this;
     }
 
-    public function getReleaseDate(): ?\DateTime
+    public function getReleaseDate(): ?\DateTimeInterface
     {
         return $this->release_date;
     }
 
-    public function setReleaseDate(\DateTime $release_date): static
+    public function setReleaseDate(\DateTimeInterface  $release_date): static
     {
         $this->release_date = $release_date;
 
