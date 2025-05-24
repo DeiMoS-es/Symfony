@@ -2,7 +2,7 @@
 
 namespace App\Movies\Entity;
 
-use App\Repository\MovieRepository;
+use App\Movies\Repository\MovieRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 

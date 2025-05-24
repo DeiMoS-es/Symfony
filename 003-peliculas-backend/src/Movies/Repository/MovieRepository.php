@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Repository;
+namespace App\Movies\Repository;
 
-use App\Entity\Movie;
+use App\Movies\Entity\Movie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
