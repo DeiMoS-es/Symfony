@@ -27,8 +27,9 @@ final class MovieController extends AbstractController
         }
 
         $json = $serializer->serialize($movie, 'json', ['groups' => 'movie:read']);
+        
 
-        return new JsonResponse($json, 200, [], true);
+        return $this->json($movie, 200);
     }
 
 }
