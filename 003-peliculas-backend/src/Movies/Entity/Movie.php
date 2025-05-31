@@ -3,6 +3,8 @@
 namespace App\Movies\Entity;
 
 use App\Movies\Repository\MovieRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -21,8 +23,9 @@ class Movie
     #[ORM\Column(length: 255)]
     private ?string $title_original = null;
 
-    #[ORM\Column(type: Types::JSON)]
-    private array $genre_ids = [];
+    #[ORM\ManyToMany(targetEntity: Genre::class, cascade: ['persist'])]
+    #[ORM\JoinTable(name: 'movie_genre')]
+    private Collection $genres;
 
     #[ORM\Column(length: 255)]
     private ?string $overview = null;
@@ -56,6 +59,12 @@ class Movie
 
     #[ORM\Column(type: 'boolean')]
     private ?bool $status = true;
+
+    public function __construct()
+    {
+        $this->genres = new ArrayCollection();
+    }
+
 
     public function isStatus(): ?bool
     {
@@ -99,17 +108,27 @@ class Movie
         return $this;
     }
 
-    public function getGenreIds(): array
+    public function getGenres(): Collection
     {
-        return $this->genre_ids;
+        return $this->genres;
     }
 
-    public function setGenreIds(array $genre_ids): static
+    public function addGenre(Genre $genre): static
     {
-        $this->genre_ids = $genre_ids;
+        if (!$this->genres->contains($genre)) {
+            $this->genres->add($genre);
+        }
 
         return $this;
     }
+
+    public function removeGenre(Genre $genre): static
+    {
+        $this->genres->removeElement($genre);
+
+        return $this;
+    }
+
 
     public function getOverview(): ?string
     {
