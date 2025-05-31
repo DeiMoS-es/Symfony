@@ -22,5 +22,29 @@ class MovieService
     {
         return $this->movieRepository->findAll();
     }
+
+     /**
+     * Devuelve todas las películas activas.
+     */
+    public function getAllActiveMovies(): array
+    {
+        return $this->movieRepository->findBy(['status' => true]);
+    }
+
+    /**
+     * Devuelve las más populares.
+     */
+    public function getTopPopularMovies(int $limit = 10): array
+    {
+        return $this->movieRepository->findMostPopular($limit);
+    }
+
+    /**
+     * Buscar películas por título.
+     */
+    public function searchByTitle(string $term): array
+    {
+        return $this->movieRepository->findByTitle($term);
+    }
 }
 ?>

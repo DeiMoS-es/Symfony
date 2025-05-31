@@ -16,28 +16,27 @@ class MovieRepository extends ServiceEntityRepository
         parent::__construct($registry, Movie::class);
     }
 
-    //    /**
-    //     * @return Movie[] Returns an array of Movie objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('m.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Encuentra las películas más populares.
+     */
+    public function findMostPopular(int $limit = 10): array{
 
-    //    public function findOneBySomeField($value): ?Movie
-    //    {
-    //        return $this->createQueryBuilder('m')
-    //            ->andWhere('m.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        return $this->createQueryBuilder('m')
+        -> orderBy('m.popularity', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+    /**
+     * Encuentra película por el título
+     */
+    public function findByTitle(string $title): array{
+
+        return $this->createQueryBuilder('m')
+        ->where('m.title_movie LIKE :title')
+            ->setParameter('title', '%' . $title . '%')
+            ->orderBy('m-release_date', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

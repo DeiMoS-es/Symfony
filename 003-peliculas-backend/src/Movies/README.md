@@ -72,4 +72,43 @@ class MovieController extends AbstractController
         return $this->render('movie/index.html.twig');
     }
 }
+```
 
+## 🎯 Repositorio vs Servicio en Symfony
+
+En nuestra arquitectura, es importante distinguir bien los **responsables** de cada capa:
+
+| Capa             | Qué hace                                                                 | Ejemplos de métodos                   |
+|------------------|--------------------------------------------------------------------------|---------------------------------------|
+| **Repositorio**  | Accede directamente a la base de datos mediante Doctrine.                | `findByTitle()`, `findMostPopular()`  |
+| **Servicio**     | Aplica lógica de negocio, transforma datos o coordina múltiples tareas.  | `searchByTitle()`, `getActiveMovies()`|
+
+
+### 🧩 Ejemplo de método en el Repositorio
+
+El repositorio se encarga de construir y ejecutar consultas a la base de datos:
+
+```php
+// src/Movies/Repository/MovieRepository.php
+
+public function findByTitle(string $title): array
+{
+    return $this->createQueryBuilder('m')
+        ->where('m.title_movie LIKE :title')
+        ->setParameter('title', '%' . $title . '%')
+        ->orderBy('m.release_date', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
+```
+### 🧩 Ejemplo de método en el Repositorio
+```php
+// src/Movies/Service/MovieService.php
+public function searchByTitle(string $title): array
+{
+    return $this->movieRepository->findByTitle($title);
+}
+```
+### 🧩 Resumen
+- **Repositorio**: Interactúa directamente con la base de datos, ejecuta consultas y devuelve resultados.“¿Cómo obtengo los datos?”
+- **Servicio**: Contiene la lógica de negocio, utiliza repositorios para obtener datos y puede realizar transformaciones o cálculos adicionales.“¿Qué hago con los datos?”
