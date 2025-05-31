@@ -38,3 +38,37 @@ Este módulo es responsable de gestionar las películas dentro de la aplicación
    symfony console make:migration
    symfony console doctrine:migrations:migrate
    ```
+
+---
+
+## 🖥️ Controladores en Symfony
+
+### 📌 ¿Qué es un controlador?
+En Symfony, un **controlador** es una clase que gestiona las solicitudes HTTP y devuelve respuestas. Es el puente entre las peticiones del usuario y la lógica de la aplicación.
+
+### ⚡ ¿Cómo funciona?
+1. **Recibe una solicitud HTTP**  
+   Cuando un usuario accede a una URL, Symfony busca el controlador asociado y ejecuta el método correspondiente.
+
+2. **Procesa la lógica de negocio**  
+   Puede llamar a servicios, consultar la base de datos, realizar validaciones, entre otras acciones.
+
+3. **Devuelve una respuesta**  
+   El controlador genera una respuesta en formato HTML, JSON, o cualquier otro tipo de contenido.
+
+### 🏗 Ejemplo de un controlador `MovieController`
+```php
+namespace App\Movies\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+class MovieController extends AbstractController
+{
+    #[Route('/', name: 'app_movie_index', methods: ['GET'])]
+    public function index(): Response
+    {
+        return $this->render('movie/index.html.twig');
+    }
+}
