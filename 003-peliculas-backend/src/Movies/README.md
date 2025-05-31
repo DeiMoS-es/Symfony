@@ -26,3 +26,15 @@ Este módulo es responsable de gestionar las películas dentro de la aplicación
    symfony console make:migration
    symfony console doctrine:migrations:migrate
    ```
+
+## Si queremos modificar la entidad `Movies/`
+1️⃣ **Añadimos el nuevo campo**
+   - En este caso se añade el campo $status, los correspondientes getters y setters, y se actualiza la migración.
+   ```php
+   #[ORM\Column(type: 'boolean')]
+    private ?bool $status = true;
+   ```
+   ```bash
+   symfony console make:migration
+   symfony console doctrine:migrations:migrate
+   ```

@@ -13,7 +13,7 @@ class Movie
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
+    private int $id;
 
     #[ORM\Column(length: 255)]
     private ?string $title_movie = null;
@@ -53,6 +53,22 @@ class Movie
 
     #[ORM\Column]
     private ?bool $adult = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private ?bool $status = true;
+
+    public function isStatus(): ?bool
+    {
+        return $this->status;
+    }
+
+    public function setStatus(bool $status): static
+    {
+        $this->status = $status;
+
+        return $this;
+    }
+
 
     public function getId(): ?int
     {
