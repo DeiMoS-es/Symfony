@@ -23,7 +23,7 @@ final class MovieController extends AbstractController
     #[Route('/', name: 'app_movie_index', methods: ['GET'])]
     public function index(MovieRepository $movieRepository): Response
     {
-        
+
         return $this->render('movie/index.html.twig', [
             'movies' => $movieRepository->findAll(),
             'controller_name' => 'MovieController',
@@ -31,19 +31,15 @@ final class MovieController extends AbstractController
     }
 
     #[Route('/movies/{id}', name: 'get_movie', methods: ['GET'])]
-    public function getMovie(int $id, MovieRepository $movieRepository, SerializerInterface $serializer): JsonResponse
+    public function getMovie(int $id, SerializerInterface $serializer): JsonResponse
     {
-        $movie = $movieRepository->find($id);
+        $movie = $this->movieService->getMovieById($id);
 
-        // Manejo del caso en que la película no exista
         if (!$movie) {
-            return new JsonResponse(
-                ['error' => 'Película no encontrada'],
-                Response::HTTP_NOT_FOUND
-            );
+            return new JsonResponse(['error' => 'Película no encontrada'], Response::HTTP_NOT_FOUND);
         }
 
-        $movies = $serializer->serialize($movie, 'json', ['groups' => 'movie:read']);
-        return new JsonResponse($movies, Response::HTTP_OK, [], true);
+        $json = $serializer->serialize($movie, 'json', ['groups' => 'movie:read']);
+        return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 }
