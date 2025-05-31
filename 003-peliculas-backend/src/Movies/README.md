@@ -72,3 +72,4 @@ class MovieController extends AbstractController
         return $this->render('movie/index.html.twig');
     }
 }
+

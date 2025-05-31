@@ -17,4 +17,36 @@
         <li>Your template at <code>/home/deimos/sites/Symfony/003-peliculas-backend/templates/movie/index.html.twig</code></li>
     </ul>
 </div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Título</th>
+            <th>Título original</th>
+            <th>Fecha de lanzamiento</th>
+            <th>Popularidad</th>
+            <th>Media de votos</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for movie in movies %}
+            <tr>
+                <td>{{ movie.id }}</td>
+                <td>{{ movie.titleMovie }}</td>
+                <td>{{ movie.titleOriginal }}</td>
+                <td>{{ movie.releaseDate ? movie.releaseDate|date('d-m-Y') : 'No disponible' }}</td>
+                <td>{{ movie.popularity }}</td>
+                <td>{{ movie.voteAverage }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">No hay películas disponibles.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+
 {% endblock %}
