@@ -5,58 +5,73 @@ namespace App\Movies\Entity;
 use App\Movies\Repository\MovieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
 #[ORM\Table(name: "movie")]
 class Movie
 {
+    #[Groups("movie:read")]
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private int $id;
 
+    #[Groups("movie:read")]
     #[ORM\Column(length: 255)]
     private ?string $title_movie = null;
 
+    #[Groups("movie:read")]
     #[ORM\Column(length: 255)]
     private ?string $title_original = null;
 
+    #[Groups("movie:read")]
     #[ORM\ManyToMany(targetEntity: Genre::class, cascade: ['persist'])]
     #[ORM\JoinTable(name: 'movie_genre')]
     private Collection $genres;
 
+    #[Groups("movie:read")]
     #[ORM\Column(length: 255)]
     private ?string $overview = null;
 
+    #[Groups("movie:read")]
     #[ORM\Column]
     private ?\DateTime $release_date = null;
 
+    #[Groups("movie:read")]
     #[ORM\Column]
     private ?float $vote_average = null;
 
+    #[Groups("movie:read")]
     #[ORM\Column(nullable: true)]
     private ?int $vote_count = null;
 
+    #[Groups("movie:read")]
     #[ORM\Column(nullable: true)]
     private ?float $popularity = null;
 
+    #[Groups("movie:read")]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $original_languaje = null;
 
+    #[Groups("movie:read")]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $poster_path = null;
 
+    #[Groups("movie:read")]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $backdrop_path = null;
 
+    #[Groups("movie:read")]
     #[ORM\Column]
     private ?bool $video = null;
 
+    #[Groups("movie:read")]
     #[ORM\Column]
     private ?bool $adult = null;
 
+    #[Groups("movie:read")]
     #[ORM\Column(type: 'boolean')]
     private ?bool $status = true;
 

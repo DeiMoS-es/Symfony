@@ -112,3 +112,15 @@ public function searchByTitle(string $title): array
 ### 🧩 Resumen
 - **Repositorio**: Interactúa directamente con la base de datos, ejecuta consultas y devuelve resultados.“¿Cómo obtengo los datos?”
 - **Servicio**: Contiene la lógica de negocio, utiliza repositorios para obtener datos y puede realizar transformaciones o cálculos adicionales.“¿Qué hago con los datos?”
+
+
+## 🎬 Serialización de relaciones ManyToMany en Symfony
+
+Cuando serializamos una entidad con relaciones (por ejemplo, `Movie` con `Genre`), es necesario definir grupos de serialización para incluir correctamente los datos anidados en el JSON.
+
+### ✅ Problema
+
+El endpoint `/movies/{id}` devolvía un array de géneros vacío:
+
+```json
+"genres": [[], []]

@@ -39,4 +39,14 @@ class MovieRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findAllWithGenres(): array
+{
+    return $this->createQueryBuilder('m')
+        ->leftJoin('m.genres', 'g')
+        ->addSelect('g') // Carga los géneros en la misma consulta
+        ->getQuery()
+        ->getResult();
+}
+
 }
