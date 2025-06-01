@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: symfony-app
+    env: php
+    buildCommand: |
+      apt-get update
+      apt-get install -y unzip
+      composer install --no-dev --optimize-autoloader
+    startCommand: php -S 0.0.0.0:10000 -t public
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: prod
