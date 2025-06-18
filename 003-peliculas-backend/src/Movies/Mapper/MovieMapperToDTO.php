@@ -20,7 +20,7 @@ class MovieMapperToDTO
         $dto->title_original = $movie->getTitleOriginal();
         $dto->overview = $movie->getOverview();
         $dto->release_date = $movie->getReleaseDate()->format('d/m/Y');
-        $dto->vote_average = $movie->getVoteAverage();
+        $dto->vote_average = round($movie->getVoteAverage(), 1);
         $dto->vote_count = $movie->getVoteCount();
         $dto->popularity = $movie->getPopularity();
         $dto->original_languaje = $movie->getOriginalLanguaje();

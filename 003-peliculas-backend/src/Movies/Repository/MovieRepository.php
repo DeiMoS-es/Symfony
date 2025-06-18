@@ -19,10 +19,11 @@ class MovieRepository extends ServiceEntityRepository
     /**
      * Encuentra las películas más populares.
      */
-    public function findMostPopular(int $limit = 10): array{
+    public function findMostPopular(int $limit = 10): array
+    {
 
         return $this->createQueryBuilder('m')
-        -> orderBy('m.popularity', 'DESC')
+            ->orderBy('m.popularity', 'DESC')
             ->setMaxResults($limit)
             ->getQuery()
             ->getResult();
@@ -30,10 +31,11 @@ class MovieRepository extends ServiceEntityRepository
     /**
      * Encuentra película por el título
      */
-    public function findByTitle(string $title): array{
+    public function findByTitle(string $title): array
+    {
 
         return $this->createQueryBuilder('m')
-        ->where('m.title_movie LIKE :title')
+            ->where('m.title_movie LIKE :title')
             ->setParameter('title', '%' . $title . '%')
             ->orderBy('m-release_date', 'DESC')
             ->getQuery()
@@ -41,12 +43,19 @@ class MovieRepository extends ServiceEntityRepository
     }
 
     public function findAllWithGenres(): array
-{
-    return $this->createQueryBuilder('m')
-        ->leftJoin('m.genres', 'g')
-        ->addSelect('g') // Carga los géneros en la misma consulta
-        ->getQuery()
-        ->getResult();
-}
-
+    {
+        return $this->createQueryBuilder('m')
+            ->leftJoin('m.genres', 'g')
+            ->addSelect('g') // Carga los géneros en la misma consulta
+            ->getQuery()
+            ->getResult();
+    }
+    public function save(Movie $movie, bool $flush = false): void
+    {
+        $em = $this->getEntityManager(); // Usa el método correcto
+        $em->persist($movie);
+        if ($flush) {
+            $em->flush();
+        }
+    }
 }

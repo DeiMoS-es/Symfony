@@ -9,7 +9,7 @@ use App\Movies\Mapper\MovieMapperToDTO;
 use App\Movies\Repository\MovieRepository;
 use App\Movies\Service\MovieService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\BrowserKit\Request;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -22,14 +22,15 @@ final class MovieController extends AbstractController
     private MovieService $movieService;
     private MovieMapperFromDTO $movieMapperFromDTO;
     private MovieMapperToDTO $movieMapperToDTO;
+    private ValidatorInterface $validator;
 
 
-    public function __construct(MovieService $movieService, MovieMapperFromDTO $movieMapperFromDTO, MovieMapperToDTO $movieMapperToDTO)
+    public function __construct(MovieService $movieService, MovieMapperFromDTO $movieMapperFromDTO, MovieMapperToDTO $movieMapperToDTO, ValidatorInterface $validator)
     {
         $this->movieService = $movieService;
         $this->movieMapperFromDTO = $movieMapperFromDTO;
         $this->movieMapperToDTO = $movieMapperToDTO;
-
+        $this->validator = $validator;
     }
     // ruta para obtener todas las películas
     #[Route('/', name: 'app_movie_index', methods: ['GET'])]
@@ -51,32 +52,26 @@ final class MovieController extends AbstractController
         if (!$movie) {
             return new JsonResponse(['error' => 'Película no encontrada'], Response::HTTP_NOT_FOUND);
         }
-        
+
         $json = $serializer->serialize($movie, 'json', ['groups' => 'movie:read']);
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
     // ruta para crear una nueva película
     #[Route('/create', name: 'create_movie', methods: ['POST'])]
-    public function createMovie(Request $request, SerializerInterface $serializer, ValidatorInterface $validator): JsonResponse
+    public function createMovie(Request $request, SerializerInterface $serializer): JsonResponse
     {
-       $inputDto = $serializer->deserialize($request->getContent(), MovieInputDto::class, 'json');
-       $errors = $validator->validate($inputDto);
-       if(count($errors) > 0) {
-        return new JsonResponse([
-            'error' => 'Datos inválidos',
-            'details' => (string) $errors
-        ], Response::HTTP_BAD_REQUEST);
-       }
-       // Convierte DTO → entidad
-       $movie = $this->movieMapperFromDTO->fromDto($inputDto);
-       // Guarda la entidad
-       $this->movieService->createMovie($movie);
-       // Convierte entidad en -> Output DTO
-         $outputDto = $this->movieMapperToDTO->toDto($movie);
-         // Serializa el Output DTO a JSON
-         $json = $serializer->serialize($outputDto, 'json', ['groups' => 'movie:read']);
+        $inputDto = $serializer->deserialize($request->getContent(), MovieInputDto::class, 'json');
+        $errors = $this->validator->validate(($inputDto));
 
-        return new JsonResponse($json, Response::HTTP_CREATED, [], true);
+        if (count($errors) > 0) {
+            return new JsonResponse(['error' => 'Datos inválidos', 'details' => (string) $errors], Response::HTTP_BAD_REQUEST);
+        }
+
+        // 🛠️ Delegar toda la lógica al servicio
+        $outputDto = $this->movieService->createMovieFromDto($inputDto);
+
+        // Serializar y responder
+        return new JsonResponse($serializer->serialize($outputDto, 'json'), Response::HTTP_CREATED, [], true);
     }
 }
