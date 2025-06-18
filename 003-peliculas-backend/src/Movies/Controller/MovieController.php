@@ -57,6 +57,18 @@ final class MovieController extends AbstractController
         return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
+    //ruta para obtener una película por su nombre
+    #[Route('/search/{title}', name: 'search_movie', methods: ['GET'])]
+    public function searchMovie(string $title, SerializerInterface $serializer): JsonResponse{
+        $movie = $this->movieService->searchMovieByTitle($title);
+        if(empty($movie)){
+            return new JsonResponse(['error' => $title.' no encontrada'], Response::HTTP_NOT_FOUND);
+        }
+        $json = $serializer->serialize(($movie), 'json', ['groups' => 'movie:read']);
+
+        return new JsonResponse(($json), Response::HTTP_OK , [], true);
+    }
+
     // ruta para crear una nueva película
     #[Route('/create', name: 'create_movie', methods: ['POST'])]
     public function createMovie(Request $request, SerializerInterface $serializer): JsonResponse

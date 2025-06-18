@@ -51,7 +51,7 @@ class MovieService
     /**
      * Buscar películas por título.
      */
-    public function searchByTitle(string $term): array
+    public function searchMovieByTitle(string $term): array
     {
         return $this->movieRepository->findByTitle($term);
     }
