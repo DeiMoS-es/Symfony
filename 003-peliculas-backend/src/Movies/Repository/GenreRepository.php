@@ -40,4 +40,17 @@ class GenreRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    public function save(Genre $genre, bool $flush = false): void
+    {
+        $em = $this->getEntityManager();
+        $em->persist($genre);
+
+        if ($flush) {
+            $em->flush();
+        }
+    }
+    public function flush(): void
+    {
+        $this->getEntityManager()->flush();
+    }
 }

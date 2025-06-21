@@ -32,7 +32,7 @@ class Movie
     private Collection $genres;
 
     #[Groups("movie:read")]
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: 'text')]
     private ?string $overview = null;
 
     #[Groups("movie:read")]

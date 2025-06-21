@@ -15,6 +15,9 @@ class Genre
     #[Groups(['movie:read'])]
     private ?int $id = null;
 
+    #[ORM\Column(type: 'integer', unique: true)]
+    private ?int $tmdbId = null;
+
     #[ORM\Column(length: 255)]
     #[Groups(['movie:read'])]
     private ?string $name = null;
@@ -22,6 +25,18 @@ class Genre
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getTmdbId(): ?int
+    {
+        return $this->tmdbId;
+    }
+
+    public function setTmdbId(int $tmdbId): static
+    {
+        $this->tmdbId = $tmdbId;
+
+        return $this;
     }
 
     public function getName(): ?string
@@ -36,3 +51,4 @@ class Genre
         return $this;
     }
 }
+
