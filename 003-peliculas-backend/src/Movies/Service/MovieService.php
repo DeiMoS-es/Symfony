@@ -2,12 +2,12 @@
 
 namespace App\Movies\Service;
 
-use App\Movies\Dto\MovieInputDto;
+use App\Movies\Entity\MovieInputDto;
+use App\Movies\Entity\MovieOutputDto;
 use App\Movies\Repository\MovieRepository;
 use App\Movies\Entity\Movie;
 use App\Movies\Mapper\MovieMapperFromDTO;
 use App\Movies\Mapper\MovieMapperToDTO;
-use App\Movies\Dto\MovieOutputDto;
 
 class MovieService
 {

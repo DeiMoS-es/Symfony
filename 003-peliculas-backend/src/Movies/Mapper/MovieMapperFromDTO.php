@@ -2,7 +2,7 @@
 // src/Movies/Mapper/MovieMapper.php
 namespace App\Movies\Mapper;
 
-use App\Movies\Dto\MovieInputDto;
+use App\Movies\Entity\MovieInputDto;
 use App\Movies\Entity\Movie;
 use App\Movies\Repository\GenreRepository;
 

@@ -3,7 +3,7 @@
 namespace App\Movies\Controller;
 
 
-use App\Movies\Dto\MovieInputDto;
+use App\Movies\Entity\MovieInputDto;
 use App\Movies\Mapper\MovieMapperFromDTO;
 use App\Movies\Mapper\MovieMapperToDTO;
 use App\Movies\Repository\MovieRepository;
@@ -73,7 +73,7 @@ final class MovieController extends AbstractController
     #[Route('/create', name: 'create_movie', methods: ['POST'])]
     public function createMovie(Request $request, SerializerInterface $serializer): JsonResponse
     {
-        $inputDto = $serializer->deserialize($request->getContent(), MovieInputDto::class, 'json');
+        $inputDto = $serializer->deserialize($request->getContent(), MovieInputDTO::class, 'json');
         $errors = $this->validator->validate(($inputDto));
 
         if (count($errors) > 0) {
@@ -86,4 +86,6 @@ final class MovieController extends AbstractController
         // Serializar y responder
         return new JsonResponse($serializer->serialize($outputDto, 'json'), Response::HTTP_CREATED, [], true);
     }
+
+  
 }

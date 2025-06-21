@@ -3,7 +3,7 @@
 namespace App\Movies\Mapper;
 
 
-use App\Movies\Dto\MovieOutputDto;
+use App\Movies\Entity\MovieOutputDto;
 use App\Movies\Entity\Genre;
 use App\Movies\Entity\Movie;
 use App\Movies\Repository\GenreRepository;
