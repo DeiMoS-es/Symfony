@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  symfony:
+    build: .
+    ports:
+      - "8080:80"
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+      - ./apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
+    environment:
+      DATABASE_URL: "mysql://uzvfure5wlfktzc2:CphBsMVxuRKQUevyWbkP@b60iositjqcste4mia4e-mysql.services.clever-cloud.com:3306/b60iositjqcste4mia4e"
+    working_dir: /var/www/html
+    command: >
+      bash -c "composer install &&
+               apache2-foreground"
