@@ -87,5 +87,14 @@ final class MovieController extends AbstractController
         return new JsonResponse($serializer->serialize($outputDto, 'json'), Response::HTTP_CREATED, [], true);
     }
 
-  
+    //ruta para "eliminar" una película
+      #[Route('/delete/{id}', name: 'delete_movie', methods: ['DELETE'])]
+      public function deleteMovie(int $id):JsonResponse{
+        $success = $this->movieService->deleteMovie($id);
+        if(!$success){
+            return new JsonResponse(['error' => 'Película no ecnontrada'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse((['message' => 'Película eliminada correctamente']), Response::HTTP_OK);
+      }
 }

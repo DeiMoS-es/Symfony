@@ -2,8 +2,10 @@
 
 namespace App\Movies\Service;
 
-use App\Movies\Entity\MovieInputDto;
-use App\Movies\Entity\MovieOutputDto;
+
+use App\Movies\Entity\MovieInputDTO;
+use App\Movies\Entity\MovieOutputDTO;
+
 use App\Movies\Repository\MovieRepository;
 use App\Movies\Entity\Movie;
 use App\Movies\Mapper\MovieMapperFromDTO;
@@ -58,7 +60,7 @@ class MovieService
     /**
      * Guardar una película.
      */
-    public function createMovieFromDto(MovieInputDto $inputDto): MovieOutputDto
+    public function createMovieFromDto(MovieInputDTO $inputDto): MovieOutputDto
     {
         // 1️⃣ Convertimos DTO a entidad
         $movie = $this->movieMapperFromDTO->fromDto($inputDto);
