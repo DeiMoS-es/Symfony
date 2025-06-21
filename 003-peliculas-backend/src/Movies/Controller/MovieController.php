@@ -4,8 +4,6 @@ namespace App\Movies\Controller;
 
 
 use App\Movies\Entity\MovieInputDTO;
-use App\Movies\Mapper\MovieMapperFromDTO;
-use App\Movies\Mapper\MovieMapperToDTO;
 use App\Movies\Repository\MovieRepository;
 use App\Movies\Service\MovieService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,16 +18,12 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 final class MovieController extends AbstractController
 {
     private MovieService $movieService;
-    private MovieMapperFromDTO $movieMapperFromDTO;
-    private MovieMapperToDTO $movieMapperToDTO;
     private ValidatorInterface $validator;
 
 
-    public function __construct(MovieService $movieService, MovieMapperFromDTO $movieMapperFromDTO, MovieMapperToDTO $movieMapperToDTO, ValidatorInterface $validator)
+    public function __construct(MovieService $movieService,  ValidatorInterface $validator)
     {
         $this->movieService = $movieService;
-        $this->movieMapperFromDTO = $movieMapperFromDTO;
-        $this->movieMapperToDTO = $movieMapperToDTO;
         $this->validator = $validator;
     }
     // ruta para obtener todas las películas
