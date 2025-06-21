@@ -3,7 +3,7 @@
 namespace App\Movies\Controller;
 
 
-use App\Movies\Entity\MovieInputDto;
+use App\Movies\Entity\MovieInputDTO;
 use App\Movies\Mapper\MovieMapperFromDTO;
 use App\Movies\Mapper\MovieMapperToDTO;
 use App\Movies\Repository\MovieRepository;
@@ -59,14 +59,15 @@ final class MovieController extends AbstractController
 
     //ruta para obtener una película por su nombre
     #[Route('/search/{title}', name: 'search_movie', methods: ['GET'])]
-    public function searchMovie(string $title, SerializerInterface $serializer): JsonResponse{
+    public function searchMovie(string $title, SerializerInterface $serializer): JsonResponse
+    {
         $movie = $this->movieService->searchMovieByTitle($title);
-        if(empty($movie)){
-            return new JsonResponse(['error' => $title.' no encontrada'], Response::HTTP_NOT_FOUND);
+        if (empty($movie)) {
+            return new JsonResponse(['error' => $title . ' no encontrada'], Response::HTTP_NOT_FOUND);
         }
         $json = $serializer->serialize(($movie), 'json', ['groups' => 'movie:read']);
 
-        return new JsonResponse(($json), Response::HTTP_OK , [], true);
+        return new JsonResponse(($json), Response::HTTP_OK, [], true);
     }
 
     // ruta para crear una nueva película
@@ -88,13 +89,14 @@ final class MovieController extends AbstractController
     }
 
     //ruta para "eliminar" una película
-      #[Route('/delete/{id}', name: 'delete_movie', methods: ['DELETE'])]
-      public function deleteMovie(int $id):JsonResponse{
-        $success = $this->movieService->deleteMovie($id);
-        if(!$success){
-            return new JsonResponse(['error' => 'Película no ecnontrada'], Response::HTTP_NOT_FOUND);
+    #[Route('/delete/{id}', name: 'delete_movie', methods: ['DELETE'])]
+    public function deleteMovie(int $id): JsonResponse
+    {
+        $success = $this->movieService->deleteMovieById($id);
+        if (!$success) {
+            return new JsonResponse(['error' => 'Película no encontrada'], Response::HTTP_NOT_FOUND);
         }
 
         return new JsonResponse((['message' => 'Película eliminada correctamente']), Response::HTTP_OK);
-      }
+    }
 }

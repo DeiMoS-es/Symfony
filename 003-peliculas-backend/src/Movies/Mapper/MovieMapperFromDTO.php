@@ -2,7 +2,7 @@
 // src/Movies/Mapper/MovieMapper.php
 namespace App\Movies\Mapper;
 
-use App\Movies\Entity\MovieInputDto;
+use App\Movies\Entity\MovieInputDTO;
 use App\Movies\Entity\Movie;
 use App\Movies\Repository\GenreRepository;
 
@@ -10,7 +10,7 @@ class MovieMapperFromDTO
 {
     public function __construct( private GenreRepository $genreRepository) {}
 
-   public function fromDto(MovieInputDto $dto): Movie
+   public function fromDto(MovieInputDTO $dto): Movie
     {
         $movie = new Movie();
         $movie->setTitleMovie($dto->title_movie)

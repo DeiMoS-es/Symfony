@@ -3,7 +3,7 @@
 namespace App\Movies\Mapper;
 
 
-use App\Movies\Entity\MovieOutputDto;
+use App\Movies\Entity\MovieOutputDTO;
 use App\Movies\Entity\Genre;
 use App\Movies\Entity\Movie;
 use App\Movies\Repository\GenreRepository;
@@ -12,9 +12,9 @@ class MovieMapperToDTO
 {
     public function __construct(private GenreRepository $genreRepository) {}
 
-    public function toDto(Movie $movie): MovieOutputDto
+    public function toDto(Movie $movie): MovieOutputDTO
     {
-        $dto = new MovieOutputDto();
+        $dto = new MovieOutputDTO();
         $dto->id = $movie->getId();
         $dto->title_movie = $movie->getTitleMovie();
         $dto->title_original = $movie->getTitleOriginal();

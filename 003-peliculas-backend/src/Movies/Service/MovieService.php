@@ -60,7 +60,7 @@ class MovieService
     /**
      * Guardar una película.
      */
-    public function createMovieFromDto(MovieInputDTO $inputDto): MovieOutputDto
+    public function createMovieFromDto(MovieInputDTO $inputDto): MovieOutputDTO
     {
         // 1️⃣ Convertimos DTO a entidad
         $movie = $this->movieMapperFromDTO->fromDto($inputDto);
@@ -70,5 +70,18 @@ class MovieService
 
         // 3️⃣ Convertimos entidad a DTO de salida
         return $this->movieMapperToDTO->toDto($movie);
+    }
+
+    /**
+     * Eliminar una película por ID.
+     */
+    public function deleteMovieById(int $id): bool{
+        $movie = $this->getMovieById($id);
+        if(!$movie){
+            return false;
+        }
+        $this->movieRepository->remove($movie, true);
+        return true;
+
     }
 }
