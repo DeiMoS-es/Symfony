@@ -34,6 +34,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?string $password = null;
 
+    #[ORM\Column(type: 'integer')]
+    private int $status = 1; // activo por defecto
+
+    #[ORM\Column(type: 'datetime_immutable')]
+    private \DateTimeImmutable $createdAt;
+
+
     #[ORM\ManyToMany(targetEntity: Movie::class, inversedBy: 'users')]
     #[ORM\JoinTable(name: 'user_movie')]
     private Collection $movies;
@@ -42,6 +49,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->movies = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function addMovie(Movie $movie): static
@@ -57,6 +65,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->movies->removeElement($movie);
         return $this;
     }
+
+    public function getStatus(): int
+    {
+        return $this->status;
+    }
+
+    public function setStatus(int $status): static
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
 
     public function getId(): ?int
     {
