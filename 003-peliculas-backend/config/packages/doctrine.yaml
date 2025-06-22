@@ -30,6 +30,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Movies/Entity'
                 prefix: 'App\Movies\Entity'
                 alias: Movies
+            Users:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Users/Entity'
+                prefix: 'App\Users\Entity'
+                alias: Users
         controller_resolver:
             auto_mapping: false
 

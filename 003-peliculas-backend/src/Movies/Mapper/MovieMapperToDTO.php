@@ -28,6 +28,8 @@ class MovieMapperToDTO
         $dto->backdrop_path = $movie->getBackdropPath();
         $dto->video = $movie->isVideo();
         $dto->adult = $movie->isAdult();
+        $dto->tmdbId = $movie->getTmdbId();
+
         $dto->genres = array_map(fn(Genre $g) => $g->getName(), $movie->getGenres()->toArray());
 
         return $dto;

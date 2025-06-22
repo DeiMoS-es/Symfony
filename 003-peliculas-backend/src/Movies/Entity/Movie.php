@@ -3,6 +3,7 @@
 namespace App\Movies\Entity;
 
 use App\Movies\Repository\MovieRepository;
+use App\Users\Entity\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -75,10 +76,30 @@ class Movie
     #[ORM\Column(type: 'boolean')]
     private ?bool $status = true;
 
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: "movies")]
+    private Collection $users;
+
+    #[ORM\Column(type: 'integer', unique: true)]
+    private int $tmdbId;
+
+
+
     public function __construct()
     {
         $this->genres = new ArrayCollection();
     }
+
+    public function getTmdbId(): int
+    {
+        return $this->tmdbId;
+    }
+
+    public function setTmdbId(int $tmdbId): static
+    {
+        $this->tmdbId = $tmdbId;
+        return $this;
+    }
+
 
 
     public function isStatus(): ?bool

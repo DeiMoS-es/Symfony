@@ -20,7 +20,6 @@ class ImportMoviesCommand extends Command
     {
         $count = $this->movieService->importMovies();
         $output->writeln("✅ Películas importadas: $count");
-        $movies = $this->movieService->importMovies();
 
         return Command::SUCCESS;
     }

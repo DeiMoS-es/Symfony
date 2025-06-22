@@ -12,7 +12,7 @@ use App\Movies\External\TmbdClient;
 use App\Movies\Mapper\MovieMapperFromDTO;
 use App\Movies\Mapper\MovieMapperToDTO;
 use App\Movies\Repository\GenreRepository;
-
+use Doctrine\ORM\EntityManagerInterface;
 
 class MovieService
 {
@@ -21,14 +21,17 @@ class MovieService
     private MovieMapperToDTO $movieMapperToDTO;
     private TmbdClient $tmdbClient;
     private GenreRepository $genreRepository;
+    private EntityManagerInterface $entityManager;
 
-    public function __construct(MovieRepository $movieRepository, MovieMapperFromDTO $movieMapperFromDTO, MovieMapperToDTO $movieMapperToDTO, TmbdClient $tmdbClient, GenreRepository $genreRepository)
+    public function __construct(MovieRepository $movieRepository, MovieMapperFromDTO $movieMapperFromDTO, MovieMapperToDTO $movieMapperToDTO, 
+                                TmbdClient $tmdbClient, GenreRepository $genreRepository, EntityManagerInterface $entityManager )
     {
         $this->movieRepository = $movieRepository;
         $this->movieMapperFromDTO = $movieMapperFromDTO;
         $this->movieMapperToDTO = $movieMapperToDTO;
         $this->tmdbClient = $tmdbClient;
         $this->genreRepository = $genreRepository;
+        $this->entityManager = $entityManager;
     }
 
     public function getMovieById(int $id): ?Movie
@@ -118,6 +121,7 @@ class MovieService
             $movie->setVideo((bool) $movieArray['video']);
             $movie->setAdult((bool) $movieArray['adult']);
             $movie->setStatus(true);
+            $movie->setTmdbId($movieArray['id']);
             echo "."; // para ver que avanza
 
             // 🎬 Asociar géneros
@@ -132,6 +136,7 @@ class MovieService
             $count++;
             if ($index % 50 === 0) {
                 $this->movieRepository->flush(); // guarda cada 50
+                $this->entityManager->clear();
             }
         }
 

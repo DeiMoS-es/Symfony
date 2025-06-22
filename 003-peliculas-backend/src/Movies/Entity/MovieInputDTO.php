@@ -30,5 +30,7 @@ class MovieInputDTO
     public ?string $backdrop_path = null;
     public bool $video;
     public bool $adult;
+    public ?int $tmdbId = null;
+
 }
 ?>
