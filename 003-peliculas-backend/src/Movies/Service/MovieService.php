@@ -88,7 +88,8 @@ class MovieService
         if (!$movie) {
             return false;
         }
-        $this->movieRepository->remove($movie, true);
+        $movie->setStatus((false));
+        $this->movieRepository->save($movie, true);
         return true;
     }
 
