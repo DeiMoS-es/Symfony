@@ -12,6 +12,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+
+// TODO añadir campo de nombre, apellidos, foto, username y fecha de baja
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -45,12 +47,60 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\JoinTable(name: 'user_movie')]
     private Collection $movies;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private string $nombre;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private string $apellidos;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private string $userName;
+
+     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private string $imgUsuario;
+
 
     public function __construct()
     {
         $this->movies = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
+
+    public function getImgUsuario(): string{
+        return $this->imgUsuario;
+    }
+
+    public function setImgUsuario(string $imgUsuario): static{
+        $this->imgUsuario = $imgUsuario;
+        return $this;
+    }
+
+    public function getNombre(): string{
+        return $this->nombre;
+    }
+    public function setNombre(string $nombre): static{
+        $this->nombre = $nombre;
+        return $this;
+    }
+
+    public function getApellidos():string{
+        return $this->apellidos;
+    }
+
+    public function setApellidos(string $apellidos): static{
+        $this->apellidos = $apellidos;
+        return $this;
+    }
+
+    public function getUserName():string{
+        return $this->userName;
+    }
+
+    public function setUserName(string $userName): static{
+        $this->userName = $userName;
+        return $this;
+    }
+
 
     public function addMovie(Movie $movie): static
     {
