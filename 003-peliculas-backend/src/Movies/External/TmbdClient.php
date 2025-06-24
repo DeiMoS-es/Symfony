@@ -11,7 +11,7 @@ class TmbdClient
     private string $apiKey;
     private HttpClientInterface $client;
     private string $baseUrl = 'https://api.themoviedb.org/3/discover/movie';
-    private string $languaje = 'es-ES';
+    private string $language = 'es-ES';
     private string $region = 'ES';
     private string $imageU = 'https://image.tmdb.org/t/p/w500/';
     private string $imageBaseUrlOriginal = 'https://image.tmdb.org/t/p/original/';
@@ -32,7 +32,7 @@ class TmbdClient
             $response = $this->client->request('GET', $this->baseUrl, [
                 'query' => [
                     'api_key' => $this->apiKey,
-                    'languaje' => $this->languaje,
+                    'language' => $this->language,
                     'region' => $this->region,
                     'page' => $page
                 ],
