@@ -6,6 +6,7 @@ namespace App\Movies\Controller;
 use App\Movies\Entity\MovieInputDTO;
 use App\Movies\Repository\MovieRepository;
 use App\Movies\Service\MovieService;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -28,12 +29,13 @@ final class MovieController extends AbstractController
     }
     // ruta para obtener todas las películas
     #[Route('/', name: 'app_movie_index', methods: ['GET'])]
-    public function index(MovieRepository $movieRepository): Response
+    public function index(Request $request,MovieRepository $movieRepository, PaginatorInterface $paginator): Response
     {
+        $query = $movieRepository->createQueryBuilder('m')->orderBy(('m.id'), 'DESC');
+        $pagination = $paginator->paginate($query, $request->query->getInt('page', 1), 12);
 
         return $this->render('movie/index.html.twig', [
-            'movies' => $movieRepository->findAll(),
-            'controller_name' => 'MovieController',
+            'pagination' => $pagination
         ]);
     }
 
