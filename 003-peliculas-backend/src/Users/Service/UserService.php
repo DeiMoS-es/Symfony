@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Users\Service;
-
+use App\Users\Entity\User;
 use App\Users\Entity\Dto\UserInputDTO;
 use App\Users\Entity\Dto\UserOutputDTO;
 use App\Users\Mapper\UserMapperFromDTO;
@@ -54,5 +54,16 @@ class UserService
         $this->userRepository->save($user, true);
 
         return $this->userMapperToDTO->toOutputDTO($user);
+    }
+
+    public function deleteUserById(int $id): bool{
+        $user = $this->userRepository->find($id);
+        if(!$user){
+            return false;
+        }
+        $user->setStatus(false);
+        $this->userRepository->save($user, true);
+        return true;
+
     }
 }

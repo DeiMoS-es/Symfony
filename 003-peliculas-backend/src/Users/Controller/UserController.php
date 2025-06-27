@@ -16,6 +16,13 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Route('/api/users')]
 class UserController extends AbstractController
 {
+    private UserService $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     #[Route('/register', name: 'user_register', methods: ['POST'])]
     public function register(Request $request, UserService $userService, SerializerInterface $serializer, ValidatorInterface $validator): JsonResponse
     {
@@ -40,6 +47,18 @@ class UserController extends AbstractController
         return new JsonResponse($userOutputDTO, Response::HTTP_CREATED);
     }
 
+    #[Route('/delete/{id}', name: 'user_delete', methods: ['DELETE'])]
+    public function deleteUser(int $id): JsonResponse{
+        $succes = $this->userService->deleteUserById($id);
+
+        if(!$succes){
+            return new JsonResponse(['error' => 'Usuario no encontrado'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse((['message' => 'Usuario eliminado correctamente']), Response::HTTP_OK);
+    }
+    
+
     #[Route('/{userId}/movies/{movieId}/rate', name: 'user_rate_movie', methods: ['POST'])]
     public function rateMovie(int $userId,int $movieId,Request $request,UserMovieService $userMovieService ): JsonResponse {
 
@@ -58,4 +77,6 @@ class UserController extends AbstractController
             'message' => 'Película puntuada correctamente'
         ], Response::HTTP_OK);
     }
+
+
 }
