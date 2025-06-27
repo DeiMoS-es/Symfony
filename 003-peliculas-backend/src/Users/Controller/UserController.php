@@ -7,36 +7,36 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/users')]
 class UserController extends AbstractController
 {
     #[Route('/register', name: 'user_register', methods: ['POST'])]
-    public function register(Request $request, UserService $userService): JsonResponse
+    public function register(Request $request, UserService $userService, SerializerInterface $serializer, ValidatorInterface $validator): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $dto = $serializer->deserialize($request->getContent(), UserInputDTO::class, 'json');
+        $errors = $validator->validate($dto);
 
-        if (!$data || !isset($data['email'], $data['password'])) {
-            throw new BadRequestHttpException('Faltan campos obligatorios.');
+        if(count($errors) > 0){
+            $errorMessages = [];
+
+        /** @var ConstraintViolationInterface $error */
+        foreach ($errors as $error) {
+            $field = $error->getPropertyPath();
+            $message = $error->getMessage();
+            $errorMessages[$field] = $message;
         }
 
-        // Creamos el DTO desde el array
-        $dto = new UserInputDTO();
-        $dto->email = $data['email'];
-        $dto->password = $data['password'];
-        $dto->nombre = $data['nombre'] ?? '';
-        $dto->apellidos = $data['apellidos'] ?? '';
-        $dto->userName = $data['userName'] ?? '';
-        $dto->imgUsuario = $data['imgUsuario'] ?? null;
-
-        // Intentamos registrar al usuario
-        try {
-            $userOutput = $userService->createUserFromDto($dto);
-            return new JsonResponse($userOutput, JsonResponse::HTTP_CREATED);
-        } catch (\Exception $e) {
-            return new JsonResponse(['error' => $e->getMessage()], JsonResponse::HTTP_CONFLICT);
+        return new JsonResponse(['errors' => $errorMessages], Response::HTTP_BAD_REQUEST);
         }
+
+        $userOutputDTO = $userService->createUserFromDto($dto);
+
+        return new JsonResponse($userOutputDTO, Response::HTTP_CREATED);
+
     }
 }
 
