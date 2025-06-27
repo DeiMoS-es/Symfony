@@ -47,4 +47,10 @@ class UserMovie
     {
         return $this->addedAt;
     }
+
+    public function setRating(?int $rating): static
+    {
+        $this->rating = $rating;
+        return $this;
+    }
 }
