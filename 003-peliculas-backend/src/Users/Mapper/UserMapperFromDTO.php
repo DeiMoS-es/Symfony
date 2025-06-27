@@ -17,7 +17,7 @@ class UserMapperFromDTO
         $user->setApellidos($dto->apellidos);
         $user->setUserName($dto->userName);
         $user->setEmail($dto->email);
-        $user->setPassword($dto->password); // recuerda aplicar hash más adelante
+        //$user->setPassword($dto->password); // recuerda aplicar hash más adelante
         $user->setImgUsuario($dto->imgUsuario ?? null);
 
         return $user;
