@@ -4,6 +4,7 @@ namespace App\Movies\Entity;
 
 use App\Movies\Repository\MovieRepository;
 use App\Users\Entity\User;
+use App\Users\Entity\UserMovie;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -76,8 +77,8 @@ class Movie
     #[ORM\Column(type: 'boolean')]
     private ?bool $status = true;
 
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: "movies")]
-    private Collection $users;
+    #[ORM\OneToMany(mappedBy: 'movie', targetEntity: UserMovie::class, cascade: ['persist', 'remove'])]
+    private Collection $userMovies;
 
     #[ORM\Column(type: 'integer', unique: true)]
     private int $tmdbId;
@@ -87,6 +88,7 @@ class Movie
     public function __construct()
     {
         $this->genres = new ArrayCollection();
+        $this->userMovies = new ArrayCollection();
     }
 
     public function getTmdbId(): int
@@ -282,6 +284,20 @@ class Movie
     public function setAdult(bool $adult): static
     {
         $this->adult = $adult;
+
+        return $this;
+    }
+
+    public function getUserMovies(): Collection
+    {
+        return $this->userMovies;
+    }
+
+    public function addUserMovie(UserMovie $userMovie): static
+    {
+        if (!$this->userMovies->contains($userMovie)) {
+            $this->userMovies->add($userMovie);
+        }
 
         return $this;
     }

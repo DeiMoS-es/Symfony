@@ -43,9 +43,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private \DateTimeImmutable $createdAt;
 
 
-    #[ORM\ManyToMany(targetEntity: Movie::class, inversedBy: 'users')]
-    #[ORM\JoinTable(name: 'user_movie')]
-    private Collection $movies;
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserMovie::class, cascade: ['persist', 'remove'])]
+    private Collection $userMovies;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private string $nombre;
@@ -56,65 +55,73 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private string $userName;
 
-     #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $imgUsuario;
 
 
     public function __construct()
     {
-        $this->movies = new ArrayCollection();
+        $this->userMovies = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
-    public function getImgUsuario(): ?string{
+    public function getImgUsuario(): ?string
+    {
         return $this->imgUsuario;
     }
 
-    public function setImgUsuario(?string $imgUsuario): static{
+    public function setImgUsuario(?string $imgUsuario): static
+    {
         $this->imgUsuario = $imgUsuario;
         return $this;
     }
 
-    public function getNombre(): string{
+    public function getNombre(): string
+    {
         return $this->nombre;
     }
-    public function setNombre(string $nombre): static{
+    public function setNombre(string $nombre): static
+    {
         $this->nombre = $nombre;
         return $this;
     }
 
-    public function getApellidos():string{
+    public function getApellidos(): string
+    {
         return $this->apellidos;
     }
 
-    public function setApellidos(string $apellidos): static{
+    public function setApellidos(string $apellidos): static
+    {
         $this->apellidos = $apellidos;
         return $this;
     }
 
-    public function getUserName():string{
+    public function getUserName(): string
+    {
         return $this->userName;
     }
 
-    public function setUserName(string $userName): static{
+    public function setUserName(string $userName): static
+    {
         $this->userName = $userName;
         return $this;
     }
 
 
-    public function addMovie(Movie $movie): static
+    public function addUserMovie(UserMovie $userMovie): static
     {
-        if (!$this->movies->contains($movie)) {
-            $this->movies->add($movie);
+        if (!$this->userMovies->contains($userMovie)) {
+            $this->userMovies->add($userMovie);
         }
         return $this;
     }
 
-    public function removeMovie(Movie $movie): static
+    public function getUserMovies(): Collection
     {
-        $this->movies->removeElement($movie);
-        return $this;
+        return $this->userMovies;
     }
+
 
     public function getStatus(): int
     {
