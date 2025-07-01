@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Users\Controller;
+namespace App\Users\Controller\v1;
 
 use App\Users\Service\UserService;
 use App\Users\Entity\Dto\UserInputDTO;
@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/api/users')]
+#[Route('/api/users/v1')]
 class UserController extends AbstractController
 {
     private UserService $userService;
