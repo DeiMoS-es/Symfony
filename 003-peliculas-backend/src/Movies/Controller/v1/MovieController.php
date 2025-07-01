@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Movies\Controller;
+namespace App\Movies\Controller\v1;
 
 
 use App\Movies\Entity\MovieInputDTO;
@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/movies')]
+#[Route('/api/v1/movies')]
 final class MovieController extends AbstractController
 {
     private MovieService $movieService;
