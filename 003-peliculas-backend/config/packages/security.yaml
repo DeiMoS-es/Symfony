@@ -13,21 +13,23 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        login:
-            pattern: ^/api/login
+        # Firewall para el login de la API v1
+        login_v1: # ¡Cambié el nombre para que sea más descriptivo!
+            pattern: ^/api/v1/login # Ahora coincide con /api/v1/login
             stateless: true
             provider: app_user_provider
             json_login:
-                check_path: /api/login
+                check_path: /api/v1/login # La ruta para enviar credenciales (email/password)
                 username_path: email
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
-        api:
-            pattern: ^/api
+        # Firewall para el resto de la API v1
+        api_v1: # ¡Cambié el nombre para ser más específico de v1!
+            pattern: ^/api/v1 # Todas las rutas que empiezan por /api/v1 (excepto login, que ya lo atrapa el firewall anterior)
             stateless: true
-            jwt: ~
+            jwt: ~ # Habilita la autenticación JWT para este firewall (para las rutas PROTEGIDAS)
             provider: app_user_provider
 
         main:
@@ -35,8 +37,11 @@ security:
             provider: app_user_provider
 
     access_control:
-        - { path: ^/api/login, roles: PUBLIC_ACCESS }
-        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        # Permite el acceso público al endpoint de login v1
+        - { path: ^/api/v1/login, roles: PUBLIC_ACCESS }
+
+        # Protege el resto de la API v1 con JWT (requiere autenticación completa)
+        - { path: ^/api/v1, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
