@@ -11,7 +11,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/api')]
+#[Route('/api/v1')]
 class AuthController extends AbstractController
 {
     #[Route('/login', name: 'auth_login', methods: ['POST'])]
