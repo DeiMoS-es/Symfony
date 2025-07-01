@@ -15,10 +15,13 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 class AuthController extends AbstractController
 {
     #[Route('/login', name: 'auth_login', methods: ['POST'])]
-    public function login(Request $request,UserRepository $userRepository,
-                          UserPasswordHasherInterface $passwordHasher,
-                          JWTTokenManagerInterface $JWTManager ): JsonResponse {
-                            
+    public function login(
+        Request $request,
+        UserRepository $userRepository,
+        UserPasswordHasherInterface $passwordHasher,
+        JWTTokenManagerInterface $JWTManager
+    ): JsonResponse {
+
         $data = json_decode($request->getContent(), true);
         $email = $data['email'] ?? null;
         $password = $data['password'] ?? null;
@@ -36,5 +39,24 @@ class AuthController extends AbstractController
         $token = $JWTManager->create($user);
 
         return new JsonResponse(['token' => $token]);
+    }
+
+    #[Route('/me', name: 'auth_me', methods: ['GET'])]
+    public function me(): JsonResponse
+    {
+        /** @var \App\Users\Entity\User $user */
+        $user = $this->getUser();
+
+        if (!$user) {
+            return new JsonResponse(['error' => 'No autenticado'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        return new JsonResponse([
+            'id' => $user->getId(),
+            'email' => $user->getEmail(),
+            'nombre' => $user->getNombre(),
+            'apellidos' => $user->getApellidos(),
+            'roles' => $user->getRoles(),
+        ]);
     }
 }
