@@ -1,0 +1,36 @@
+name: Symfony Tests
+
+# Se ejecuta en push y pull request a main o dev
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Clonar el repositorio
+      - uses: actions/checkout@v3
+
+      # 2️⃣ Configurar PHP con extensiones necesarias
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v4
+        with:
+          php-version: '8.4'
+          extensions: mbstring, intl, pdo_sqlite
+          ini-values: date.timezone=Europe/Madrid
+
+      # 3️⃣ Instalar dependencias de Composer
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      # 4️⃣ Configurar entorno de test
+      - name: Set up .env for tests
+        run: cp .env.test .env
+
+      # 5️⃣ Ejecutar PHPUnit
+      - name: Run PHPUnit tests
+        run: php bin/phpunit --testsuite "Project Test Suite"
