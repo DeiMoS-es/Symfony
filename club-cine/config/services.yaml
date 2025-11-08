@@ -14,6 +14,7 @@ services:
         resource: '../src/Module/*'
         exclude: '../src/Module/*/{Entity,Tests}'
 
+    # Módulo Auth
     # Hacemos públicos los controladores manualmente (PSR-4 compatible)
     App\Module\Auth\Controller\:
         resource: '../src/Module/Auth/Controller/*'
@@ -24,3 +25,4 @@ services:
         resource: '../src/Module/Auth/DTO/*'
         autowire: false
         public: false
+    # Fin módulo Auth

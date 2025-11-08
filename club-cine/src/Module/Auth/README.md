@@ -14,13 +14,13 @@ Auth/
 ```
 
 ## Características Implementadas
-- [ ] Registro de usuarios
+- [x] Registro de usuarios (con test automatizado)
 - [ ] Inicio de sesión
 - [ ] Recuperación de contraseña
 - [ ] Gestión de roles
 - [ ] Autenticación mediante JWT
 - [ ] Protección CSRF
-- [ ] Validación de datos
+- [x] Validación de datos (en registro)
 
 ## Configuración
 La configuración principal del módulo se encuentra en:
@@ -29,11 +29,14 @@ La configuración principal del módulo se encuentra en:
 
 ## Dependencias
 - symfony/security-bundle
+- doctrine/orm
+- sqlite3 (para tests en memoria)
 - lexik/jwt-authentication-bundle (pendiente de implementar)
 
 ## Historial de Implementación
 1. Creación de la estructura base del módulo Auth (07/11/2025)
 2. Configuración inicial de security.yaml
+3. Implementación del test `RegistrationControllerTest` usando SQLite en memoria (08/11/2025)
 
 ## Plan de Implementación Detallado
 
@@ -42,12 +45,12 @@ La configuración principal del módulo se encuentra en:
 - [x] Configuración inicial de security.yaml
 
 ### 2. Implementación de Usuario
-- [ ] Crear entidad User con campos básicos:
-  - [ ] email
-  - [ ] password
-  - [ ] roles
-  - [ ] createdAt
-  - [ ] updatedAt
+- [x] Crear entidad User con campos básicos:
+  - [x] email
+  - [x] password
+  - [x] roles
+  - [x] createdAt
+  - [x] updatedAt
 - [ ] Generar migración de base de datos
 - [ ] Implementar UserRepository
 - [ ] Crear UserProvider personalizado
@@ -59,12 +62,13 @@ La configuración principal del módulo se encuentra en:
 - [ ] Desarrollar controlador de autenticación (SecurityController)
 - [ ] Implementar páginas de login y registro
 
-### 4. Registro de Usuarios
-- [ ] Crear formulario de registro (RegistrationType)
-- [ ] Implementar RegistrationController
-- [ ] Añadir validaciones de datos
+### 4. Registro de Usuarios ✓
+- [x] Crear formulario de registro (RegistrationType)
+- [x] Implementar RegistrationController
+- [x] Añadir validaciones de datos
 - [ ] Configurar email de verificación
 - [ ] Implementar confirmación de cuenta
+- [x] Test automatizado con SQLite en memoria (`RegistrationControllerTest`)
 
 ### 5. Sistema de Roles
 - [ ] Definir roles base (ROLE_USER, ROLE_ADMIN)
@@ -92,10 +96,11 @@ La configuración principal del módulo se encuentra en:
 - [ ] Realizar tests de seguridad
 
 ## Estado Actual
-- Fase actual: Configuración Base
-- Próxima fase: Implementación de Usuario
+- Fase actual: Registro de usuarios con test automatizado
+- Próxima fase: Implementación de sistema de login y UserRepository
 
 ## Notas de Seguridad
-- Las contraseñas se almacenarán utilizando el algoritmo de hash bcrypt
+- Las contraseñas se almacenan utilizando el algoritmo de hash bcrypt
 - Implementación de protección CSRF en todos los formularios
 - Validación de datos tanto en el cliente como en el servidor
+- Los tests se realizan usando SQLite en memoria para no afectar la base de datos real
