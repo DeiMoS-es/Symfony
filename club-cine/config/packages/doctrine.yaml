@@ -5,7 +5,10 @@ doctrine:
         # IMPORTANT: You MUST configure your server version,
         # either here or in the DATABASE_URL env var (see .env file)
         #server_version: '16'
-
+        types:
+            uuid: 'Ramsey\Uuid\Doctrine\UuidType'
+        mapping_types:
+            uuid: uuid
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
     orm:
@@ -24,6 +27,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+            Auth:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Module/Auth/Entity'
+                prefix: 'App\Module\Auth\Entity'
+                alias: Auth
         controller_resolver:
             auto_mapping: false
 

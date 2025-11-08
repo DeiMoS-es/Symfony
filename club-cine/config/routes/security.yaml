@@ -1,3 +1,15 @@
-_security_logout:
-    resource: security.route_loader.logout
-    type: service
+# config/routes/security.yaml
+auth_register:
+    path: /auth/register
+    controller: App\Module\Auth\Controller\RegistrationController::register
+    methods: [POST]
+
+auth_login:
+    path: /auth/login
+    controller: App\Module\Auth\Controller\SecurityController::login
+    methods: [POST]
+
+auth_logout:
+    path: /auth/logout
+    controller: App\Module\Auth\Controller\SecurityController::logout
+    methods: [POST]

@@ -1,20 +1,26 @@
-# This file is the entry point to configure your own services.
-# Files in the packages/ subdirectory configure your dependencies.
-
-# Put parameters here that don't need to change on each machine where the app is deployed
-# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
-parameters:
-
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true
+        autoconfigure: true
+        public: false
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
+    # Registro general de tus clases de la aplicación
     App\:
-        resource: '../src/'
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests}'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    # Controladores y repositorios del módulo Auth
+    App\Module\:
+        resource: '../src/Module/*'
+        exclude: '../src/Module/*/{Entity,Tests}'
+
+    # Hacemos públicos los controladores manualmente (PSR-4 compatible)
+    App\Module\Auth\Controller\:
+        resource: '../src/Module/Auth/Controller/*'
+        public: true
+
+    # Desactiva autowire para los DTOs
+    App\Module\Auth\DTO\:
+        resource: '../src/Module/Auth/DTO/*'
+        autowire: false
+        public: false
