@@ -3,9 +3,9 @@ name: Symfony Tests
 # Se ejecuta en push y pull request a main o dev
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main, dev, feature/auth ]
   pull_request:
-    branches: [ main, dev ]
+    branches: [ main, dev, feature/auth ]
 
 jobs:
   phpunit:
