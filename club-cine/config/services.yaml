@@ -26,3 +26,18 @@ services:
         autowire: false
         public: false
     # Fin módulo Auth
+
+    # Implementación del Generador de Tokens
+    # Si quieres especificar los argumentos manualmente, usa esta forma:
+    App\Module\Auth\Security\JwtTokenGenerator:
+        class: App\Module\Auth\Security\JwtTokenGenerator # No es necesaria si se usa autowire, pero aclara
+        arguments:
+            $jwtManager: '@lexik_jwt_authentication.jwt_manager'
+
+    # Alias/Sustitución de interfaz: 
+    # Cuando alguien pida TokenGeneratorInterface, se le da JwtTokenGenerator
+    App\Module\Auth\Security\TokenGeneratorInterface:
+        alias: App\Module\Auth\Security\JwtTokenGenerator
+        # Hacemos el alias público para que pueda ser resuelto correctamente
+        public: true
+
