@@ -1,51 +1,67 @@
+# config/packages/security.yaml
 security:
-    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    # ---------------------------------------
+    # Encoders / password hashers
+    # ---------------------------------------
     password_hashers:
-        App\Module\Auth\Entity\User: 'auto'
+        App\Module\Auth\Entity\User:
+            algorithm: auto
 
-    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    # ---------------------------------------
+    # Providers
+    # ---------------------------------------
     providers:
         app_user_provider:
             entity:
                 class: App\Module\Auth\Entity\User
                 property: email
 
+    # ---------------------------------------
+    # Firewalls
+    # ---------------------------------------
     firewalls:
+        # Este firewall se usa para las rutas de login y refresh
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        
-        register:
-            pattern: ^/auth/register
-            stateless: true
-            security: false  # No requiere autenticación, completamente abierto
 
-        main:
+        login:
+            pattern: ^/auth/login
             stateless: true
-            # lazy: true
-            entry_point: null
-            provider: app_user_provider
             json_login:
                 check_path: /auth/login
                 username_path: email
                 password_path: password
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
-            # logout:
-            #     path: /auth/logout
 
+        refresh:
+            pattern: ^/api/refresh
+            stateless: true
+            # Solo permitimos acceder mediante cookie HttpOnly
+            # custom_authenticator: App\Module\Auth\Security\RefreshTokenAuthenticator
+
+        api:
+            pattern: ^/api
+            stateless: true
+            jwt: ~ # LexikJWTBundle manejará la validación del token
+
+    # ---------------------------------------
+    # Access control
+    # ---------------------------------------
     access_control:
-        # Rutas abiertas para usuarios no autenticados
+        # Rutas públicas
         - { path: ^/auth/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/auth/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        # Resto de rutas requiere autenticación
-        - { path: ^/api, roles: ROLE_USER }
 
-when@test:
-    security:
-        password_hashers:
-            App\Module\Auth\Entity\User:
-                algorithm: auto
-                cost: 4       # bcrypt mínimo
-                time_cost: 3  # argon mínimo
-                memory_cost: 10
+        # Rutas de usuarios normales
+        - { path: ^/api/user, roles: ROLE_USER }
+
+        # Rutas de administradores
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
+
+    # ---------------------------------------
+    # Role hierarchy
+    # ---------------------------------------
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER

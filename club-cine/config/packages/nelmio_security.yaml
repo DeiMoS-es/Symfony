@@ -1,0 +1,55 @@
+# config/packages/nelmio_security.yaml
+nelmio_security:
+    # ------------------------------
+    # Clickjacking protection
+    # ------------------------------
+    clickjacking:
+        paths:
+            '^/admin': DENY
+            '^/login': DENY
+
+    # ------------------------------
+    # Content-Type nosniff
+    # ------------------------------
+    content_type:
+        nosniff: true
+
+    # ------------------------------
+    # Content Security Policy (CSP)
+    # ------------------------------
+    csp:
+        enabled: true
+        enforce: true
+        content_types:
+            default: "'self'"
+            script: "'self'"
+            style: "'self'"
+            img: "'self'"
+            connect: "'self'"
+            font: "'self'"
+        report:
+            report-uri: "/csp-report"
+
+    # ------------------------------
+    # Referrer Policy
+    # ------------------------------
+    referrer_policy:
+        policies:
+            default: strict-origin-when-cross-origin
+
+    # ------------------------------
+    # Permissions Policy
+    # ------------------------------
+    permissions_policy:
+        policies:
+            geolocation: []
+            camera: []
+            microphone: []
+            fullscreen: [self]
+            payment: []
+
+    # ------------------------------
+    # XSS Protection
+    # ------------------------------
+    xss_protection:
+        enabled: true
