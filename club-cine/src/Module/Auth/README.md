@@ -26,12 +26,14 @@ Auth/
 La configuración principal del módulo se encuentra en:
 - `config/packages/security.yaml`
 - `config/routes.yaml` (rutas de autenticación)
+- `config/packages/nelmio_security.yaml` (configuración de headers de seguridad)
 
 ## Dependencias
 - symfony/security-bundle
 - doctrine/orm
 - sqlite3 (para tests en memoria)
 - lexik/jwt-authentication-bundle (pendiente de implementar)
+- nelmio/security-bundle (para headers de seguridad)
 
 ## Historial de Implementación
 1. Creación de la estructura base del módulo Auth (07/11/2025)
@@ -59,7 +61,7 @@ La configuración principal del módulo se encuentra en:
 - [ ] Configurar Guard Authenticator
 - [ ] Implementar LoginFormAuthenticator
 - [ ] Crear formulario de login (LoginType)
-- [ ] Desarrollar controlador de autenticación (SecurityController)
+- [x] Desarrollar controlador de autenticación (LoginController)
 - [ ] Implementar páginas de login y registro
 
 ### 4. Registro de Usuarios ✓
