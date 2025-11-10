@@ -41,3 +41,9 @@ services:
         # Hacemos el alias público para que pueda ser resuelto correctamente
         public: true
 
+    # Listener para inyectar el token JWT en las cookies de la respuesta
+    App\EventListener\JwtCookieInjectorListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 10 }
+
+

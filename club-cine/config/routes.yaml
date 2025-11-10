@@ -1,5 +1,5 @@
-controllers:
+auth_controllers:
     resource:
-        path: ../src/Controller/
-        namespace: App\Controller
+        path: ../src/Module/Auth/Controller/
+        namespace: App\Module\Auth\Controller
     type: attribute

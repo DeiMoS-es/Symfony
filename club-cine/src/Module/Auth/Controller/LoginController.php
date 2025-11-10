@@ -16,10 +16,7 @@ class LoginController extends AbstractController
     #[Route('/auth/login', name: 'auth_login', methods: ['GET', 'POST'])]
     public function login(Request $request, AuthService $authService): Response
     {
-        $context = [
-            'error' => null,
-            'email' => '',
-        ];
+        $context = ['error' => null,'email' => '',];
 
         if ($request->isMethod('GET')) {
             return $this->render('auth/login.html.twig', $context);
@@ -60,15 +57,17 @@ class LoginController extends AbstractController
                 'Strict'
             );
 
-            $response = $this->render('home.html.twig', ['user' => $user]);
+            // TODO hacer redirección a ruta protegida
+            //$response = $this->render('home.html.twig', ['user' => $user]);
+            $response = $this->redirectToRoute('user_profile');
             $response->headers->setCookie($jwtCookie);
             $response->headers->setCookie($refreshCookie);
-            // TODO hacer redirección a ruta protegida
             return $response;
+            
         } catch (InvalidCredentialsException $e) {
             $context['error'] = 'Credenciales inválidas';
         } catch (\Throwable $e) {
-            $context['error'] = 'Error interno del servidor';
+           $context['error'] = 'Error interno del servidor: ' . $e->getMessage();
         }
 
         return $this->render('auth/login.html.twig', $context);
