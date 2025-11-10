@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4" style="max-width: 600px; margin: auto;">
+        <h2 class="card-title text-center mb-4">Bienvenido</h2>
+
+        <p class="text-center fs-5">
+            {% if user.name %}
+                Hola, {{ user.name }}!
+            {% else %}
+                Hola, {{ user.email }}!
+            {% endif %}
+        </p>
+
+        <div class="text-center mt-4">
+            <a href="{{ path('auth_logout') }}" class="btn btn-danger">Cerrar sesión</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

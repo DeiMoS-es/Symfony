@@ -25,15 +25,15 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        login:
-            pattern: ^/auth/login
-            stateless: true
-            json_login:
-                check_path: /auth/login
-                username_path: email
-                password_path: password
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+        # login:
+        #     pattern: ^/auth/login
+        #     stateless: true
+            # json_login:
+            #     check_path: /auth/login
+            #     username_path: email
+            #     password_path: password
+            #     success_handler: lexik_jwt_authentication.handler.authentication_success
+            #     failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
         refresh:
             pattern: ^/api/refresh
@@ -53,6 +53,7 @@ security:
         # Rutas públicas
         - { path: ^/auth/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/auth/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
         # Rutas de usuarios normales
         - { path: ^/api/user, roles: ROLE_USER }

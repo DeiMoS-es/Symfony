@@ -2,14 +2,14 @@
 auth_register:
     path: /auth/register
     controller: App\Module\Auth\Controller\RegistrationController::register
-    methods: [POST]
+    methods: [GET, POST]
 
 auth_login:
     path: /auth/login
-    controller: App\Module\Auth\Controller\SecurityController::login
-    methods: [POST]
+    controller: App\Module\Auth\Controller\LoginController::login
+    methods: [GET, POST]
 
 auth_logout:
     path: /auth/logout
-    controller: App\Module\Auth\Controller\SecurityController::logout
+    controller: App\Module\Auth\Controller\LogoutController::logout
     methods: [POST]

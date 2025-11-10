@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Module\Auth\Service;
 
 use App\Module\Auth\Repository\UserRepository;
@@ -24,21 +25,14 @@ class AuthService
      *
      * @throws InvalidCredentialsException si email inexistente o password incorrecto
      */
-    public function loginUser(string $email, string $plainPassword): string
+    public function loginUser(string $email, string $plainPassword): User
     {
         $user = $this->userRepository->findOneByEmail($email);
 
-        if (!$user instanceof User) {
-            // No revelamos si falta el email o la contraseña por seguridad
+        if (!$user instanceof User || !$this->passwordHasher->isPasswordValid($user, $plainPassword)) {
             throw new InvalidCredentialsException();
         }
 
-        // Verificamos contraseña
-        if (!$this->passwordHasher->isPasswordValid($user, $plainPassword)) {
-            throw new InvalidCredentialsException();
-        }
-
-        // Generar token usando la interfaz desacoplada
-        return $this->tokenGenerator->generateToken($user);
+        return $user; // DEVUELVE EL OBJETO USER, NO TOKEN
     }
 }
