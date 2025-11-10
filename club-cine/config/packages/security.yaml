@@ -25,9 +25,10 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        # login:
-        #     pattern: ^/auth/login
-        #     stateless: true
+        login:
+            pattern: ^/auth/login
+            security: false
+            # stateless: true
             # json_login:
             #     check_path: /auth/login
             #     username_path: email
@@ -52,7 +53,7 @@ security:
     access_control:
         # Rutas públicas
         - { path: ^/auth/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/auth/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        # - { path: ^/auth/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
         # Rutas de usuarios normales

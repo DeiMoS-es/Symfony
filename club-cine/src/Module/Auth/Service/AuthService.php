@@ -2,30 +2,24 @@
 
 namespace App\Module\Auth\Service;
 
+use App\Module\Auth\Entity\RefreshToken;
 use App\Module\Auth\Repository\UserRepository;
 use App\Module\Auth\Exception\InvalidCredentialsException;
-use App\Module\Auth\Security\TokenGeneratorInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use App\Module\Auth\Entity\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
 class AuthService
 {
     public function __construct(
         private UserRepository $userRepository,
         private UserPasswordHasherInterface $passwordHasher,
-        private TokenGeneratorInterface $tokenGenerator
+        private JWTTokenManagerInterface $jwtManager,
+        private EntityManagerInterface $em
     ) {}
 
-    /**
-     * Intenta autenticar al usuario por email+password.
-     *
-     * @param string $email
-     * @param string $plainPassword
-     * @return string Token (JWT u otro) si autenticación OK
-     *
-     * @throws InvalidCredentialsException si email inexistente o password incorrecto
-     */
-    public function loginUser(string $email, string $plainPassword): User
+    public function validateCredentials(string $email, string $plainPassword): User
     {
         $user = $this->userRepository->findOneByEmail($email);
 
@@ -33,6 +27,28 @@ class AuthService
             throw new InvalidCredentialsException();
         }
 
-        return $user; // DEVUELVE EL OBJETO USER, NO TOKEN
+        return $user;
+    }
+
+    public function generateJwt(User $user): string
+    {
+        return $this->jwtManager->create($user);
+    }
+
+    public function generateRefreshToken(User $user): array
+    {
+        $plain = bin2hex(random_bytes(64));
+        $hash = password_hash($plain, PASSWORD_DEFAULT);
+        $expiresAt = (new \DateTimeImmutable())->add(new \DateInterval('P30D'));
+
+        $refreshToken = new RefreshToken($user, $hash, $expiresAt);
+        $this->em->persist($refreshToken);
+        $this->em->flush();
+
+        return [
+            'plain' => $plain,
+            'expires' => $expiresAt,
+        ];
     }
 }
+
