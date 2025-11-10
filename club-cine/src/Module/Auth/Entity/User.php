@@ -9,6 +9,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use App\Module\Auth\Entity\Group;
 
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -35,6 +36,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
+
+    #[ORM\ManyToOne(targetEntity: Group::class)]
+    #[ORM\JoinColumn(name: 'group_id', referencedColumnName: 'group_id', nullable: true, onDelete: 'SET NULL')]
+    private ?Group $group = null;
 
     /**
      * El constructor espera que $password ya esté hasheado (BCrypt/argon2id).
@@ -114,5 +119,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // Si tuvieses algún campo temporal (ej. plainPassword), lo limpiarías aquí
+    }
+
+    public function getGroup(): ?Group
+    {
+        return $this->group;
+    }
+
+    public function setGroup(?Group $group): self
+    {
+        $this->group = $group;
+        return $this;
     }
 }
