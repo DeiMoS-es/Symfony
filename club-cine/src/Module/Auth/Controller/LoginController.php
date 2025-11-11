@@ -22,6 +22,12 @@ class LoginController extends AbstractController
             return $this->render('auth/login.html.twig', $context);
         }
 
+        $csrfToken = $request->request->get('_csrf_token');
+        if (!$this->isCsrfTokenValid('auth_login', $csrfToken)) {
+            $context['error'] = 'Token CSRF inválido.';
+            return $this->render('auth/login.html.twig', $context);
+        }
+
         $email = (string) $request->request->get('email', '');
         $password = (string) $request->request->get('password', '');
         $context['email'] = $email;

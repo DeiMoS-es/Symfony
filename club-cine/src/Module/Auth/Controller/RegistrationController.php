@@ -41,6 +41,16 @@ class RegistrationController extends AbstractController
             ]);
         }
 
+        // --- CSRF check ---
+        $csrfToken = $request->request->get('_csrf_token');
+        if (!$this->isCsrfTokenValid('auth_register', $csrfToken)) {
+            return $this->render('auth/register.html.twig', [
+                'errors' => ['Token CSRF inválido.'],
+                'email' => $request->request->get('email', ''),
+                'name' => $request->request->get('name', ''),
+            ]);
+        }
+
         $data = $request->request->all();
         $registrationRequest = new RegistrationRequest();
         $registrationRequest->email = $data['email'] ?? '';
@@ -51,6 +61,11 @@ class RegistrationController extends AbstractController
         $errors = [];
         foreach ($this->validator->validate($registrationRequest) as $violation) {
             $errors[] = $violation->getMessage();
+        }
+
+          // --- Validar confirm_password ---
+        if (($data['password'] ?? '') !== ($data['confirm_password'] ?? '')) {
+            $errors[] = 'La contraseña y la confirmación no coinciden.';
         }
 
         if (count($errors) > 0) {

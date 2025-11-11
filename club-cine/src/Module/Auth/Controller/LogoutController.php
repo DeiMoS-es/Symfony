@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class LogoutController extends AbstractController
 {
-    #[Route('/auth/logout', name: 'auth_logout', methods: ['POST'])]
+    #[Route('/auth/logout', name: 'auth_logout', methods: ['GET'])]
     public function logout(
         Request $request,
         EntityManagerInterface $em,
