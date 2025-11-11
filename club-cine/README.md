@@ -17,6 +17,12 @@ Facilitar la participación en el cine club mediante una plataforma web que perm
 
 ---
 
+## 🧩 Arquitectura Modular
+
+El proyecto está organizado en módulos independientes dentro de `src/Module`, cada uno con su propio README y responsabilidades bien definidas:
+- 📄 [README del módulo Auth](src/Module/Auth/README.md)
+---
+
 ## 🛠️ Tecnologías utilizadas
 
 - **Backend:** Symfony 7 (PHP 8.2)
