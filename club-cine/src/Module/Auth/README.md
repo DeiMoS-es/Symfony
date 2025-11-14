@@ -15,11 +15,12 @@ Auth/
 
 ## Características Implementadas
 - [x] Registro de usuarios (con test automatizado)
-- [ ] Inicio de sesión
+- [x] Inicio de sesión (LoginController implementado)
+- [x] Generación de JWT y Refresh tokens
+- [x] Mappers de datos (UserMapper, DTOs)
 - [ ] Recuperación de contraseña
 - [ ] Gestión de roles
-- [ ] Autenticación mediante JWT
-- [ ] Protección CSRF
+- [x] Protección CSRF (implementada en formularios)
 - [x] Validación de datos (en registro)
 
 ## Configuración
@@ -39,6 +40,9 @@ La configuración principal del módulo se encuentra en:
 1. Creación de la estructura base del módulo Auth (07/11/2025)
 2. Configuración inicial de security.yaml
 3. Implementación del test `RegistrationControllerTest` usando SQLite en memoria (08/11/2025)
+4. Implementación de LoginController con generación de JWT y Refresh tokens (11/11/2025)
+5. Creación de UserMapper y DTOs para mapeo de datos (11/11/2025)
+6. Refactorización de LoginController para delegar en AuthService (11/11/2025)
 
 ## Plan de Implementación Detallado
 
@@ -85,21 +89,22 @@ La configuración principal del módulo se encuentra en:
 - [ ] Crear páginas de reset password
 
 ### 7. Implementación JWT
-- [ ] Instalar lexik/jwt-authentication-bundle
-- [ ] Generar claves JWT
-- [ ] Configurar autenticación JWT
-- [ ] Crear endpoints de API para login/refresh
+- [x] Instalar lexik/jwt-authentication-bundle
+- [x] Generar claves JWT
+- [x] Configurar autenticación JWT
+- [x] Crear endpoints de API para login/refresh
 
 ### 8. Seguridad y Optimización
-- [ ] Implementar CSRF protection
+- [x] Implementar CSRF protection
 - [ ] Añadir rate limiting
 - [ ] Configurar headers de seguridad
-- [ ] Implementar logging de accesos
+- [x] Implementar logging de accesos
 - [ ] Realizar tests de seguridad
 
 ## Estado Actual
-- Fase actual: Registro de usuarios con test automatizado
-- Próxima fase: Implementación de sistema de login y UserRepository
+- Fase actual: Implementación de sistema de login y generación de tokens JWT
+- Próxima fase: Implementación de UserRepository y refactorización de seguridad
+- Status: **En progreso** - LoginController funcional con delegación en AuthService
 
 ## Notas de Seguridad
 - Las contraseñas se almacenan utilizando el algoritmo de hash bcrypt
