@@ -18,6 +18,7 @@ Auth/
 - [x] Inicio de sesión (LoginController implementado)
 - [x] Generación de JWT y Refresh tokens
 - [x] Mappers de datos (UserMapper, DTOs)
+- [x] Logout (revoca refresh token, borra cookies y invalida sesión)
 - [ ] Recuperación de contraseña
 - [ ] Gestión de roles
 - [x] Protección CSRF (implementada en formularios)

@@ -46,6 +46,12 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 10 }
 
+    # Listener para controlar excepciones de TMDb
+    App\EventListener\TmdbExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
+
+
     # Servicio para consumir la API de TMDb
     App\Module\Movie\Service\TmdbService:
         arguments:

@@ -7,7 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-#[Route('/api')]
+#[Route('/api/user')]
 class MovieCatalogController extends AbstractController
 {
     #[Route('/catalog', name: 'movie_catalog', methods: ['GET'])]
@@ -16,6 +16,6 @@ class MovieCatalogController extends AbstractController
         $page = (int) ($_GET['page'] ?? 1);
         $catalog = $tmdbService->fetchPopularCatalog($page);
 
-        return $this->json($catalog);
+        return $this->json($catalog, 200);
     }
 }

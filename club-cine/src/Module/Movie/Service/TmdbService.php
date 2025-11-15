@@ -5,6 +5,10 @@ namespace App\Module\Movie\Service;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use App\Module\Movie\DTO\MovieCatalogItemDTO;
 use Psr\Log\LoggerInterface;
+use App\Module\Movie\Exception\TmdbException;
+use App\Module\Movie\Exception\TmdbUnauthorizedException;
+use App\Module\Movie\Exception\TmdbNotFoundException;
+use App\Module\Movie\Exception\TmdbUnavailableException;
 
 class TmdbService
 {
@@ -38,9 +42,19 @@ class TmdbService
             'query' => ['api_key' => $this->apiKey, 'page' => $page, 'language' => 'es-ES']
         ]);
 
-        if ($response->getStatusCode() !== 200) {
-            $this->logger->error('TMDb fetchPopular failed', ['status' => $response->getStatusCode()]);
-            return [];
+        $status = $response->getStatusCode();
+
+        if ($status === 401) {
+            throw new TmdbUnauthorizedException("API key inválida o token incorrecto");
+        }
+        if ($status === 404) {
+            throw new TmdbNotFoundException("Endpoint no encontrado en TMDb");
+        }
+        if ($status >= 500) {
+            throw new TmdbUnavailableException("TMDb está temporalmente no disponible");
+        }
+        if ($status !== 200) {
+            throw new TmdbException("Error inesperado de TMDb (status $status)");
         }
 
         return $response->toArray();
