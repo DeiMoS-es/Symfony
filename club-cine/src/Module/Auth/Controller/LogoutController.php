@@ -5,10 +5,10 @@ namespace App\Module\Auth\Controller;
 use App\Module\Auth\Repository\RefreshTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class LogoutController extends AbstractController
 {
@@ -17,7 +17,7 @@ class LogoutController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         RefreshTokenRepository $refreshRepo
-    ): JsonResponse {
+    ): RedirectResponse {
         $cookie = $request->cookies->get('REFRESH_TOKEN');
         if ($cookie) {
             $rt = $refreshRepo->findOneActiveByTokenPlain($cookie);
@@ -78,7 +78,7 @@ class LogoutController extends AbstractController
             'Strict'
         );
 
-        $response = new JsonResponse(['ok' => true]);
+        $response = $this->redirectToRoute('auth_login');
         $response->headers->setCookie($expiredRefresh);
         $response->headers->setCookie($expiredAccess);
         $response->headers->setCookie($expiredSession);
