@@ -46,4 +46,19 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.request, priority: 10 }
 
+    # Servicio para consumir la API de TMDb
+    App\Module\Movie\Service\TmdbService:
+        arguments:
+            $http: '@http_client'
+            $apiKey: '%tmdb.api_key%'
+            $readToken: '%tmdb.read_token%'
 
+    App\Module\Movie\Controller\:
+        resource: '../src/Module/Movie/Controller'
+        public: true
+        tags: ['controller.service_arguments']
+
+
+parameters:
+    tmdb.api_key: '%env(string:TMDB_API_KEY)%'
+    tmdb.read_token: '%env(string:TMDB_READ_TOKEN)%'

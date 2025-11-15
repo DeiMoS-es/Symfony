@@ -3,3 +3,8 @@ auth_controllers:
         path: ../src/Module/Auth/Controller/
         namespace: App\Module\Auth\Controller
     type: attribute
+
+movie_controllers:
+    resource: ../src/Module/Movie/Controller/
+    type: attribute
+
