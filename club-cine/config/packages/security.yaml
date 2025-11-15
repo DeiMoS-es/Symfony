@@ -46,6 +46,11 @@ security:
             pattern: ^/api
             stateless: true
             jwt: ~ # LexikJWTBundle manejará la validación del token
+        
+        movies:
+            pattern: ^/movies
+            stateless: true
+            jwt: ~
 
     # ---------------------------------------
     # Access control
@@ -58,6 +63,7 @@ security:
 
         # Rutas de usuarios normales
         - { path: ^/api/user, roles: ROLE_USER }
+        - { path: ^/movies, roles: ROLE_USER }
 
         # Rutas de administradores
         - { path: ^/api/admin, roles: ROLE_ADMIN }

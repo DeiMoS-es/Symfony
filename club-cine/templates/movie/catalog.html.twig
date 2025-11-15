@@ -1,0 +1,43 @@
+<div class="row g-3">
+  {% for movie in movies.items %}
+    <div class="col-6 col-md-4 col-lg-3">
+      <div class="card h-100 shadow-sm">
+        {% if movie.posterPath %}
+          <img src="https://media.themoviedb.org/t/p/w220_and_h330_face{{ movie.posterPath }}"
+               class="card-img-top img-fluid"
+               alt="{{ movie.title }}">
+        {% else %}
+          <img src="/images/placeholder.png"
+               class="card-img-top img-fluid"
+               alt="Sin imagen">
+        {% endif %}
+        <div class="card-body p-2">
+          <h6 class="card-title text-truncate">{{ movie.title }}</h6>
+          {% if movie.releaseDate %}
+            <small class="text-muted">
+              Estreno: {{ movie.releaseDate|date('d/m/Y') }}
+            </small>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<nav aria-label="Paginación catálogo" class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if movies.page > 1 %}
+      <li class="page-item">
+        <a class="page-link" href="{{ path('user_dashboard', { page: movies.page - 1 }) }}">Anterior</a>
+      </li>
+    {% endif %}
+    <li class="page-item disabled">
+      <span class="page-link">Página {{ movies.page }} de {{ movies.total_pages }}</span>
+    </li>
+    {% if movies.page < movies.total_pages %}
+      <li class="page-item">
+        <a class="page-link" href="{{ path('user_dashboard', { page: movies.page + 1 }) }}">Siguiente</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>

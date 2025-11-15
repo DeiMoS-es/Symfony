@@ -1,0 +1,12 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+<div class="container my-4">
+  <h1 class="mb-4">Bienvenido {{ app.user.email }}</h1>
+
+  {# Incluimos el catálogo como partial #}
+  {% include 'movie/catalog.html.twig' with { movies: movies } %}
+</div>
+{% endblock %}

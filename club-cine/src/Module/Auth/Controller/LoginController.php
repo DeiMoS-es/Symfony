@@ -65,7 +65,7 @@ class LoginController extends AbstractController
 
             // TODO hacer redirección a ruta protegida
             //$response = $this->render('home.html.twig', ['user' => $user]);
-            $response = $this->redirectToRoute('user_profile');
+            $response = $this->redirectToRoute('user_dashboard');
             $response->headers->setCookie($jwtCookie);
             $response->headers->setCookie($refreshCookie);
             return $response;
