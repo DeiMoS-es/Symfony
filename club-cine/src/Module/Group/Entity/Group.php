@@ -7,6 +7,8 @@ use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\String\Slugger\AsciiSlugger;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: "App\Module\Auth\Repository\GroupRepository")]
 #[ORM\Table(name: 'app_group')]
@@ -35,6 +37,9 @@ class Group
     #[ORM\Column(type: 'boolean')]
     private bool $isActive;
 
+    #[ORM\OneToMany(mappedBy: 'group', targetEntity: GroupMember::class, cascade: ['persist', 'remove'])]
+    private Collection $members;
+
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'owner_id', referencedColumnName: 'id', nullable: false)]
     private User $owner;
@@ -48,7 +53,9 @@ class Group
         $this->updatedAt = new \DateTimeImmutable();
         $this->isActive = true;
         $this->owner = $owner;
-
+        $this->members = new ArrayCollection();
+        // Al crear el grupo, vinculamos al dueño automáticamente como el primer socio
+        $this->members->add(new GroupMember($this, $owner, 'OWNER'));
         $this->generateSlug();
     }
 
@@ -101,6 +108,11 @@ class Group
     public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function getMembers(): Collection
+    {
+        return $this->members;
     }
 
     public function isActive(): bool
