@@ -39,6 +39,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Module/Group/Entity'
                 prefix: 'App\Module\Group\Entity'
                 alias: Group
+            Movie:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Module/Movie/Entity'
+                prefix: 'App\Module\Movie\Entity'
+                alias: Movie
         controller_resolver:
             auto_mapping: false
 
