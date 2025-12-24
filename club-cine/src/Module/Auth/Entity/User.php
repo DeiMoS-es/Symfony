@@ -9,7 +9,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use App\Module\Auth\Entity\Group;
+use App\Module\Group\Entity\Group;
 
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]

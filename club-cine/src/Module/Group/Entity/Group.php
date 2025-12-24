@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Module\Auth\Entity;
+namespace App\Module\Group\Entity;
 
+use App\Module\Auth\Entity\User;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
