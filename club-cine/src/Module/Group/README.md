@@ -13,61 +13,53 @@ Group/
 └── README.md       # Documentación del módulo
 ```
 
-## Características Implementadas
+## Características Implementadas ✅
 - [x] Entidad `Group` (nombre, slug, descripción, owner, miembros, timestamps)
 - [x] Entidad `GroupMember` (vinculación usuario-grupo, rol, fecha de ingreso)
-- [x] `GroupRepository` con métodos básicos (`findByName`, `save`, `delete`, `isActive`)
-- [x] `GroupMemberRepository` con métodos `save` y `findByUserAndGroup`
+- [x] Entidad `Recommendation` (group, movie, recommender, createdAt, deadline, status, finalScore)
+- [x] Entidad `Review` (votos por usuario, puntuaciones desglosadas, comentario, averageScore)
+- [x] `GroupRepository`, `GroupMemberRepository`, `RecommendationRepository`, `ReviewRepository` con métodos básicos (`save`, `findBy...`, `findActiveByGroup`, `findExpiredToClose`)
+- [x] Migración creada para las tablas `app_group_member`, `app_group_recommendation` y `app_group_review` (ver `migrations/Version20251224103850.php`)
 - [ ] Controladores API para gestión de grupos y miembros
-- [ ] Servicios: `GroupService`, `MembershipService` (validaciones y casos de uso)
-- [ ] Recomendaciones de películas (`Recommendation`) y reseñas/valoraciones (`Review`)
-- [ ] Job/Command para cierre de periodo de valoración y cálculo de puntuación final del grupo
-- [ ] Migraciones y tests automatizados del flujo completo
+- [ ] Servicios: `GroupService`, `MembershipService`, `RecommendationService`, `ReviewService` (validaciones y casos de uso)
+- [ ] Job/Command para cierre automático de recomendaciones (`CloseRecommendationsCommand` / scheduled handler)
+- [ ] Tests automatizados del flujo completo (recomendación → votación → cierre → cálculo)
 
-## Configuración
-No requiere configuración adicional específica por ahora. Las rutas y servicios se agregarán cuando se implementen los controladores y servicios.
+## Detalles de implementación 🔧
+- `Recommendation` incluye métodos útiles: `isExpired()`, `canAcceptVotes()` y `closeWithScore(float $score, int $votes)` para marcarla como cerrada y almacenar el `finalScore`.
+- `Review` implementa validaciones en el constructor: asegura que la recomendación esté abierta (`canAcceptVotes()`), valida que las puntuaciones estén entre 1 y 10 y calcula `averageScore` automáticamente.
+- Se añadió una restricción de unicidad a nivel de BD para evitar que un mismo usuario vote más de una vez por la misma recomendación (`UNIQUE INDEX unique_user_recommendation (recommendation_id, user_id)`).
+- `RecommendationRepository::findExpiredToClose()` devuelve recomendaciones que han pasado su `deadline` y siguen en estado `OPEN` — útil para el `CloseRecommendationsCommand`.
 
-## Dependencias
-- doctrine/orm (usado para entidades y repositorios)
-- symfony/security (para validar miembros/propietarios vía usuario autenticado)
+## Migraciones 🗂️
+- Migración principal: `migrations/Version20251224103850.php` (crea `app_group_member`, `app_group_recommendation`, `app_group_review`, y tablas relacionadas necesarias para `movie` y `genre`).
 
 ## Historial de Implementación
 1. Modelo `Group` creado con slug automático y asociación al `owner` (crea el `GroupMember` con rol OWNER) ✅
 2. Modelo `GroupMember` creado con repositorio y helpers básicos ✅
-3. Repositorios con métodos de guardado y búsqueda básicos ✅
+3. Entidades `Recommendation` y `Review` implementadas con sus repositorios y migración ✅
 
-## Plan de Implementación Detallado
-### 1. Ajustes y servicios básicos
-- [ ] Crear `GroupService` para casos de uso (crear/editar/eliminar grupos, invitar usuarios)
-- [ ] Implementar `MembershipService` para invitar/aceptar/quitar miembros y validaciones ACL
-
-### 2. Recomendaciones y valoraciones (prioridad alta)
-- [ ] Crear entidad `Recommendation` (group, movie, recommender, createdAt, deadline, status, finalScore)
-- [ ] Crear entidad `Review` o `Rating` (recommendation, user, score, reviewText, createdAt)
-- [ ] `RecommendationService` y `ReviewService` con reglas de negocio (único voto por usuario, edición antes de `deadline`)
-- [ ] Endpoints API/Controladores: recomendar, listar, puntuar, ver resumen (con ACL)
-
-### 3. Cierre de periodo y cálculo de puntuación
-- [ ] Implementar `CloseRecommendationsCommand` o handler programado (cron / Messenger scheduled)
-- [ ] Reglas de agregación (media, medianas, descarte de outliers — definir)
-- [ ] Notificaciones a miembros (opcional)
-
-### 4. Tests y migraciones
-- [ ] Crear migraciones Doctrine para nuevas entidades
-- [ ] Tests unitarios e integración para flujos: crear recomendación, votar, cierre y cálculo
-
-### 5. Funcionalidades tardías / Opcionales
-- [ ] Permitir crear manualmente una película si no existe en TMDB (planear al final)
-- [ ] UI/UX: páginas para administrar grupos y ver recomendaciones internas
+## Plan de Implementación Actualizado 📋
+1. Servicios y lógica de aplicación (prioridad alta)
+   - [ ] Implementar `RecommendationService` y `ReviewService` (reglas de negocio: único voto por usuario, edición antes de `deadline`, cálculo de agregados)
+   - [ ] Implementar `CloseRecommendationsCommand` (usar `RecommendationRepository::findExpiredToClose()` para cerrar recomendaciones y calcular `finalScore`)
+2. API / Controladores
+   - [ ] Endpoints para recomendar, listar recomendaciones de grupo, votar/editar voto y ver resumen (con ACL y validaciones)
+3. Tests y calidad
+   - [ ] Tests unitarios e integración para flujos críticos
+   - [ ] Crear fixtures y pruebas para `CloseRecommendationsCommand` y reglas de agregación
 
 ## Estado Actual
-- Fase actual: **Modelo de dominio base** implementado (entidades `Group` y `GroupMember` + repositorios).
-- Próxima tarea lógica: implementar servicios y endpoints para crear y gestionar grupos y membresías, seguido por el sistema de recomendaciones y valoraciones de grupo.
-- Status: **En progreso** — estructura básica lista para añadir casos de uso y API.
+- Fase actual: **Dominios y repositorios** implementados (incluyendo migraciones y restricciones de integridad).
+- Próxima tarea lógica: implementar servicios y endpoints, seguido por tests y el comando de cierre automático.
+- Status: **En progreso** — listo para desarrollar casos de uso y API.
 
 ## Notas de Diseño (decisiones y consideraciones)
-- Los grupos tienen un `owner` (propietario) y miembros con rol (`OWNER`/`MEMBER`) — el owner se añade automáticamente al crear el grupo.
-- Las recomendaciones y reseñas deben estar restringidas a miembros del grupo; la visibilidad de las reseñas individuales y del `finalScore` debe definirse (por defecto: resumen y `finalScore` solo visibles a miembros).
-- La creación manual de películas (cuando no existe en TMDB) se considera una funcionalidad avanzada y se planifica como último paso.
+- Las recomendaciones deben estar restringidas a miembros del grupo; la visibilidad del `finalScore` y detalles individuales seguirá siendo para miembros por defecto.
+- La agregación del `finalScore` será configurable (media simple por defecto; en el futuro se podrá introducir medianas, descarte de outliers o pesos).
+- Las validaciones críticas se encuentran en las entidades (`Review` y `Recommendation`) para proteger la integridad incluso si se omiten validaciones a nivel de servicio.
+
+---
+
 
 ---
