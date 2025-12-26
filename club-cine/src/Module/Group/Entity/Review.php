@@ -18,7 +18,7 @@ class Review
     private UuidInterface $id;
 
     #[ORM\ManyToOne(targetEntity: Recommendation::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: "recommendation_id", referencedColumnName: "id", nullable: false, onDelete: 'CASCADE')]
     private Recommendation $recommendation;
 
     #[ORM\ManyToOne(targetEntity: User::class)]
@@ -51,13 +51,13 @@ class Review
     private \DateTimeImmutable $createdAt;
 
     public function __construct(
-        Recommendation $recommendation, 
-        User $user, 
-        int $script, 
-        int $mainActor, 
-        int $mainActress, 
-        int $secondary, 
-        int $director, 
+        Recommendation $recommendation,
+        User $user,
+        int $script,
+        int $mainActor,
+        int $mainActress,
+        int $secondary,
+        int $director,
         ?string $comment = null
     ) {
         // La entidad usa la lógica de Recommendation para protegerse
@@ -87,19 +87,40 @@ class Review
         $this->scoreDirector = $director;
         $this->comment = $comment;
         $this->createdAt = new \DateTimeImmutable();
-        
+
         // Calculamos la media personal de esta crítica
         $this->averageScore = array_sum($scores) / count($scores);
     }
 
     // --- Getters ---
-    public function getId(): UuidInterface { return $this->id; }
-    public function getRecommendation(): Recommendation { return $this->recommendation; }
-    public function getUser(): User { return $this->user; }
-    public function getAverageScore(): float { return $this->averageScore; }
-    public function getComment(): ?string { return $this->comment; }
-    
+    public function getId(): UuidInterface
+    {
+        return $this->id;
+    }
+    public function getRecommendation(): Recommendation
+    {
+        return $this->recommendation;
+    }
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+    public function getAverageScore(): float
+    {
+        return $this->averageScore;
+    }
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
     // Getters específicos por si quieres hacer ránkings de "Mejor Guion"
-    public function getScoreScript(): int { return $this->scoreScript; }
-    public function getScoreDirector(): int { return $this->scoreDirector; }
+    public function getScoreScript(): int
+    {
+        return $this->scoreScript;
+    }
+    public function getScoreDirector(): int
+    {
+        return $this->scoreDirector;
+    }
 }

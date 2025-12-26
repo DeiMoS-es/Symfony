@@ -8,6 +8,7 @@ use App\Module\Movie\Entity\Genre;
 use App\Module\Movie\Repository\MovieRepository;
 use App\Module\Movie\Repository\GenreRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Module\Movie\Service\TmdbService;
 
 /**
  * Servicio principal para la lógica de negocio de Películas.
@@ -17,9 +18,9 @@ class MovieService
     public function __construct(
         private readonly MovieRepository $movieRepository,
         private readonly GenreRepository $genreRepository,
-        private readonly EntityManagerInterface $em
-    ) {
-    }
+        private readonly EntityManagerInterface $em,
+        private readonly TmdbService $tmdbService,
+    ) {}
 
     /**
      * Busca una película por su TmdbId o crea una nueva si no existe,
@@ -93,5 +94,47 @@ class MovieService
         }
 
         return $genre;
+    }
+
+    /**
+     * Obtiene los detalles de la película desde TMDB y los guarda en nuestra base de datos local.
+     */
+    public function getAndPersistFromTmdb(int $tmdbId): Movie
+    {
+        // 1. Si ya existe en nuestra DB, no hacemos nada más
+        $movie = $this->movieRepository->findOneBy(['tmdbId' => $tmdbId]);
+        if ($movie) {
+            return $movie;
+        }
+
+        // 2. Obtenemos datos de la API a través de tu TmdbService
+        $data = $this->tmdbService->fetchMovie($tmdbId);
+        if (!$data) {
+            throw new \RuntimeException(sprintf('No se pudo encontrar la película con ID %d en TMDB', $tmdbId));
+        }
+
+        // 3. Preparamos los datos complejos (fechas y géneros)
+        $releaseDate = !empty($data['release_date']) ? new \DateTimeImmutable($data['release_date']) : null;
+
+        // Extraemos solo los nombres o IDs de los géneros del array que devuelve fetchMovie
+        $genres = array_map(fn($g) => $g['name'], $data['genres'] ?? []);
+
+        // 4. Creamos tu DTO Inmutable usando el constructor (Promoción de propiedades)
+        $dto = new MovieUpsertRequest(
+            tmdbId: (int) $data['id'],
+            title: $data['title'],
+            overview: $data['overview'] ?? null,
+            posterPath: $data['poster_path'] ?? null,
+            releaseDate: $releaseDate,
+            genres: $genres
+        );
+
+        // 5. Reutilizamos tu lógica de persistencia que ya sabe manejar el DTO
+        $movie = $this->findOrCreateFromUpsertDTO($dto);
+
+        // Guardamos los cambios
+        $this->em->flush();
+
+        return $movie;
     }
 }

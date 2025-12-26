@@ -71,20 +71,59 @@ class Recommendation
 
     // --- Getters ---
 
-    public function getId(): ?int { return $this->id; }
-    public function getGroup(): Group { return $this->group; }
-    public function getMovie(): Movie { return $this->movie; }
-    public function getRecommendedBy(): User { return $this->recommendedBy; }
-    public function getDeadline(): \DateTimeImmutable { return $this->deadline; }
-    public function getStatus(): string { return $this->status; }
-    public function getFinalScore(): ?float { return $this->finalScore; }
-    public function getTotalVotes(): int { return $this->totalVotes; }
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+    public function getGroup(): Group
+    {
+        return $this->group;
+    }
+    public function getMovie(): Movie
+    {
+        return $this->movie;
+    }
+    public function getRecommendedBy(): User
+    {
+        return $this->recommendedBy;
+    }
+    public function getDeadline(): \DateTimeImmutable
+    {
+        return $this->deadline;
+    }
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+    public function getFinalScore(): ?float
+    {
+        return $this->finalScore;
+    }
+    public function getTotalVotes(): int
+    {
+        return $this->totalVotes;
+    }
 
-    public function getAvgScript(): float { return $this->avgScript; }
-    public function getAvgMainActor(): float { return $this->avgMainActor; }
-    public function getAvgMainActress(): float { return $this->avgMainActress; }
-    public function getAvgSecondaryActors(): float { return $this->avgSecondaryActors; }
-    public function getAvgDirector(): float { return $this->avgDirector; }
+    public function getAvgScript(): float
+    {
+        return $this->avgScript;
+    }
+    public function getAvgMainActor(): float
+    {
+        return $this->avgMainActor;
+    }
+    public function getAvgMainActress(): float
+    {
+        return $this->avgMainActress;
+    }
+    public function getAvgSecondaryActors(): float
+    {
+        return $this->avgSecondaryActors;
+    }
+    public function getAvgDirector(): float
+    {
+        return $this->avgDirector;
+    }
 
     // --- Lógica de Negocio ---
 
@@ -95,18 +134,26 @@ class Recommendation
     {
         $this->finalScore = $finalScore;
         $this->totalVotes = $votes;
-        
+
         $this->avgScript = $stats['script'] ?? 0;
         $this->avgMainActor = $stats['mainActor'] ?? 0;
         $this->avgMainActress = $stats['mainActress'] ?? 0;
         $this->avgSecondaryActors = $stats['secondary'] ?? 0;
         $this->avgDirector = $stats['director'] ?? 0;
-        
+
         $this->status = 'CLOSED';
     }
 
     public function isClosed(): bool
     {
         return $this->status === 'CLOSED';
+    }
+
+    public function canAcceptVotes(): bool
+    {
+        // Solo aceptamos votos si el status es OPEN y no hemos pasado la fecha límite
+        $now = new \DateTimeImmutable();
+
+        return $this->status === 'OPEN' && $now < $this->deadline;
     }
 }

@@ -11,12 +11,29 @@
                class="card-img-top img-fluid"
                alt="Sin imagen">
         {% endif %}
-        <div class="card-body p-2">
+        
+        <div class="card-body p-2 d-flex flex-column"> {# Cambiado para empujar el botón abajo #}
           <h6 class="card-title text-truncate">{{ movie.title }}</h6>
+          
           {% if movie.releaseDate %}
-            <small class="text-muted">
+            <small class="text-muted mb-2 d-block">
               Estreno: {{ movie.releaseDate|date('d/m/Y') }}
             </small>
+          {% endif %}
+
+          {# --- BOTÓN DE RECOMENDAR --- #}
+          {# Solo mostramos el botón si la variable 'group' ha sido enviada desde el controlador #}
+          {% if group is defined and group is not null %}
+            <div class="mt-auto">
+                <a href="{{ path('app_group_recommend_movie', { 'id': group.id, 'tmdbId': movie.tmdbId }) }}" 
+                  class="btn btn-sm btn-primary w-100">
+                  🎬 Recomendar
+                </a>
+            </div>
+          {% else %}
+            <div class="mt-auto">
+                <span class="badge bg-secondary w-100">Entra en un grupo para recomendar</span>
+            </div>
           {% endif %}
         </div>
       </div>
