@@ -1,6 +1,6 @@
 # 🎬 CineClub App
 
-Una aplicación web desarrollada con **Symfony 7** para digitalizar y mejorar la experiencia del cine club creado por mi pareja y sus compañeros de trabajo. Cada semana el grupo elige una película, la ve, y comparte sus valoraciones y comentarios. Esta app reemplaza el uso de hojas de Excel por una interfaz moderna, accesible y colaborativa.
+Una aplicación web desarrollada con **Symfony 7** para digitalizar y mejorar la experiencia del cine club creado por mi pareja y sus compañeros de trabajo. Cada semana el grupo elige una película, la ve y comparte sus valoraciones y comentarios. Esta app reemplaza el uso de hojas de Excel por una interfaz moderna, accesible y colaborativa.
 
 ---
 
@@ -17,37 +17,80 @@ Facilitar la participación en el cine club mediante una plataforma web que perm
 
 ---
 
-## 🧩 Arquitectura Modular
+## 🧩 Arquitectura modular
 
 El proyecto está organizado en módulos independientes dentro de `src/Module`, cada uno con su propio README y responsabilidades bien definidas:
-- 📄 [README del módulo Auth](src/Module/Auth/README.md)
+
+- 📄 [Módulo Auth](src/Module/Auth/README.md)
+- 📄 [Módulo Group](src/Module/Group/README.md)
+- 📄 [Módulo Movie](src/Module/Movie/README.md) *(planificado, README creado para documentar la integración con TMDb y el catálogo de películas)*
+
 ---
 
 ## 🛠️ Tecnologías utilizadas
 
 - **Backend:** Symfony 7 (PHP 8.2)
 - **Frontend:** Twig + Bootstrap 5
-- **Base de datos:** MySQL
-- **Autenticación:** JWT + cookies
+- **Base de datos:** MySQL (desarrollo) y SQLite en memoria para tests
+- **Autenticación:** JWT + cookies (LexikJWTAuthenticationBundle)
 - **Control de versiones:** Git + GitLab
 
 ---
 
 ## 📦 Estado actual del proyecto
 
-- ✅ Registro de usuarios
-- ✅ Inicio de sesión
+- ✅ Registro de usuarios (API JSON)
+- ✅ Inicio de sesión con JWT + refresh token
 - ✅ Creación de grupos de amigos
-- 🔜 Sistema de puntuación por aspectos
-- 🔜 Comentarios por película
+- ✅ Modelo de recomendaciones y reviews dentro de grupos
+- 🔜 Sistema de puntuación por aspectos expuesto en la interfaz de usuario
+- 🔜 Comentarios por película y vistas de detalle
 - 🔜 Panel de administración
-- 🔜 Visualización de rankings y estadísticas
+- 🔜 Visualización de rankings y estadísticas agregadas
 
 ---
 
-## 📚 Instalación
+## ▶️ Puesta en marcha rápida
 
 ```bash
 git clone https://github.com/tu-usuario/cineclub-app.git
 cd cineclub-app
-make install  # o ./scripts/setup.sh si usas un script personalizado
+
+# Instalar dependencias
+composer install
+
+# Configurar variables de entorno (editar .env o crear .env.local)
+# - DATABASE_URL (MySQL)
+# - JWT_SECRET_KEY / JWT_PUBLIC_KEY / JWT_PASSPHRASE
+# - TMDB_API_KEY / TMDB_READ_TOKEN
+
+# Ejecutar migraciones de base de datos (entorno dev)
+php bin/console doctrine:migrations:migrate
+
+# Arrancar el servidor de desarrollo
+php -S localhost:8000 -t public
+# o, si tienes el CLI de Symfony:
+# symfony server:start -d
+```
+
+---
+
+## 🧪 Tests
+
+- Ejecutar toda la batería de tests (usa `.env.test` con SQLite en memoria):
+  - `php bin/phpunit`
+- Ejecutar un test concreto del módulo de autenticación:
+  - `php bin/phpunit tests/Module/Auth/AuthModuleTest.php`
+
+---
+
+## 📂 Módulos principales
+
+### Auth (`src/Module/Auth`)
+Maneja el registro de usuarios, login, generación de JWT/refresh tokens y cierre de sesión. Expone endpoints JSON (`/auth/register`, `/auth/login`, `/auth/refresh`) y se integra con Symfony Security + LexikJWT.
+
+### Group (`src/Module/Group`)
+Modela los grupos del cine club, su membresía y las recomendaciones/reviews internas entre miembros. Incluye la lógica para cerrar automáticamente recomendaciones cuando expira la fecha límite.
+
+### Movie (`src/Module/Movie`)
+Se encarga de la integración con TMDb, el catálogo de películas y la persistencia local de `Movie` y `Genre`. Proporciona un dashboard de películas populares y servicios para sincronizar datos desde la API externa.

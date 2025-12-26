@@ -33,8 +33,8 @@ La configuración principal del módulo se encuentra en:
 ## Dependencias
 - symfony/security-bundle
 - doctrine/orm
-- sqlite3 (para tests en memoria)
-- lexik/jwt-authentication-bundle (pendiente de implementar)
+- sqlite3 (para tests en memoria, vía `DATABASE_URL="sqlite:///:memory:"` en `.env.test`)
+- lexik/jwt-authentication-bundle (implementado, usado para autenticación JWT)
 - nelmio/security-bundle (para headers de seguridad)
 
 ## Historial de Implementación
@@ -58,16 +58,17 @@ La configuración principal del módulo se encuentra en:
   - [x] roles
   - [x] createdAt
   - [x] updatedAt
-- [ ] Generar migración de base de datos
-- [ ] Implementar UserRepository
-- [ ] Crear UserProvider personalizado
+- [x] Generar migración de base de datos para `app_user`
+- [x] Implementar UserRepository
+- [ ] Crear UserProvider personalizado (no prioritario mientras se use Lexik JWT con el provider por defecto)
 
-### 3. Sistema de Autenticación
-- [ ] Configurar Guard Authenticator
-- [ ] Implementar LoginFormAuthenticator
-- [ ] Crear formulario de login (LoginType)
-- [x] Desarrollar controlador de autenticación (LoginController)
-- [ ] Implementar páginas de login y registro
+### 3. Sistema de Autenticación (API JSON + JWT)
+- [x] Exponer endpoint `/auth/login` que recibe credenciales en JSON
+- [x] Validar credenciales mediante `AuthService` + `UserPasswordHasherInterface`
+- [x] Generar JWT y refresh token usando LexikJWT + entidad `RefreshToken`
+- [x] Devolver el token de acceso y el refresh token en la respuesta JSON
+- [x] Integrar `JwtCookieInjectorListener` para permitir autenticación vía cookie `ACCESS_TOKEN`
+- [ ] (Opcional) Añadir formularios HTML clásicos de login/registro si más adelante se necesita interfaz server-side
 
 ### 4. Registro de Usuarios ✓
 - [x] Crear formulario de registro (RegistrationType)
@@ -103,9 +104,9 @@ La configuración principal del módulo se encuentra en:
 - [ ] Realizar tests de seguridad
 
 ## Estado Actual
-- Fase actual: Implementación de sistema de login y generación de tokens JWT
-- Próxima fase: Implementación de UserRepository y refactorización de seguridad
-- Status: **En progreso** - LoginController funcional con delegación en AuthService
+- Fase actual: Sistema de login y generación de tokens JWT funcionando (endpoints JSON + LexikJWT)
+- Próxima fase: Recuperación de contraseña, gestión avanzada de roles y hardening de seguridad (rate limiting, headers avanzados, tests de seguridad)
+- Status: **En progreso** — flujo de autenticación básico estable, pendiente completar funcionalidades avanzadas
 
 ## Notas de Seguridad
 - Las contraseñas se almacenan utilizando el algoritmo de hash bcrypt
