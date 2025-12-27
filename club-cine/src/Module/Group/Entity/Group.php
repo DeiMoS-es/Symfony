@@ -10,7 +10,7 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
-#[ORM\Entity(repositoryClass: "App\Module\Auth\Repository\GroupRepository")]
+#[ORM\Entity(repositoryClass: "App\Module\Group\Repository\GroupRepository")]
 #[ORM\Table(name: 'app_group')]
 #[ORM\HasLifecycleCallbacks]
 class Group
@@ -150,5 +150,12 @@ class Group
     public function preUpdate(): void
     {
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function updateSlug(): void
+    {
+        $this->generateSlug();
     }
 }

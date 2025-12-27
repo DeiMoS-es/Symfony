@@ -37,8 +37,8 @@ class Movie
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $backdropPath = null;
 
-    #[ORM\Column(type: "date", nullable: true)]
-    private ?\DateTimeInterface $releaseDate = null;
+    #[ORM\Column(type: "date_immutable", nullable: true)]
+    private ?\DateTimeImmutable $releaseDate = null;
 
     #[ORM\Column(type: "integer", nullable: true)]
     private ?int $runtime = null;

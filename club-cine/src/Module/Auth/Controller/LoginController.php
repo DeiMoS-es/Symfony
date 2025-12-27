@@ -4,19 +4,22 @@ namespace App\Module\Auth\Controller;
 
 use App\Module\Auth\Exception\InvalidCredentialsException;
 use App\Module\Auth\Service\AuthService;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 class LoginController extends AbstractController
 {
     #[Route('/auth/login', name: 'auth_login', methods: ['GET', 'POST'])]
-    public function login(Request $request, AuthService $authService): Response
+    public function login(Request $request, AuthService $authService, Security $security): Response
     {
-        $context = ['error' => null,'email' => '',];
+        $context = [
+            'error' => null,
+            'email' => '',
+        ];
 
         if ($request->isMethod('GET')) {
             return $this->render('auth/login.html.twig', $context);
@@ -33,47 +36,50 @@ class LoginController extends AbstractController
         $context['email'] = $email;
 
         try {
+            // 1. Validar credenciales
             $user = $authService->validateCredentials($email, $password);
+
+            // 2. Iniciar sesión en el Firewall 'main' (para que el Dashboard te reconozca)
+            $security->login($user, 'security.authenticator.form_login.main', 'main');
+
+            // 3. Generar tokens para compatibilidad con API
             $jwt = $authService->generateJwt($user);
             $refresh = $authService->generateRefreshToken($user);
 
-            // Guardar el JWT en una cookie accesible por JS (si lo necesitas)
-            $jwtCookie = Cookie::create(
+            // 4. Crear respuesta de redirección
+            $response = $this->redirectToRoute('user_dashboard');
+
+            // 5. Añadir cookies a la respuesta
+            $response->headers->setCookie(Cookie::create(
                 'ACCESS_TOKEN',
                 $jwt,
                 (new \DateTimeImmutable())->add(new \DateInterval('PT1H')),
                 '/',
                 null,
-                true,  // secure
-                false, // httpOnly = false para que JS pueda leerlo si lo necesitas
+                true,
+                false,
                 false,
                 'Strict'
-            );
+            ));
 
-            // Guardar el refresh token en una cookie HttpOnly
-            $refreshCookie = Cookie::create(
+            $response->headers->setCookie(Cookie::create(
                 'REFRESH_TOKEN',
                 $refresh['plain'],
                 $refresh['expires'],
                 '/',
                 null,
                 true,
-                true, // httpOnly
+                true,
                 false,
                 'Strict'
-            );
+            ));
 
-            // TODO hacer redirección a ruta protegida
-            //$response = $this->render('home.html.twig', ['user' => $user]);
-            $response = $this->redirectToRoute('user_dashboard');
-            $response->headers->setCookie($jwtCookie);
-            $response->headers->setCookie($refreshCookie);
             return $response;
             
         } catch (InvalidCredentialsException $e) {
             $context['error'] = 'Credenciales inválidas';
         } catch (\Throwable $e) {
-           $context['error'] = 'Error interno del servidor: ' . $e->getMessage();
+            $context['error'] = 'Error interno: ' . $e->getMessage();
         }
 
         return $this->render('auth/login.html.twig', $context);

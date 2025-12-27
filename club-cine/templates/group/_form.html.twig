@@ -1,0 +1,25 @@
+{# templates/group/_form.html.twig #}
+<div class="p-1">
+    <p class="text-muted small mb-4">
+        Al crear un club, podrás recomendar películas a tus amigos.
+    </p>
+
+    {{ form_start(form) }}
+        <div class="mb-3">
+            {{ form_label(form.name, 'Nombre del Club', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+            {{ form_widget(form.name, {'attr': {'class': 'form-control', 'placeholder': 'Ej: Los Amigos de Hitchcock'}}) }}
+            {{ form_errors(form.name) }}
+        </div>
+
+        <div class="mb-3">
+            {{ form_label(form.description, '¿De qué trata el club?', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': '3'}}) }}
+            {{ form_errors(form.description) }}
+        </div>
+
+        <div class="modal-footer px-0 pb-0 mt-4">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Fundar Club</button>
+        </div>
+    {{ form_end(form) }}
+</div>

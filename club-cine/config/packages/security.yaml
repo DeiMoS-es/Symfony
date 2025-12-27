@@ -1,75 +1,42 @@
 # config/packages/security.yaml
 security:
-    # ---------------------------------------
-    # Encoders / password hashers
-    # ---------------------------------------
     password_hashers:
         App\Module\Auth\Entity\User:
             algorithm: auto
 
-    # ---------------------------------------
-    # Providers
-    # ---------------------------------------
     providers:
         app_user_provider:
             entity:
                 class: App\Module\Auth\Entity\User
                 property: email
 
-    # ---------------------------------------
-    # Firewalls
-    # ---------------------------------------
     firewalls:
-        # Este firewall se usa para las rutas de login y refresh
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        login:
-            pattern: ^/auth/login
-            security: false
-            # stateless: true
-            # json_login:
-            #     check_path: /auth/login
-            #     username_path: email
-            #     password_path: password
-            #     success_handler: lexik_jwt_authentication.handler.authentication_success
-            #     failure_handler: lexik_jwt_authentication.handler.authentication_failure
-
-        refresh:
-            pattern: ^/api/refresh
-            stateless: true
-            # Solo permitimos acceder mediante cookie HttpOnly
-            # custom_authenticator: App\Module\Auth\Security\RefreshTokenAuthenticator
-
         api:
             pattern: ^/api
             stateless: true
-            jwt: ~ # LexikJWTBundle manejará la validación del token
-        
-        movies:
-            pattern: ^/movies
-            stateless: true
             jwt: ~
 
-    # ---------------------------------------
-    # Access control
-    # ---------------------------------------
+        main:
+            lazy: true
+            provider: app_user_provider
+            
+            # Al poner un check_path distinto a la ruta de tu login, 
+            # Symfony no buscará los campos _username/_password automáticamente.
+            form_login:
+                login_path: auth_login
+                check_path: /internal_login_check 
+            
+            logout:
+                path: auth_logout
+                target: auth_login
+
     access_control:
-        # Rutas públicas
-        - { path: ^/auth/register, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        # - { path: ^/auth/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-
-        # Rutas de usuarios normales
-        - { path: ^/api/user, roles: ROLE_USER }
+        - { path: ^/auth/login, roles: PUBLIC_ACCESS }
+        - { path: ^/auth/register, roles: PUBLIC_ACCESS }
+        - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/movies, roles: ROLE_USER }
-
-        # Rutas de administradores
-        - { path: ^/api/admin, roles: ROLE_ADMIN }
-
-    # ---------------------------------------
-    # Role hierarchy
-    # ---------------------------------------
-    role_hierarchy:
-        ROLE_ADMIN: ROLE_USER
+        - { path: ^/group, roles: ROLE_USER }

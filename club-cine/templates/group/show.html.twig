@@ -1,0 +1,71 @@
+{# templates/group/show.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}🎬 {{ group.name }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+        <div>
+            <h1 class="mb-1">🎬 {{ group.name }}</h1>
+            <p class="text-muted mb-0 small">ID: {{ group.id }}</p>
+        </div>
+        <a href="{{ path('user_dashboard') }}" class="btn btn-outline-secondary btn-sm">Volver al catálogo</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-9">
+            <h5 class="mb-4">🍿 Cartelera del Club</h5>
+            <div class="row row-cols-2 row-cols-md-4 g-3">
+                {% for rec in recommendations %}
+                    <div class="col text-center">
+                        {% if rec.movie.posterPath %}
+                            <img src="https://image.tmdb.org/t/p/w500{{ rec.movie.posterPath }}" 
+                                 alt="{{ rec.movie.title }}"
+                                 class="img-fluid rounded shadow-sm mb-2">
+                        {% else %}
+                            <div class="bg-secondary rounded mb-2 d-flex align-items-center justify-content-center" style="height: 250px;">
+                                <span class="text-white small">Sin póster</span>
+                            </div>
+                        {% endif %}
+                        
+                        <p class="small fw-bold mb-0 text-truncate" title="{{ rec.movie.title }}">
+                            {{ rec.movie.title }}
+                        </p>
+                        
+                        {# 
+                           CAMBIO CLAVE:
+                           Se usa 'recommendedBy' porque así se llama la propiedad en tu Entidad Recommendation.php 
+                        #}
+                        <small class="text-muted d-block">
+                            Por: {{ rec.recommendedBy.name|default(rec.recommendedBy.email) }}
+                        </small>
+                        
+                        <span class="badge {{ rec.status == 'OPEN' ? 'bg-success' : 'bg-secondary' }} mt-1" style="font-size: 0.7rem;">
+                            {{ rec.status }}
+                        </span>
+                    </div>
+                {% else %}
+                    <div class="col-12 text-center py-5 border rounded bg-light">
+                        <p class="text-muted mb-0">Aún no hay películas recomendadas en este club.</p>
+                        <a href="{{ path('user_dashboard') }}" class="btn btn-primary btn-sm mt-3">¡Recomienda la primera!</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card bg-light border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title fw-bold">Info del Club</h6>
+                    <p class="small text-muted mb-0">{{ group.description|default('Sin descripción disponible.') }}</p>
+                    <hr>
+                    <div class="d-grid gap-2">
+                        {# Aquí podrías añadir botones de gestión si el usuario es admin #}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

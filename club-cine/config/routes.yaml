@@ -8,3 +8,6 @@ movie_controllers:
     resource: ../src/Module/Movie/Controller/
     type: attribute
 
+group_controllers:
+    resource: ../src/Module/Group/Controller/
+    type: attribute

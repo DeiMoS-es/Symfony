@@ -58,8 +58,3 @@ Group/
 - Las recomendaciones deben estar restringidas a miembros del grupo; la visibilidad del `finalScore` y detalles individuales seguirá siendo para miembros por defecto.
 - La agregación del `finalScore` será configurable (media simple por defecto; en el futuro se podrá introducir medianas, descarte de outliers o pesos).
 - Las validaciones críticas se encuentran en las entidades (`Review` y `Recommendation`) para proteger la integridad incluso si se omiten validaciones a nivel de servicio.
-
----
-
-
----
