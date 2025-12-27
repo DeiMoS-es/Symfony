@@ -43,7 +43,9 @@ El proyecto está organizado en módulos independientes dentro de `src/Module`, 
 - ✅ Inicio de sesión con JWT + refresh token
 - ✅ Creación de grupos de amigos
 - ✅ Modelo de recomendaciones y reviews dentro de grupos
-- 🔜 Sistema de puntuación por aspectos expuesto en la interfaz de usuario
+- ✅ Recomendación desde catálogo y gestión básica en la interfaz (botón "Recomendar", vista de grupo)
+- ✅ Comando para cierre automático de recomendaciones (`app:close-recommendations`)
+- 🔜 Sistema de puntuación por aspectos expuesto en la interfaz de usuario (votos/edición en UI pendientes)
 - 🔜 Comentarios por película y vistas de detalle
 - 🔜 Panel de administración
 - 🔜 Visualización de rankings y estadísticas agregadas

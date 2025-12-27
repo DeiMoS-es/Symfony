@@ -27,6 +27,7 @@ Movie/
   - [x] Resolver/crear géneros asociados.
   - [x] Sincronizar una película concreta desde TMDb (`getAndPersistFromTmdb`).
 - [x] Controladores para dashboard y catálogo (`DashboardController`, `MovieCatalogController`).
+- [x] Botón "Recomendar" en el catálogo que permite recomendar la película al grupo del usuario (si está en un grupo).
 - [x] Listener global `TmdbExceptionListener` para mapear errores de TMDb a respuestas HTTP JSON con códigos adecuados.
 
 ## Configuración

@@ -6,7 +6,7 @@ Este módulo se encarga de la gestión de grupos de usuarios dentro de la aplica
 ## Estructura del Módulo
 ```
 Group/
-├── Controller/     # Controladores para exponer la API de grupos y recomendaciones (pendiente)
+├── Controller/     # Controladores para exponer la API de grupos y recomendaciones (implementados: crear grupo, mostrar grupo, recomendar película)
 ├── Entity/         # Entidades: Group, GroupMember, Recommendation, Review
 ├── Repository/     # Repositorios para acceso a datos y consultas de dominio
 ├── Services/       # Servicios del dominio (RecommendationManager, RecommendationFactory, etc.)
@@ -20,7 +20,7 @@ Group/
 - [x] Entidad `Review` (votos por usuario, puntuaciones desglosadas, comentario, averageScore)
 - [x] `GroupRepository`, `GroupMemberRepository`, `RecommendationRepository`, `ReviewRepository` con métodos básicos (`save`, `findBy...`, `findActiveByGroup`, `findExpiredToClose`)
 - [x] Migración creada para las tablas `app_group_member`, `app_group_recommendation` y `app_group_review` (ver `migrations/Version20251224103850.php`)
-- [ ] Controladores API para gestión de grupos, recomendaciones y miembros
+- [x] Controladores básicos: crear grupo, mostrar grupo y recomendar película (pendiente: endpoints de votación/edición de votos)
 - [ ] Servicios de aplicación: `GroupService`, `MembershipService`, `RecommendationService`, `ReviewService` (validaciones y casos de uso orientados a la API)
 - [x] Job/Command para cierre automático de recomendaciones (`CloseRecommendationsCommand` + `RecommendationManager`)
 - [ ] Tests automatizados del flujo completo (recomendación → votación → cierre → cálculo)
@@ -44,13 +44,14 @@ Group/
    - [ ] Implementar `RecommendationService` y `ReviewService` (reglas de negocio: único voto por usuario, edición antes de `deadline`, cálculo de agregados)
    - [x] Usar `RecommendationManager` + `RecommendationRepository::findExpiredToClose()` para cerrar recomendaciones y calcular `finalScore` vía `closeWithStats`
 2. API / Controladores
-   - [ ] Endpoints para recomendar, listar recomendaciones de grupo, votar/editar voto y ver resumen (con ACL y validaciones)
+   - [x] Endpoints para recomendar y listar recomendaciones de grupo (implementados);
+   - [ ] Endpoints para votar/editar voto y ver resumen (pendientes, con ACL y validaciones)
 3. Tests y calidad
    - [ ] Tests unitarios e integración para flujos críticos
    - [ ] Crear fixtures y pruebas para `CloseRecommendationsCommand` y reglas de agregación
 
 ## Estado Actual
-- Fase actual: **Dominios, repositorios y comando de cierre automático** implementados (incluyendo migraciones y restricciones de integridad).
+- Fase actual: **Dominios, repositorios, comando de cierre automático y controladores básicos (crear grupo, recomendar, mostrar grupo)** implementados (incluyendo migraciones y restricciones de integridad). Las vistas muestran la cartelera del grupo y permiten recomendar desde el catálogo.
 - Próxima tarea lógica: implementar servicios de aplicación y endpoints HTTP, seguido por tests del flujo completo y afinado de agregaciones.
 - Status: **En progreso** — listo para desarrollar casos de uso y exponer la API.
 
