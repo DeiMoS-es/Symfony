@@ -40,36 +40,55 @@
         </div>
     {% endif %}
 
-    {# Sección de Título del Catálogo #}
-    <div class="mb-3">
-        <h4 class="fw-bold"><i class="bi bi-film"></i> Películas Populares</h4>
-        <p class="text-muted small">Selecciona una joya para verla con tu club esta semana.</p>
+    {# Sección de Título y Buscador (Espacio preparado para el buscador) #}
+    <div class="row align-items-end mb-3">
+        <div class="col-md-8">
+            <h4 class="fw-bold mb-1"><i class="bi bi-film"></i> Películas Populares</h4>
+            <p class="text-muted small mb-0">Selecciona una joya para verla con tu club esta semana.</p>
+        </div>
     </div>
 
     {# LISTADO DE PELÍCULAS #}
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
         {% for movie in movies.items %}
             <div class="col">
-                <div class="card h-100 shadow-sm border-0 movie-card overflow-hidden">
-                    <div class="position-relative">
+                <div class="card h-100 shadow-sm border-0 movie-card">
+                    <div class="position-relative overflow-hidden" style="border-radius: 12px 12px 0 0;">
                         {% if movie.posterPath %}
-                            <img src="https://image.tmdb.org/t/p/w500{{ movie.posterPath }}" class="card-img-top" alt="{{ movie.title }}">
+                            {# Quitamos el height fijo para que no se corte la imagen #}
+                            <img src="https://image.tmdb.org/t/p/w500{{ movie.posterPath }}" 
+                                 class="card-img-top d-block w-100" 
+                                 alt="{{ movie.title }}"
+                                 style="object-fit: contain;">
                         {% else %}
-                            <div class="bg-dark d-flex align-items-center justify-content-center" style="height: 300px;">
+                            <div class="bg-dark d-flex align-items-center justify-content-center" style="aspect-ratio: 2/3;">
                                 <i class="bi bi-camera-video text-secondary fs-1"></i>
                             </div>
                         {% endif %}
+                        
+                        {# Badge de año flotante mejorado #}
+                        <div class="position-absolute top-0 end-0 m-2">
+                             <span class="badge bg-dark bg-opacity-75 backdrop-blur shadow-sm">
+                                {{ movie.releaseDate ? movie.releaseDate|date('Y') : 'TBA' }}
+                             </span>
+                        </div>
                     </div>
                     
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title h6 text-truncate mb-3" title="{{ movie.title }}">{{ movie.title }}</h5>
+                    <div class="card-body d-flex flex-column pt-3">
+                        <h5 class="card-title h6 fw-bold mb-2 text-truncate" title="{{ movie.title }}">
+                            {{ movie.title }}
+                        </h5>
+                        
+                        <div class="d-flex align-items-center text-muted mb-3" style="font-size: 0.8rem;">
+                            <i class="bi bi-calendar-event me-2 text-primary"></i>
+                            <span>{{ movie.releaseDate ? movie.releaseDate|date('d/m/Y') : 'Sin fecha' }}</span>
+                        </div>
 
                         {% if user.groupId %}
                             <div class="mt-auto">
-                                {# --- CAMBIO DE UX AQUÍ --- #}
                                 <a href="{{ path('app_group_recommend_movie', { 'id': user.groupId, 'tmdbId': movie.tmdbId }) }}" 
-                                   class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm transition-btn">
-                                    <i class="bi bi-megaphone-fill"></i>
+                                   class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2 transition-btn">
+                                    <i class="bi bi-megaphone"></i>
                                     <span>Recomendar</span>
                                 </a>
                             </div>
@@ -104,9 +123,34 @@
 {% endif %}
 
 <style>
-    .movie-card { transition: transform 0.2s ease-in-out; }
-    .movie-card:hover { transform: translateY(-5px); }
-    .transition-btn { transition: all 0.3s; font-weight: 500; }
-    .transition-btn:hover { filter: brightness(1.1); }
+    :root {
+        --card-border-radius: 12px;
+    }
+    .movie-card { 
+        transition: all 0.25s ease; 
+        border-radius: var(--card-border-radius);
+        background: #fff;
+    }
+    .movie-card:hover { 
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(0,0,0,0.12) !important;
+    }
+    .backdrop-blur {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    .transition-btn { 
+        transition: all 0.2s; 
+        font-weight: 600; 
+        border-radius: 8px;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+    .transition-btn:hover { 
+        filter: contrast(1.1);
+        transform: scale(1.03);
+    }
 </style>
 {% endblock %}
