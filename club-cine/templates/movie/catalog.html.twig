@@ -22,19 +22,19 @@
           {% endif %}
 
           {# --- BOTÓN DE RECOMENDAR --- #}
-          {# Solo mostramos el botón si la variable 'group' ha sido enviada desde el controlador #}
-          {% if group is defined and group is not null %}
-            <div class="mt-auto">
-                <a href="{{ path('app_group_recommend_movie', { 'id': group.id, 'tmdbId': movie.tmdbId }) }}" 
-                  class="btn btn-sm btn-primary w-100">
-                  🎬 Recomendar
-                </a>
-            </div>
-          {% else %}
-            <div class="mt-auto">
-                <span class="badge bg-secondary w-100">Entra en un grupo para recomendar</span>
-            </div>
-          {% endif %}
+          {# Usamos el objeto 'user' (que es nuestro UserResponse DTO) #}
+          <div class="mt-auto">
+              {% if user is defined and user.groupId is not null %}
+                  {# El usuario tiene un grupo asociado en su DTO #}
+                  <a href="{{ path('app_group_recommend_movie', { 'id': user.groupId, 'tmdbId': movie.tmdbId }) }}" 
+                    class="btn btn-sm btn-primary w-100">
+                    🎬 Recomendar
+                  </a>
+              {% else %}
+                  {# El usuario no tiene grupo (user.groupId es null) #}
+                  <span class="badge bg-secondary w-100 p-2">Entra en un grupo para recomendar</span>
+              {% endif %}
+          </div>
         </div>
       </div>
     </div>

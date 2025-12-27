@@ -4,6 +4,7 @@ namespace App\Module\Movie\Controller;
 
 use App\Module\Movie\Service\TmdbService;
 use App\Module\Auth\Entity\User;
+use App\Module\Auth\Mapper\UserMapper;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,20 +16,19 @@ class DashboardController extends AbstractController
     #[Route('/dashboard', name: 'user_dashboard', methods: ['GET'])]
     public function dashboard(Request $request, TmdbService $tmdbService): Response
     {
-        // 1. Obtenemos el usuario actual e indicamos al editor qué clase es
         /** @var User|null $user */
         $user = $this->getUser();
 
-        // 2. Ahora el editor reconocerá getGroup() sin errores
-        $group = ($user instanceof User) ? $user->getGroup() : null;
-        
-        // 3. Obtenemos la página de forma limpia usando el objeto Request
+        // 1. Convertimos la Entidad en un DTO limpio usando tu Mapper
+        // Ahora $userDto tiene .email, .name, .groupId y .groupName
+        $userDto = $user ? UserMapper::toResponseDTO($user) : null;
+
         $page = $request->query->getInt('page', 1);
         $catalog = $tmdbService->fetchPopularCatalog($page);
 
         return $this->render('dashboard.html.twig', [
             'movies' => $catalog,
-            'group'  => $group,
+            'user'   => $userDto, // Pasamos el DTO del usuario
         ]);
     }
 }
