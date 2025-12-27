@@ -3,6 +3,7 @@
 namespace App\Module\Group\Controller;
 
 use App\Module\Group\Entity\Group;
+use App\Module\Group\Entity\Recommendation;
 use App\Module\Group\Services\RecommendationFactory;
 use App\Module\Movie\Service\MovieService;
 use App\Module\Auth\Entity\User;
@@ -12,11 +13,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[IsGranted('ROLE_USER')]
 class RecommendationController extends AbstractController
 {
     #[IsGranted('ROLE_USER')]
-    #[Route('/group/{id}/recommend/{tmdbId}', name: 'app_group_recommend_movie', methods: ['GET', 'POST'])]
+    #[Route('/group/{id}/recommend/{tmdbId}', name: 'app_group_recommend_movie')]
     public function recommend(
         string $id, 
         int $tmdbId,
@@ -25,38 +25,46 @@ class RecommendationController extends AbstractController
         EntityManagerInterface $em
     ): Response {
         try {
-            // 1. Verificamos el usuario logueado
             /** @var User|null $user */
             $user = $this->getUser();
             if (!$user) {
-                throw new \Exception("Debes iniciar sesión para realizar esta acción.");
+                throw new \Exception("Usuario no autenticado.");
             }
 
-            // 2. Buscamos el grupo manualmente por su ID (string/UUID)
             $group = $em->getRepository(Group::class)->find($id);
             if (!$group) {
-                throw new \Exception("El grupo de cine no existe.");
+                throw new \Exception("El grupo especificado no existe.");
             }
 
-            // 3. Obtenemos la película (y la guardamos en local si no existe)
-            // Asegúrate de haber actualizado el campo releaseDate en la Entidad Movie a 'date_immutable'
+            // 1. Obtenemos la película (la crea si no existe en nuestra DB)
             $movie = $movieService->getAndPersistFromTmdb($tmdbId);
-            
-            // 4. Creamos la recomendación usando la Factory
+
+            // 2. VALIDACIÓN: ¿Ya existe esta película en este grupo?
+            $existingRecommendation = $em->getRepository(Recommendation::class)->findOneBy([
+                'group' => $group,
+                'movie' => $movie
+            ]);
+
+            if ($existingRecommendation) {
+                $this->addFlash('warning', 'Esta película ya ha sido recomendada en este club por ' . 
+                    $existingRecommendation->getRecommendedBy()->getName());
+                
+                return $this->redirectToRoute('app_group_show', ['id' => $id]);
+            }
+
+            // 3. Si no existe, procedemos a crearla
             $recommendation = $factory->create($group, $movie, $user);
 
-            // 5. Guardamos en la base de datos
             $em->persist($recommendation);
             $em->flush();
 
-            $this->addFlash('success', sprintf('¡Has recomendado "%s" con éxito!', $movie->getTitle()));
+            $this->addFlash('success', '¡Película añadida a la cartelera con éxito!');
 
         } catch (\Exception $e) {
             $this->addFlash('danger', 'Error: ' . $e->getMessage());
             return $this->redirectToRoute('user_dashboard');
         }
 
-        // 6. Redirigimos a la cartelera del grupo
         return $this->redirectToRoute('app_group_show', ['id' => $id]);
     }
 }

@@ -8,7 +8,6 @@
     <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
         <div>
             <h1 class="mb-1">🎬 {{ group.name }}</h1>
-            <p class="text-muted mb-0 small">ID: {{ group.id }}</p>
         </div>
         <a href="{{ path('user_dashboard') }}" class="btn btn-outline-secondary btn-sm">Volver al catálogo</a>
     </div>
@@ -32,11 +31,7 @@
                         <p class="small fw-bold mb-0 text-truncate" title="{{ rec.movie.title }}">
                             {{ rec.movie.title }}
                         </p>
-                        
-                        {# 
-                           CAMBIO CLAVE:
-                           Se usa 'recommendedBy' porque así se llama la propiedad en tu Entidad Recommendation.php 
-                        #}
+
                         <small class="text-muted d-block">
                             Por: {{ rec.recommendedBy.name|default(rec.recommendedBy.email) }}
                         </small>

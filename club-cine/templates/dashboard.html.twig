@@ -9,15 +9,17 @@
     {# Cabecera del Dashboard #}
     <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
         <div>
-            <h1 class="h3 mb-0">Bienvenido, {{ user.name ?? user.email }}</h1>
+            <h1 class="h3 mb-0">¡Hola, {{ user.name|default(user.email|split('@')[0]) }}! 👋</h1>
             <div class="mt-1">
                 {% if user.groupName %}
-                    <span class="badge bg-info text-dark shadow-sm">
-                        <i class="bi bi-people-fill"></i> Club: {{ user.groupName }}
-                    </span>
+                    <a href="{{ path('app_group_show', { 'id': user.groupId }) }}" class="text-decoration-none">
+                        <span class="badge bg-primary shadow-sm p-2">
+                            <i class="bi bi-people-fill"></i> Club: {{ user.groupName }}
+                        </span>
+                    </a>
                 {% else %}
                     <button type="button" class="btn btn-sm btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#createGroupModal">
-                        <i class="bi bi-plus-circle"></i> Crear mi Club de Cine
+                        <i class="bi bi-plus-circle"></i> Fundar mi Club
                     </button>
                 {% endif %}
             </div>
@@ -30,59 +32,66 @@
 
     {# Mensaje informativo si no hay grupo #}
     {% if not user.groupId %}
-        <div class="alert alert-info d-flex align-items-center border-0 shadow-sm" role="alert">
-            <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+        <div class="alert alert-warning d-flex align-items-center border-0 shadow-sm" role="alert">
+            <i class="bi bi-stars me-3 fs-4"></i>
             <div>
-                ¡Hola! Para empezar a recomendar películas, primero debes <strong>fundar un club</strong> haciendo clic en el botón de arriba.
+                Para empezar a compartir cine con tus amigos, primero debes <strong>crear tu club</strong>.
             </div>
         </div>
     {% endif %}
 
-    {# LISTADO DE PELÍCULAS (CATÁLOGO) #}
-    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mt-2">
-        {# Accedemos a .items porque $catalog tiene paginación #}
+    {# Sección de Título del Catálogo #}
+    <div class="mb-3">
+        <h4 class="fw-bold"><i class="bi bi-film"></i> Películas Populares</h4>
+        <p class="text-muted small">Selecciona una joya para verla con tu club esta semana.</p>
+    </div>
+
+    {# LISTADO DE PELÍCULAS #}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
         {% for movie in movies.items %}
             <div class="col">
-                <div class="card h-100 shadow-sm border-0 overflow-hidden">
-                    {% if movie.posterPath %}
-                        <img src="https://image.tmdb.org/t/p/w500{{ movie.posterPath }}" class="card-img-top" alt="{{ movie.title }}">
-                    {% else %}
-                        <div class="bg-secondary d-flex align-items-center justify-content-center" style="height: 300px;">
-                            <i class="bi bi-film text-white fs-1"></i>
-                        </div>
-                    {% endif %}
+                <div class="card h-100 shadow-sm border-0 movie-card overflow-hidden">
+                    <div class="position-relative">
+                        {% if movie.posterPath %}
+                            <img src="https://image.tmdb.org/t/p/w500{{ movie.posterPath }}" class="card-img-top" alt="{{ movie.title }}">
+                        {% else %}
+                            <div class="bg-dark d-flex align-items-center justify-content-center" style="height: 300px;">
+                                <i class="bi bi-camera-video text-secondary fs-1"></i>
+                            </div>
+                        {% endif %}
+                    </div>
                     
-                    <div class="card-body">
-                      <h5 class="card-title h6 text-truncate">{{ movie.title }}</h5>
-                      
-                      {# DEBUG TEMPORAL: Borra esto cuando funcione #}
-                      <div class="bg-light p-1 mb-2" style="font-size: 0.6rem;">
-                          ID Grupo: {{ user.groupId }} | ID Peli: {{ movie.tmdbId }}
-                      </div>
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title h6 text-truncate mb-3" title="{{ movie.title }}">{{ movie.title }}</h5>
 
-                      {% if user.groupId %}
-                          <a href="{{ path('app_group_recommend_movie', { 'id': user.groupId, 'tmdbId': movie.tmdbId }) }}" 
-                            class="btn btn-danger btn-sm w-100">
-                            🚀 EJECUTAR RECOMENDACIÓN
-                          </a>
-                      {% endif %}
-                  </div>
+                        {% if user.groupId %}
+                            <div class="mt-auto">
+                                {# --- CAMBIO DE UX AQUÍ --- #}
+                                <a href="{{ path('app_group_recommend_movie', { 'id': user.groupId, 'tmdbId': movie.tmdbId }) }}" 
+                                   class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2 shadow-sm transition-btn">
+                                    <i class="bi bi-megaphone-fill"></i>
+                                    <span>Recomendar</span>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         {% else %}
             <div class="col-12 text-center py-5">
-                <p class="text-muted">No se han encontrado películas en este momento.</p>
+                <i class="bi bi-search fs-1 text-muted"></i>
+                <p class="text-muted mt-2">No hemos encontrado películas disponibles.</p>
             </div>
         {% endfor %}
     </div>
 </div>
 
-{# --- COMPONENTE POPUP (MODAL) PARA CREAR GRUPO --- #}
+{# --- MODAL CREAR GRUPO --- #}
 {% if not user.groupId %}
 <div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="createGroupModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-dark text-white">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">🎬 Fundar mi Club de Cine</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -94,4 +103,10 @@
 </div>
 {% endif %}
 
+<style>
+    .movie-card { transition: transform 0.2s ease-in-out; }
+    .movie-card:hover { transform: translateY(-5px); }
+    .transition-btn { transition: all 0.3s; font-weight: 500; }
+    .transition-btn:hover { filter: brightness(1.1); }
+</style>
 {% endblock %}
