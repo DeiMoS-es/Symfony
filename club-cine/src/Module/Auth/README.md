@@ -37,6 +37,10 @@ La configuración principal del módulo se encuentra en:
 - lexik/jwt-authentication-bundle (implementado, usado para autenticación JWT)
 - nelmio/security-bundle (para headers de seguridad)
 
+## Cookies y flujo de refresh
+- `ACCESS_TOKEN`: cookie HttpOnly que contiene el JWT de acceso (es inyectada en el header `Authorization` por `JwtCookieInjectorListener` si no existe la cabecera).
+- `REFRESH_TOKEN`: cookie HttpOnly utilizada por `/auth/refresh`. El refresh token se rota en cada uso (se revoca el anterior y se emite uno nuevo), y `LogoutController` revoca el refresh token activo y expira la cookie.
+
 ## Historial de Implementación
 1. Creación de la estructura base del módulo Auth (07/11/2025)
 2. Configuración inicial de security.yaml

@@ -21,7 +21,8 @@ Movie/
 - [x] Método `fetchPopularCatalog(int $page)` que transforma los resultados en una estructura amigable con `MovieCatalogItemDTO`.
 - [x] Método `fetchMovie(int $tmdbId)` para obtener el detalle completo de una película.
 - [x] Método `search(string $query, int $page)` para búsquedas por texto.
-- [x] Entidades `Movie` y `Genre` persistidas en la base de datos local.
+- [x] Entidades `Movie` y `Genre` persistidas en la base de datos local (migraciones creadas: `movie`, `genre`, `movie_genres`).
+- [x] `Movie` guarda campos `voteAverage` y `voteCount` que pueden ser sincronizados o calculados a partir de reviews.
 - [x] `MovieService` para:
   - [x] Crear/actualizar películas a partir de `MovieUpsertRequest`.
   - [x] Resolver/crear géneros asociados.

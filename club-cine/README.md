@@ -23,7 +23,7 @@ El proyecto está organizado en módulos independientes dentro de `src/Module`, 
 
 - 📄 [Módulo Auth](src/Module/Auth/README.md)
 - 📄 [Módulo Group](src/Module/Group/README.md)
-- 📄 [Módulo Movie](src/Module/Movie/README.md) *(planificado, README creado para documentar la integración con TMDb y el catálogo de películas)*
+- 📄 [Módulo Movie](src/Module/Movie/README.md) — Implementado: integración con TMDb, sincronización y persistencia de películas; catálogo y dashboard en la UI.
 
 ---
 
@@ -40,15 +40,16 @@ El proyecto está organizado en módulos independientes dentro de `src/Module`, 
 ## 📦 Estado actual del proyecto
 
 - ✅ Registro de usuarios (API JSON)
-- ✅ Inicio de sesión con JWT + refresh token
-- ✅ Creación de grupos de amigos
-- ✅ Modelo de recomendaciones y reviews dentro de grupos
+- ✅ Inicio de sesión con JWT + refresh token (soporte por cookies `ACCESS_TOKEN`/`REFRESH_TOKEN` y rotación de refresh token)
+- ✅ Creación de grupos de amigos (modelo y migraciones)
+- ✅ Modelo de recomendaciones y reviews dentro de grupos (entidades `Recommendation` y `Review` con agregados y comentarios)
 - ✅ Recomendación desde catálogo y gestión básica en la interfaz (botón "Recomendar", vista de grupo)
-- ✅ Comando para cierre automático de recomendaciones (`app:close-recommendations`)
-- 🔜 Sistema de puntuación por aspectos expuesto en la interfaz de usuario (votos/edición en UI pendientes)
-- 🔜 Comentarios por película y vistas de detalle
+- ✅ Comando para cierre automático de recomendaciones (`app:close-recommendations`) y `RecommendationManager` (cálculo de estadísticas)
+- ✅ Backend: soporte de puntuación por aspectos, cálculo de `averageScore` y agregados; UI de votación pendiente
+- ✅ Persistencia de películas y géneros (tablas `movie`, `genre`, `movie_genres`) y sincronización desde TMDb
+- ✅ Sistema de refresh tokens y tabla `refresh_tokens` (rotación y revocación)
 - 🔜 Panel de administración
-- 🔜 Visualización de rankings y estadísticas agregadas
+- 🔜 Visualización de rankings y estadísticas agregadas (front-end)
 
 ---
 

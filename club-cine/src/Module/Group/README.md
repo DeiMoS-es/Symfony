@@ -17,12 +17,12 @@ Group/
 - [x] Entidad `Group` (nombre, slug, descripción, owner, miembros, timestamps)
 - [x] Entidad `GroupMember` (vinculación usuario-grupo, rol, fecha de ingreso)
 - [x] Entidad `Recommendation` (group, movie, recommender, createdAt, deadline, status, métricas agregadas)
-- [x] Entidad `Review` (votos por usuario, puntuaciones desglosadas, comentario, averageScore)
+- [x] Entidad `Review` (votos por usuario, puntuaciones desglosadas, **comentario** y `averageScore` calculado automáticamente)
 - [x] `GroupRepository`, `GroupMemberRepository`, `RecommendationRepository`, `ReviewRepository` con métodos básicos (`save`, `findBy...`, `findActiveByGroup`, `findExpiredToClose`)
 - [x] Migración creada para las tablas `app_group_member`, `app_group_recommendation` y `app_group_review` (ver `migrations/Version20251224103850.php`)
-- [x] Controladores básicos: crear grupo, mostrar grupo y recomendar película (pendiente: endpoints de votación/edición de votos)
+- [x] Controladores básicos: crear grupo, mostrar grupo y recomendar película (pendiente: endpoints de votación/edición de votos en la API)
 - [ ] Servicios de aplicación: `GroupService`, `MembershipService`, `RecommendationService`, `ReviewService` (validaciones y casos de uso orientados a la API)
-- [x] Job/Command para cierre automático de recomendaciones (`CloseRecommendationsCommand` + `RecommendationManager`)
+- [x] Job/Command para cierre automático de recomendaciones (`CloseRecommendationsCommand`) y `RecommendationManager` (implementado: cierra recomendaciones y calcula estadísticas/medias por aspecto)
 - [ ] Tests automatizados del flujo completo (recomendación → votación → cierre → cálculo)
 
 ## Detalles de implementación 🔧
