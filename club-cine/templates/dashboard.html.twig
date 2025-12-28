@@ -31,7 +31,7 @@
                 <div class="card h-100 shadow-sm border-0 movie-card">
                     <div class="position-relative overflow-hidden" style="border-radius: 12px 12px 0 0;">
                         {% if movie.posterPath %}
-                            {# Quitamos el height fijo para que no se corte la imagen #}
+                            
                             <img src="https://image.tmdb.org/t/p/w500{{ movie.posterPath }}" 
                                  class="card-img-top d-block w-100" 
                                  alt="{{ movie.title }}"
@@ -42,7 +42,7 @@
                             </div>
                         {% endif %}
                         
-                        {# Badge de año flotante mejorado #}
+                        {# Badge de año flotante #}
                         <div class="position-absolute top-0 end-0 m-2">
                              <span class="badge bg-dark bg-opacity-75 backdrop-blur shadow-sm">
                                 {{ movie.releaseDate ? movie.releaseDate|date('Y') : 'TBA' }}
@@ -80,23 +80,6 @@
         {% endfor %}
     </div>
 </div>
-
-{# --- MODAL CREAR GRUPO --- #}
-{% if not user.groupId %}
-<div class="modal fade" id="createGroupModal" tabindex="-1" aria-labelledby="createGroupModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">🎬 Fundar mi Club de Cine</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                {{ render(controller('App\\Module\\Group\\Controller\\GroupController::new')) }}
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
 
 <style>
     :root {
