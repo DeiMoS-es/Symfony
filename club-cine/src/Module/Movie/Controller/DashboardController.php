@@ -25,10 +25,11 @@ class DashboardController extends AbstractController
 
         $page = $request->query->getInt('page', 1);
         $catalog = $tmdbService->fetchPopularCatalog($page);
-
         return $this->render('dashboard.html.twig', [
             'movies' => $catalog,
-            'user'   => $userDto, // Pasamos el DTO del usuario
+            'user'   => $userDto, 
+            'totalPages' => $catalog['total_pages'] ?? 1, 
+            'currentPage' => $page,
         ]);
     }
 }
