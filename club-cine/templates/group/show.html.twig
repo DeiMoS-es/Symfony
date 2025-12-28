@@ -1,66 +1,140 @@
 {# templates/group/show.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}🎬 {{ group.name }}{% endblock %}
+{% block title %}🎬
+	{{ group.name }}
+{% endblock %}
 
 {% block body %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-        <div>
-            <h1 class="mb-1">🎬 {{ group.name }}</h1>
-        </div>
-        <a href="{{ path('user_dashboard') }}" class="btn btn-outline-secondary btn-sm">Volver al catálogo</a>
-    </div>
+	<div class="container mt-4">
+		<div class="d-flex justify-content-between align-items-center mb-4">
+			<h1 class="mb-0">🎬
+				{{ group.name }}</h1>
+			<a href="{{ path('user_dashboard') }}" class="btn btn-outline-secondary btn-sm">Volver</a>
+		</div>
 
-    <div class="row">
-        <div class="col-md-9">
-            <h5 class="mb-4">🍿 Cartelera del Club</h5>
-            <div class="row row-cols-2 row-cols-md-4 g-3">
-                {% for rec in recommendations %}
-                    <div class="col text-center">
-                        {% if rec.movie.posterPath %}
-                            <img src="https://image.tmdb.org/t/p/w500{{ rec.movie.posterPath }}" 
-                                 alt="{{ rec.movie.title }}"
-                                 class="img-fluid rounded shadow-sm mb-2">
-                        {% else %}
-                            <div class="bg-secondary rounded mb-2 d-flex align-items-center justify-content-center" style="height: 250px;">
-                                <span class="text-white small">Sin póster</span>
-                            </div>
-                        {% endif %}
-                        
-                        <p class="small fw-bold mb-0 text-truncate" title="{{ rec.movie.title }}">
-                            {{ rec.movie.title }}
-                        </p>
+		<ul class="nav nav-tabs border-bottom-0" id="groupTab" role="tablist">
+			<li class="nav-item">
+				<button class="nav-link active" id="cartelera-tab" data-bs-toggle="tab" data-bs-target="#cartelera" type="button" role="tab">
+					<i class="bi bi-film me-2"></i>Cartelera
+				</button>
+			</li>
+			<li class="nav-item">
+				<button class="nav-link" id="miembros-tab" data-bs-toggle="tab" data-bs-target="#miembros" type="button" role="tab">
+					<i class="bi bi-people me-2"></i>Miembros
+				</button>
+			</li>
+			<li class="nav-item">
+				<button class="nav-link" id="ajustes-tab" data-bs-toggle="tab" data-bs-target="#ajustes" type="button" role="tab">
+					<i class="bi bi-gear me-2"></i>Ajustes
+				</button>
+			</li>
+		</ul>
 
-                        <small class="text-muted d-block">
-                            Por: {{ rec.recommendedBy.name|default(rec.recommendedBy.email) }}
-                        </small>
-                        
-                        <span class="badge {{ rec.status == 'OPEN' ? 'bg-success' : 'bg-secondary' }} mt-1" style="font-size: 0.7rem;">
-                            {{ rec.status }}
-                        </span>
-                    </div>
-                {% else %}
-                    <div class="col-12 text-center py-5 border rounded bg-light">
-                        <p class="text-muted mb-0">Aún no hay películas recomendadas en este club.</p>
-                        <a href="{{ path('user_dashboard') }}" class="btn btn-primary btn-sm mt-3">¡Recomienda la primera!</a>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-        
-        <div class="col-md-3">
-            <div class="card bg-light border-0 shadow-sm">
-                <div class="card-body">
-                    <h6 class="card-title fw-bold">Info del Club</h6>
-                    <p class="small text-muted mb-0">{{ group.description|default('Sin descripción disponible.') }}</p>
-                    <hr>
-                    <div class="d-grid gap-2">
-                        {# Aquí podrías añadir botones de gestión si el usuario es admin #}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+		<div class="tab-content bg-white p-4 shadow-sm rounded-bottom border" id="groupTabContent">
+
+			<div class="tab-pane fade show active" id="cartelera" role="tabpanel">
+				<div class="row row-cols-2 row-cols-md-4 g-3">
+					{% for rec in recommendations %}
+						<div class="col text-center">
+							{% if rec.movie.posterPath %}
+								<img src="https://image.tmdb.org/t/p/w500{{ rec.movie.posterPath }}" class="img-fluid rounded shadow-sm mb-2">
+							{% endif %}
+							<p class="small fw-bold mb-0 text-truncate">{{ rec.movie.title }}</p>
+							<small class="text-muted d-block">Por:
+								{{ rec.recommendedBy.name|default(rec.recommendedBy.email) }}</small>
+						</div>
+					{% else %}
+						<div class="col-12 text-center py-5">
+							<p class="text-muted">Aún no hay películas recomendadas.</p>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+
+			{# PESTAÑA MIEMBROS en group/show.html.twig #}
+			{# PESTAÑA MIEMBROS en group/show.html.twig #}
+			<div class="tab-pane fade" id="miembros" role="tabpanel">
+				<div class="d-flex justify-content-between align-items-center mb-4">
+					<h5 class="mb-0">Integrantes del club</h5>
+					<span class="badge bg-dark rounded-pill">{{ group.members|length }}
+						miembros</span>
+				</div>
+
+				<div class="list-group list-group-flush">
+					{% for groupMember in group.members %}
+						<div class="list-group-item d-flex align-items-center justify-content-between py-3 px-0">
+							<div class="d-flex align-items-center gap-3">
+								<div class="position-relative">
+									<i class="bi bi-person-circle fs-2 text-secondary"></i>
+									{% if groupMember.role == 'OWNER' %}
+										<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning border border-light" style="padding: 0.35em;">
+											<i class="bi bi-star-fill text-white" style="font-size: 0.6rem;"></i>
+										</span>
+									{% endif %}
+								</div>
+								<div>
+									<span class="fw-bold d-block">{{ groupMember.user.name|default(groupMember.user.email) }}</span>
+									<small class="text-muted">{{ groupMember.user.email }}</small>
+								</div>
+							</div>
+
+							{# Badge de Rol dinámico #}
+							{% if groupMember.role == 'OWNER' %}
+								<span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-3">
+									<i class="bi bi-shield-fill-check me-1"></i>
+									Fundador
+								</span>
+							{% else %}
+								<span class="badge bg-light text-secondary border rounded-pill px-3">
+									Miembro
+								</span>
+							{% endif %}
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+
+			<div class="tab-pane fade" id="ajustes" role="tabpanel">
+				<div class="row">
+					<div class="col-md-6 border-end">
+						<h6>Información General</h6>
+						<p class="small text-muted">{{ group.description|default('Sin descripción.') }}</p>
+						<button class="btn btn-sm btn-outline-primary">Editar Nombre / Descripción</button>
+					</div>
+					<div class="col-md-6 ps-md-4">
+						<h6 class="text-danger">Zona de peligro</h6>
+						<p class="small text-muted">Si abandonas el club, perderás acceso a esta cartelera.</p>
+
+						{# Botón que activa un modal de confirmación #}
+						<button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#leaveModal">
+							Darse de baja del club
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="leaveModal" tabindex="-1" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">¿Abandonar club?</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					¿Estás seguro de que quieres dejar
+					<strong>{{ group.name }}</strong>? Podrás volver a unirte si el club es público o te invitan.
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+					{# <form action="{{ path('app_group_leave', {id: group.id}) }}" method="POST">
+										                    <button type="submit" class="btn btn-danger">Confirmar baja</button>
+										                </form> #}
+				</div>
+			</div>
+		</div>
+	</div>
+
 {% endblock %}
