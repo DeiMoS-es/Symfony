@@ -88,8 +88,13 @@ class RegistrationController extends AbstractController
                 'name' => $registrationRequest->name,
             ]);
         } catch (\Throwable $e) {
+            // MODIFICACIÓN AQUÍ: Mostramos el detalle del error para depurar
             return $this->render('auth/register.html.twig', [
-                'errors' => ['Error interno del servidor'],
+                'errors' => [
+                    'Error: ' . $e->getMessage(), 
+                    'Archivo: ' . $e->getFile(), 
+                    'Línea: ' . $e->getLine()
+                ],
                 'email' => $registrationRequest->email,
                 'name' => $registrationRequest->name,
             ]);

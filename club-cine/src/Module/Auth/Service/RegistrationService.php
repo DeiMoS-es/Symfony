@@ -45,20 +45,23 @@ class RegistrationService
             throw new UserAlreadyExistsException($request->email);
         }
 
-        // 3️⃣ Hashear la contraseña
+        // 3️⃣ Crear la entidad User PRIMERO (pero sin el password real aún)
+        $user = new User($request->email, '', ['ROLE_USER']);
+        $user->setName($request->name);
+
+        // 4️⃣ Hashear la contraseña usando la entidad que acabamos de crear
         $hashedPassword = $this->passwordHasher->hashPassword(
-            new User($request->email, '', ['ROLE_USER']), // temporal para hashear
+            $user, 
             $request->plainPassword
         );
 
-        // 4️⃣ Crear entidad User
-        $user = new User($request->email,$hashedPassword,['ROLE_USER']);
-        $user->setName($request->name);
+        // 5️⃣ Actualizar la contraseña en la entidad
+        $user->setPassword($hashedPassword);
 
-        // 5️⃣ Persistir usuario
+        // 6️⃣ Persistir usuario (Asegúrate de que el repositorio tenga el método save)
         $this->userRepository->save($user, true);
 
-        // 6️⃣ Devolver DTO de respuesta
+        // 7️⃣ Devolver DTO de respuesta
         return UserMapper::toResponseDTO($user);
     }
 }

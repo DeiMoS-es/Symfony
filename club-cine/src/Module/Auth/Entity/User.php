@@ -10,6 +10,8 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use App\Module\Group\Entity\Group;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -37,9 +39,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
-    #[ORM\ManyToOne(targetEntity: Group::class)]
-    #[ORM\JoinColumn(name: 'group_id', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
-    private ?Group $group = null;
+    #[ORM\ManyToMany(targetEntity: Group::class)]
+    #[ORM\JoinTable(name: 'user_groups')]
+    private Collection $groups;
 
     /**
      * El constructor espera que $password ya esté hasheado (BCrypt/argon2id).
@@ -51,6 +53,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->password = $hashedPassword;
         $this->roles = $roles;
         $this->createdAt = new \DateTimeImmutable();
+        $this->groups = new ArrayCollection();
     }
 
     // --- getters y setters ---
@@ -121,14 +124,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // Si tuvieses algún campo temporal (ej. plainPassword), lo limpiarías aquí
     }
 
-    public function getGroup(): ?Group
+    /**
+     * @return Collection<int, Group>
+     */
+    public function getGroups(): Collection
     {
-        return $this->group;
+        return $this->groups;
     }
 
-    public function setGroup(?Group $group): self
+    public function addGroup(Group $group): self
     {
-        $this->group = $group;
+        if (!$this->groups->contains($group)) {
+            $this->groups->add($group);
+        }
+        return $this;
+    }
+
+    public function removeGroup(Group $group): self
+    {
+        $this->groups->removeElement($group);
         return $this;
     }
 }

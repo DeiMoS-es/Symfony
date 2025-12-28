@@ -39,7 +39,7 @@ class GroupController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($group);
-            $user->setGroup($group);
+            $user->addGroup($group);
             $em->flush();
 
             $this->addFlash('success', '¡Club creado! Bienvenido, administrador.');

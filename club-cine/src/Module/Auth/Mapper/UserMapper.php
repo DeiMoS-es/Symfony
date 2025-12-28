@@ -8,13 +8,16 @@ class UserMapper
 {
     public static function toResponseDTO(User $user): UserResponse
     {
-        $group = $user->getGroup();
+        $groups = $user->getGroups();
+        
+        // Obtenemos el primer grupo si existe, o null si no pertenece a ninguno
+        $firstGroup = $groups->first() ?: null;
 
         return new UserResponse(
             $user->getEmail(),
             $user->getName(),
-            $group ? $group->getId()->toString() : null,
-            $group ? $group->getName() : null
+            $firstGroup ? $firstGroup->getId()->toString() : null,
+            $firstGroup ? $firstGroup->getName() : null
         );
     }
 }
