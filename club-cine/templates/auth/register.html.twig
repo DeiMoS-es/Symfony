@@ -17,11 +17,14 @@
             </div>
         {% endif %}
 
-        <form method="POST" action="{{ path('auth_register') }}" data-turbo="false">
+        <form method="POST" action="{{ path('auth_register', {'token': app.request.attributes.get('token')}) }}" data-turbo="false">
             <input type="hidden" name="_csrf_token" value="{{ csrf_token('auth_register') }}">
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" value="{{ email|default('') }}" required>
+                <input type="email" id="email" name="email" value="{{ email }}" {# <--- Esta es la variable que viene del controlador #}
+                        class="form-control" required {% if email is not empty %}readonly{% endif %}> 
+                {# El readonly es opcional: evita que el invitado cambie el email #}
+                {# <input type="email" class="form-control" id="email" name="email" value="{{ email|default('') }}" required> #}
             </div>
             <div class="mb-3">
                 <label for="name" class="form-label">Nombre</label>

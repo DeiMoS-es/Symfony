@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use App\Module\Group\Form\GroupInvitationType;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 
 #[Route('/groups')]
 class GroupController extends AbstractController
@@ -84,7 +86,7 @@ class GroupController extends AbstractController
 
     #[Route('/{id}/invite', name: 'app_group_invite', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]
-    public function invite(Request $request, Group $group, EntityManagerInterface $em): Response
+    public function invite(Request $request, Group $group, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
         /** @var User $currentUser */
         $currentUser = $this->getUser();
@@ -124,10 +126,23 @@ class GroupController extends AbstractController
                     $this->addFlash('success', "{$existingUser->getName()} ha sido añadido directamente al club.");
                 }
             } else {
+                // 2. CREAMOS LA INVITACIÓN
                 $expiresAt = new \DateTimeImmutable('+7 days');
                 $invitation = new GroupInvitation($email, $group, $expiresAt);
 
                 $em->persist($invitation);
+                // 3. ENVIAMOS EL CORREO
+                $emailMessage = (new TemplatedEmail())
+                    ->from('clubdecine@tuapp.com')
+                    ->to($email)
+                    ->subject("Te han invitado al club: " . $group->getName())
+                    ->htmlTemplate('emails/invitation.html.twig')
+                    ->context([
+                        'groupName' => $group->getName(),
+                        'token' => $invitation->getToken(),
+                    ]);
+
+                $mailer->send($emailMessage);
                 $this->addFlash('success', "Se ha enviado una invitación a $email. Caduca en 7 días.");
             }
 

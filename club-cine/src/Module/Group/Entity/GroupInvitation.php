@@ -59,6 +59,14 @@ class GroupInvitation
     {
         return $this->invitedGroup;
     }
+    public function getExpiresAt(): \DateTimeImmutable
+    {
+        return $this->expiresAt;
+    }
+    public function getGroup(): ?Group
+    {
+        return $this->invitedGroup;
+    }
     public function accept(): void
     {
         if ($this->status !== 'pending') {
