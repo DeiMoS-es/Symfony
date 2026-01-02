@@ -41,8 +41,6 @@ class GroupController extends AbstractController
                 $this->addFlash('success', '¡Club fundado!');
                 return $this->redirectToRoute('user_dashboard');
             }
-            
-            // Si hay errores de validación, se renderizarán en el modal
         }
 
         $isFragment = $request->isXmlHttpRequest() || $request->headers->has('Surrogate-Capability');
