@@ -30,18 +30,8 @@ class RegistrationController extends AbstractController
     #[Route('/register/{token}', name: 'auth_register', methods: ['GET', 'POST'], defaults: ['token' => null])]
     public function register(Request $request, EntityManagerInterface $em, ?string $token = null): Response
     {
-        $invitationEmail = '';
-
-        if ($token) {
-            $invitation = $em->getRepository(GroupInvitation::class)->findOneBy(['token' => $token]);
-            if ($invitation) {
-                if ($invitation->getExpiresAt() > new \DateTimeImmutable()) {
-                    $invitationEmail = $invitation->getEmail();
-                } else {
-                    $this->addFlash('warning', 'Esta invitación ha caducado, pero puedes registrarte igualmente.');
-                }
-            }
-        }
+        // 1. El servicio decide qué email mostrar (GET y fallos de POST)
+        $invitationEmail = $this->registrationService->getInvitationEmail($token);
 
         if ($request->isMethod('GET')) {
             return $this->render('auth/register.html.twig', [
@@ -51,30 +41,26 @@ class RegistrationController extends AbstractController
             ]);
         }
 
-        $csrfToken = $request->request->get('_csrf_token');
-        if (!$this->isCsrfTokenValid('auth_register', $csrfToken)) {
-            return $this->render('auth/register.html.twig', [
-                'errors' => ['Token CSRF inválido.'],
-                'email' => $request->request->get('email', ''),
-                'name' => $request->request->get('name', ''),
-            ]);
+        // 2. Validación CSRF
+        if (!$this->isCsrfTokenValid('auth_register', $request->request->get('_csrf_token'))) {
+            return $this->renderError(['Token de seguridad inválido.'], $request->request->all());
         }
 
-        // Mapeo a DTO y validación de coincidencia de contraseña
+        // 3. Mapeo y validación de reglas de UI
         $regRequest = UserMapper::fromRequest($request);
-        
         $errors = $this->validateBusinessRules($regRequest, $request->request->get('confirm_password'));
+
         if (count($errors) > 0) {
             return $this->renderError($errors, $request->request->all());
         }
 
+        // 4. Ejecución
         try {
             $this->registrationService->register($regRequest, $token);
-            
-            $this->addFlash('success', '¡Registro completado con éxito!');
+            $this->addFlash('success', '¡Registro completado!');
             return $this->redirectToRoute('auth_login');
-            
         } catch (\Exception $e) {
+            // El servicio lanza excepciones con mensajes claros que podemos mostrar
             return $this->renderError([$e->getMessage()], $request->request->all());
         }
     }
@@ -85,7 +71,7 @@ class RegistrationController extends AbstractController
     private function validateBusinessRules(RegistrationRequest $dto, ?string $confirmPassword): array
     {
         $errors = [];
-        
+
         // Validaciones del DTO (Email válido, longitud nombre, etc.)
         foreach ($this->validator->validate($dto) as $violation) {
             $errors[] = $violation->getMessage();

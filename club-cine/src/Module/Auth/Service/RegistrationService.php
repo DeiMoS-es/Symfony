@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Module\Auth\Service;
 
 use App\Module\Auth\DTO\RegistrationRequest;
@@ -58,7 +59,7 @@ class RegistrationService
 
         // 4️⃣ Hashear la contraseña usando la entidad que acabamos de crear
         $hashedPassword = $this->passwordHasher->hashPassword(
-            $user, 
+            $user,
             $request->plainPassword
         );
 
@@ -81,7 +82,7 @@ class RegistrationService
         // Lógica para manejar la invitación usando el token
         $invitation = $this->entityManager->getRepository(GroupInvitation::class)->findOneBy(['token' => $token]);
 
-        if($invitation && $invitation->getExpiresAt() > new \DateTimeImmutable()) {
+        if ($invitation && $invitation->getExpiresAt() > new \DateTimeImmutable()) {
             $group = $invitation->getGroup();
             // 1️⃣ Relación con roles (app_group_member)
             $newMember = new GroupMember($group, $user, 'MEMBER');
@@ -92,10 +93,26 @@ class RegistrationService
 
             // 3️⃣ Borrar invitación usada
             $this->entityManager->remove($invitation);
-            
+
             // 4️⃣ Guardamos todos los cambios de la invitación y grupo
             $this->entityManager->flush();
         }
-            
+    }
+
+    public function getInvitationEmail(?string $token): string
+    {
+        if (!$token) {
+            return '';
+        }
+
+        $invitation = $this->entityManager->getRepository(GroupInvitation::class)
+            ->findOneBy(['token' => $token]);
+
+        // Usamos la lógica de la entidad para verificar si expiró
+        if ($invitation && !$invitation->isExpired()) {
+            return $invitation->getEmail();
+        }
+
+        return '';
     }
 }
