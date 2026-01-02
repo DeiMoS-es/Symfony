@@ -42,7 +42,8 @@ class RegistrationService
         // 1️⃣ Validar DTO
         $errors = $this->validator->validate($request);
         if (count($errors) > 0) {
-            throw new \InvalidArgumentException((string) $errors);
+            // throw new \InvalidArgumentException((string) $errors);
+            throw new \InvalidArgumentException("Datos de registro inválidos.");
         }
 
         // 2️⃣ Comprobar si el email ya existe
