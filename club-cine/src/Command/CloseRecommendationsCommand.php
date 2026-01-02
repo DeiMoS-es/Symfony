@@ -10,8 +10,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'app:close-recommendations',
-    description: 'Busca y cierra las votaciones de películas que han superado su fecha límite.'
+    name: 'app:group:close-expired',
+    description: 'Cierra las recomendaciones de películas cuya fecha límite de votación ha pasado.'
 )]
 class CloseRecommendationsCommand extends Command
 {
@@ -24,17 +24,21 @@ class CloseRecommendationsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Procesando cierre de recomendaciones...');
+        $io->title('Procesando recomendaciones caducadas');
 
-        // Llamamos al Manager que acabas de crear
-        $count = $this->recommendationManager->processExpiredRecommendations();
+        try {
+            $count = $this->recommendationManager->processExpiredRecommendations();
 
-        if ($count > 0) {
-            $io->success(sprintf('Se han cerrado %d recomendaciones correctamente.', $count));
-        } else {
-            $io->info('No hay recomendaciones pendientes de cierre en este momento.');
+            if ($count > 0) {
+                $io->success(sprintf('Se han cerrado correctamente %d recomendaciones.', $count));
+            } else {
+                $io->info('No se han encontrado recomendaciones caducadas para cerrar.');
+            }
+
+            return Command::SUCCESS;
+        } catch (\Exception $e) {
+            $io->error('Ocurrió un error al procesar las recomendaciones: ' . $e->getMessage());
+            return Command::FAILURE;
         }
-
-        return Command::SUCCESS;
     }
 }
