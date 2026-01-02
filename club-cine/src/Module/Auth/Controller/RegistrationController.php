@@ -89,35 +89,11 @@ class RegistrationController extends AbstractController
         }
 
         try {
-            // 1. Registro del usuario base
-            $userResponse = $this->registrationService->register($registrationRequest);
+            $this->registrationService->register($registrationRequest, $token);
 
-            if ($token) {
-                $invitation = $em->getRepository(GroupInvitation::class)->findOneBy(['token' => $token]);
-
-                if ($invitation) {
-                    $userEntity = $em->getRepository(User::class)->findOneBy(['email' => $userResponse->email]);
-
-                    if ($userEntity) {
-                        $group = $invitation->getGroup();
-
-                        // 2. Insertar en app_group_member (Sistema de roles)
-                        $newMember = new GroupMember($group, $userEntity, 'MEMBER');
-                        $em->persist($newMember);
-
-                        // 3. Sincronizar con user_groups (Para que el Dashboard lo vea)
-                        // Esta es la línea que faltaba para alimentar la relación ManyToMany nativa
-                        $userEntity->addGroup($group);
-
-                        $em->remove($invitation);
-                        $em->flush();
-
-                        $this->addFlash('success', '¡Registro completado! Ya eres miembro del club.');
-                    }
-                }
-            }
-
+            $this->addFlash('success', '¡Registro completado!');
             return $this->redirectToRoute('auth_login');
+            
         } catch (\Throwable $e) {
             return $this->render('auth/register.html.twig', [
                 'errors' => ['Error: ' . $e->getMessage()],
