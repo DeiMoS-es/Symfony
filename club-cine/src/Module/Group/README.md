@@ -38,6 +38,7 @@ Group/
 1. Modelo `Group` creado con slug automático y asociación al `owner` (crea el `GroupMember` con rol OWNER) ✅
 2. Modelo `GroupMember` creado con repositorio y helpers básicos ✅
 3. Entidades `Recommendation` y `Review` implementadas con sus repositorios y migración ✅
+4. Refactorización de `GroupController` y `RecommendationController`; creación de `GroupService`; mejoras en `RecommendationManager` y `CloseRecommendationsCommand`; ajustes en templates y mensajes (02/01/2026).
 
 ## Plan de Implementación Actualizado 📋
 1. Servicios y lógica de aplicación (prioridad alta)

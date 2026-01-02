@@ -51,6 +51,16 @@ El proyecto está organizado en módulos independientes dentro de `src/Module`, 
 - 🔜 Panel de administración
 - 🔜 Visualización de rankings y estadísticas agregadas (front-end)
 
+## 📣 Últimos cambios (2026-01-02)
+
+- Refactor de varios controladores (Auth, Group) y limpieza de responsabilidades en servicios. 🔧
+- Añadidos mappers (`AuthMapper`, `UserMapper`) y refactor en `RegistrationService` / `RegistrationController`. ✅
+- Se añadió un test unitario: `tests/Module/Auth/Service/RegistrationServiceTest.php`. 🧪
+- Mejora en `app:close-recommendations` (cierre automático y cálculo de estadísticas). ⚙️
+- Nuevo `GroupService` y cambio de mensajes informativos multi-grupo. 💬
+- UI: aumento del timeout de mensajes de aviso y ajustes en la barra de navegación y formulario de grupo (`templates/base.html.twig`, `templates/components/_navbar.html.twig`, `templates/group/_form.html.twig`). 🖼️
+- Varias refactorizaciones menores y fixes. 🔁
+
 ---
 
 ## ▶️ Puesta en marcha rápida

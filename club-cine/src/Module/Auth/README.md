@@ -48,6 +48,7 @@ La configuración principal del módulo se encuentra en:
 4. Implementación de LoginController con generación de JWT y Refresh tokens (11/11/2025)
 5. Creación de UserMapper y DTOs para mapeo de datos (11/11/2025)
 6. Refactorización de LoginController para delegar en AuthService (11/11/2025)
+7. Refactorización de `LoginController` y `RegistrationController`, añadido `AuthMapper` y `UserMapper`; refactor de `RegistrationService`; añadido test `RegistrationServiceTest` (02/01/2026).
 
 ## Plan de Implementación Detallado
 
