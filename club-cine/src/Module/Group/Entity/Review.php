@@ -17,7 +17,7 @@ class Review
     #[ORM\Column(type: 'uuid', unique: true)]
     private UuidInterface $id;
 
-    #[ORM\ManyToOne(targetEntity: Recommendation::class, inversedBy: "reviews")]
+    #[ORM\ManyToOne(targetEntity: Recommendation::class, inversedBy: 'reviews')]
     #[ORM\JoinColumn(name: "recommendation_id", referencedColumnName: "id", nullable: false, onDelete: 'CASCADE')]
     private Recommendation $recommendation;
 
@@ -25,7 +25,6 @@ class Review
     #[ORM\JoinColumn(nullable: false)]
     private User $user;
 
-    // --- Sistema de Puntuación Detallado ---
     #[ORM\Column(type: 'integer')]
     private int $scoreScript;
 
@@ -60,12 +59,10 @@ class Review
         int $director,
         ?string $comment = null
     ) {
-        // La entidad usa la lógica de Recommendation para protegerse
         if (!$recommendation->canAcceptVotes()) {
             throw new \LogicException("No se pueden registrar votos: el periodo de votación ha finalizado.");
         }
 
-        // Validación interna de notas
         $scores = [$script, $mainActor, $mainActress, $secondary, $director];
         foreach ($scores as $s) {
             if ($s < 1 || $s > 10) {
@@ -88,39 +85,64 @@ class Review
         $this->comment = $comment;
         $this->createdAt = new \DateTimeImmutable();
 
-        // Calculamos la media personal de esta crítica
+        // Cálculo de la media automática
         $this->averageScore = array_sum($scores) / count($scores);
     }
 
-    // --- Getters ---
+    // --- GETTERS (Necesarios para Twig y lógica de negocio) ---
+
     public function getId(): UuidInterface
     {
         return $this->id;
     }
+
     public function getRecommendation(): Recommendation
     {
         return $this->recommendation;
     }
+
     public function getUser(): User
     {
         return $this->user;
     }
+
+    public function getScoreScript(): int
+    {
+        return $this->scoreScript;
+    }
+
+    public function getScoreMainActor(): int
+    {
+        return $this->scoreMainActor;
+    }
+
+    public function getScoreMainActress(): int
+    {
+        return $this->scoreMainActress;
+    }
+
+    public function getScoreSecondaryActors(): int
+    {
+        return $this->scoreSecondaryActors;
+    }
+
+    public function getScoreDirector(): int
+    {
+        return $this->scoreDirector;
+    }
+
     public function getAverageScore(): float
     {
         return $this->averageScore;
     }
+
     public function getComment(): ?string
     {
         return $this->comment;
     }
 
-    // Getters específicos por si quieres hacer ránkings de "Mejor Guion"
-    public function getScoreScript(): int
+    public function getCreatedAt(): \DateTimeImmutable
     {
-        return $this->scoreScript;
-    }
-    public function getScoreDirector(): int
-    {
-        return $this->scoreDirector;
+        return $this->createdAt;
     }
 }
