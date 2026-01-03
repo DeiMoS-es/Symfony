@@ -81,6 +81,7 @@ class Recommendation
     public function getDeadline(): \DateTimeImmutable { return $this->deadline; }
     public function getAverageScore(): ?float { return $this->averageScore; }
     public function getTotalVotes(): ?int { return $this->totalVotes; }
+    public function getStats(): ?array{ return $this->stats; }
 
     /**
      * @return Collection<int, Review>

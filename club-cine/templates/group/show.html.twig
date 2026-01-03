@@ -4,6 +4,7 @@
 
 {% block body %}
 <div class="container mt-4 pb-5">
+    {# CABECERA #}
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">🎬 {{ group.name }}</h1>
         <a href="{{ path('user_dashboard') }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
@@ -11,19 +12,20 @@
         </a>
     </div>
 
+    {# NAVEGACIÓN POR TABS #}
     <ul class="nav nav-tabs border-bottom-0" id="groupTab" role="tablist">
         <li class="nav-item">
-            <button class="nav-link active" id="cartelera-tab" data-bs-toggle="tab" data-bs-target="#cartelera" type="button" role="tab">
+            <button class="nav-link active fw-bold" id="cartelera-tab" data-bs-toggle="tab" data-bs-target="#cartelera" type="button" role="tab">
                 <i class="bi bi-film me-2"></i>Cartelera
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link" id="miembros-tab" data-bs-toggle="tab" data-bs-target="#miembros" type="button" role="tab">
+            <button class="nav-link fw-bold" id="miembros-tab" data-bs-toggle="tab" data-bs-target="#miembros" type="button" role="tab">
                 <i class="bi bi-people me-2"></i>Miembros
             </button>
         </li>
         <li class="nav-item">
-            <button class="nav-link" id="ajustes-tab" data-bs-toggle="tab" data-bs-target="#ajustes" type="button" role="tab">
+            <button class="nav-link fw-bold" id="ajustes-tab" data-bs-toggle="tab" data-bs-target="#ajustes" type="button" role="tab">
                 <i class="bi bi-gear me-2"></i>Ajustes
             </button>
         </li>
@@ -31,24 +33,20 @@
 
     <div class="tab-content bg-white p-4 shadow-sm rounded-bottom border" id="groupTabContent">
 
-        {# PESTAÑA CARTELERA #}
+        {# PESTAÑA CARTELERA (Estilo Moderno con Overlays) #}
         <div class="tab-pane fade show active" id="cartelera" role="tabpanel">
-            <div class="row row-cols-2 row-cols-md-4 row-cols-lg-5 g-4">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
                 {% for rec in recommendations %}
+                    {% set myReview = null %}
+                    {% for review in rec.reviews %}
+                        {% if review.user.id == app.user.id %}{% set myReview = review %}{% endif %}
+                    {% endfor %}
+
                     <div class="col">
-                        <div class="card h-100 border-0 shadow-sm hover-shadow transition-all position-relative">
-
-                            {# Badge de Nota Media General (Solo si la votación está cerrada) #}
-                            {% if rec.status == 'CLOSED' %}
-                                <div class="position-absolute top-0 start-0 m-2 z-3">
-                                    <span class="badge bg-primary fs-6 shadow-sm border border-white">
-                                        <i class="bi bi-star-fill text-warning me-1"></i>
-                                        {{ rec.averageScore|number_format(1) }}
-                                    </span>
-                                </div>
-                            {% endif %}
-
-                            <div class="position-relative overflow-hidden rounded-3">
+                        <div class="card h-100 border-0 shadow-sm position-relative overflow-hidden rounded-3 transition-all hover-shadow">
+                            
+                            {# Poster con Badge de Nota Global #}
+                            <div class="position-relative">
                                 {% if rec.movie.posterPath %}
                                     <img src="https://image.tmdb.org/t/p/w500{{ rec.movie.posterPath }}" 
                                          class="img-fluid w-100 {{ rec.status == 'CLOSED' ? 'grayscale' : '' }}" 
@@ -60,138 +58,121 @@
                                     </div>
                                 {% endif %}
 
-                                {# OVERLAY DE ACCIONES #}
+                                {# Badge superior #}
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    {% if rec.status == 'CLOSED' %}
+                                        <span class="badge bg-primary shadow border border-white p-2">
+                                            <i class="bi bi-star-fill text-warning"></i> {{ rec.averageScore|number_format(1) }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-success shadow-sm p-2">ABIERTA</span>
+                                    {% endif %}
+                                </div>
+
+                                {# Overlay inferior de acciones #}
                                 <div class="position-absolute bottom-0 start-0 end-0 p-2 bg-dark bg-opacity-75 backdrop-blur">
                                     {% if rec.status == 'OPEN' %}
-                                        
-                                        {# Lógica para detectar el voto del usuario actual #}
-                                        {% set myReview = null %}
-                                        {% for review in rec.reviews %}
-                                            {% if review.user.id == app.user.id %}
-                                                {% set myReview = review %}
-                                            {% endif %}
-                                        {% endfor %}
-
                                         {% if myReview %}
                                             <div class="text-center">
-                                                <button class="btn btn-secondary btn-sm w-100 fw-bold rounded-pill mb-1" 
-                                                        style="font-size: 0.75rem; cursor: default;" disabled>
-                                                    <i class="bi bi-check-circle-fill text-success me-1"></i> 
-                                                    MI NOTA: {{ myReview.averageScore|number_format(1) }}
-                                                </button>
-                                                <a href="#" class="text-white small text-decoration-none" 
-                                                   style="font-size: 0.65rem;"
-                                                   data-bs-toggle="modal" 
-                                                   data-bs-target="#modalReview{{ myReview.id }}">
-                                                    <i class="bi bi-eye me-1"></i>Ver mi detalle
-                                                </a>
-                                            </div>
-
-                                            {# MODAL DETALLE DE MI VOTO #}
-                                            <div class="modal fade" id="modalReview{{ myReview.id }}" tabindex="-1" aria-hidden="true">
-                                                <div class="modal-dialog modal-dialog-centered modal-sm">
-                                                    <div class="modal-content border-0 shadow text-dark text-start">
-                                                        <div class="modal-header border-0 pb-0">
-                                                            <h6 class="modal-title fw-bold">Tu valoración: {{ rec.movie.title }}</h6>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="text-center mb-3">
-                                                                <div class="display-6 fw-bold text-primary">{{ myReview.averageScore|number_format(1) }}</div>
-                                                                <small class="text-muted text-uppercase tracking-wider">Media personal</small>
-                                                            </div>
-                                                            <div class="small">
-                                                                <div class="d-flex justify-content-between mb-1">
-                                                                    <span>Guion:</span> <strong>{{ myReview.scoreScript }}</strong>
-                                                                </div>
-                                                                <div class="d-flex justify-content-between mb-1">
-                                                                    <span>Dirección:</span> <strong>{{ myReview.scoreDirector }}</strong>
-                                                                </div>
-                                                                <div class="d-flex justify-content-between mb-1">
-                                                                    <span>Actor Princ:</span> <strong>{{ myReview.scoreMainActor }}</strong>
-                                                                </div>
-                                                                <div class="d-flex justify-content-between mb-1">
-                                                                    <span>Actriz Princ:</span> <strong>{{ myReview.scoreMainActress }}</strong>
-                                                                </div>
-                                                                <div class="d-flex justify-content-between">
-                                                                    <span>Reparto Sec:</span> <strong>{{ myReview.scoreSecondaryActors }}</strong>
-                                                                </div>
-                                                            </div>
-                                                            {% if myReview.comment %}
-                                                                <hr>
-                                                                <p class="mb-0 small fst-italic text-muted">"{{ myReview.comment }}"</p>
-                                                            {% endif %}
-                                                        </div>
-                                                    </div>
+                                                <div class="badge bg-light text-dark border w-100 py-2 mb-1" style="font-size: 0.7rem;">
+                                                    <i class="bi bi-check-circle-fill text-success"></i> Tu nota: {{ myReview.averageScore|number_format(1) }}
                                                 </div>
+                                                <button class="btn btn-link btn-sm text-white text-decoration-none p-0" 
+                                                        style="font-size: 0.65rem;"
+                                                        data-bs-toggle="modal" data-bs-target="#modalMyReview{{ myReview.id }}">
+                                                    <i class="bi bi-eye"></i> Ver mi detalle
+                                                </button>
                                             </div>
-
                                         {% else %}
-                                            <a href="{{ path('app_review_new', {id: rec.id}) }}" class="btn btn-success btn-sm w-100 fw-bold rounded-pill shadow-sm">
+                                            <a href="{{ path('app_review_new', {id: rec.id}) }}" class="btn btn-success btn-sm w-100 fw-bold rounded-pill">
                                                 <i class="bi bi-pencil-square me-1"></i> VOTAR
                                             </a>
                                         {% endif %}
-
                                     {% else %}
-                                        <div class="text-white text-center small py-1">
-                                            <i class="bi bi-lock-fill me-1"></i> Cerrado
+                                        <div class="d-grid gap-1">
+                                            <button class="btn btn-primary btn-sm rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#modalGlobal{{ rec.id }}">
+                                                <i class="bi bi-bar-chart-fill me-1"></i> RESULTADOS
+                                            </button>
+                                            {% if myReview %}
+                                                <button class="btn btn-link btn-sm text-white text-decoration-none p-0" 
+                                                        style="font-size: 0.65rem;"
+                                                        data-bs-toggle="modal" data-bs-target="#modalMyReview{{ myReview.id }}">
+                                                    Votaste {{ myReview.averageScore|number_format(1) }}
+                                                </button>
+                                            {% endif %}
                                         </div>
                                     {% endif %}
                                 </div>
                             </div>
 
-                            <div class="card-body px-0 pt-2 pb-0">
-                                <h6 class="fw-bold mb-1 text-truncate" title="{{ rec.movie.title }}">
-                                    {{ rec.movie.title }}
-                                </h6>
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="d-flex align-items-center gap-1 overflow-hidden">
-                                        <i class="bi bi-person-circle text-muted" style="font-size: 0.7rem;"></i>
-                                        <small class="text-muted text-truncate" style="font-size: 0.75rem;">
-                                            {{ rec.recommendedBy.name|default(rec.recommendedBy.email|split('@')[0]) }}
-                                        </small>
-                                    </div>
-                                    {% if rec.status == 'CLOSED' %}
-                                        <small class="text-primary fw-bold" style="font-size: 0.7rem;">
-                                            {{ rec.totalVotes }} votos
-                                        </small>
-                                    {% endif %}
-                                </div>
+                            <div class="card-body p-2">
+                                <h6 class="fw-bold text-truncate mb-0 small" title="{{ rec.movie.title }}">{{ rec.movie.title }}</h6>
+                                <small class="text-muted" style="font-size: 0.65rem;">Por: {{ rec.recommendedBy.name|default(rec.recommendedBy.email|split('@')[0]) }}</small>
                             </div>
                         </div>
-                    </div>
-                {% else %}
-                    <div class="col-12 text-center py-5">
-                        <i class="bi bi-camera-reels display-1 text-light"></i>
-                        <p class="text-muted mt-3">No hay películas en cartelera actualmente.</p>
+
+                        {# --- MODALES --- #}
+                        {% if myReview %}
+                            <div class="modal fade" id="modalMyReview{{ myReview.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-sm">
+                                    <div class="modal-content text-dark">
+                                        <div class="modal-header bg-light py-2"><h6 class="modal-title fw-bold">Mi Valoración</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                                        <div class="modal-body">
+                                            <div class="text-center mb-3"><span class="display-6 fw-bold text-success">{{ myReview.averageScore|number_format(1) }}</span></div>
+                                            <div class="small">
+                                                <div class="d-flex justify-content-between border-bottom py-1"><span>Guion</span> <strong>{{ myReview.scoreScript }}</strong></div>
+                                                <div class="d-flex justify-content-between border-bottom py-1"><span>Dirección</span> <strong>{{ myReview.scoreDirector }}</strong></div>
+                                                <div class="d-flex justify-content-between border-bottom py-1"><span>Actor P.</span> <strong>{{ myReview.scoreMainActor }}</strong></div>
+                                                <div class="d-flex justify-content-between border-bottom py-1"><span>Actriz P.</span> <strong>{{ myReview.scoreMainActress }}</strong></div>
+                                                <div class="d-flex justify-content-between py-1"><span>Reparto Sec.</span> <strong>{{ myReview.scoreSecondaryActors }}</strong></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if rec.status == 'CLOSED' %}
+                            <div class="modal fade" id="modalGlobal{{ rec.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-sm">
+                                    <div class="modal-content text-dark border-0 shadow">
+                                        <div class="modal-header bg-primary text-white py-2"><h6 class="modal-title fw-bold">Consenso del Club</h6><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                                        <div class="modal-body text-center">
+                                            <div class="mb-3"><div class="h3 fw-bold text-primary mb-0">{{ rec.averageScore|number_format(1) }}</div><small class="text-muted">{{ rec.totalVotes }} votos</small></div>
+                                            {% if rec.stats %}
+                                                <div class="text-start small">
+                                                    {% for label, score in rec.stats %}
+                                                        <div class="mb-2">
+                                                            <div class="d-flex justify-content-between mb-1 text-capitalize"><span>{{ label|replace({'mainActor': 'Actor', 'mainActress': 'Actriz', 'secondary': 'Reparto', 'script': 'Guion', 'director': 'Dir.'}) }}</span><strong>{{ score|number_format(1) }}</strong></div>
+                                                            <div class="progress" style="height: 4px;"><div class="progress-bar bg-primary" style="width: {{ score * 10 }}%"></div></div>
+                                                        </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
         </div>
 
-        {# PESTAÑA MIEMBROS #}
+        {# PESTAÑA MIEMBROS (Original Restaurada) #}
         <div class="tab-pane fade" id="miembros" role="tabpanel">
-            {# ... (el código de miembros que ya tenías se mantiene igual) ... #}
             <div class="d-flex align-items-center gap-2 mb-3 px-1">
                 <i class="bi bi-people-fill text-secondary"></i>
-                <span class="fw-bold small text-uppercase tracking-wider text-secondary">
-                    Miembros del club — {{ group.members|length }}
-                </span>
+                <span class="fw-bold small text-uppercase tracking-wider text-secondary">Miembros del club — {{ group.members|length }}</span>
             </div>
             <div class="list-group list-group-flush shadow-sm rounded-3 border overflow-hidden">
-                {% for groupMember in group.members %}
+                {% for member in group.members %}
                     <div class="list-group-item d-flex align-items-center justify-content-between py-3">
                         <div class="d-flex align-items-center gap-3">
                             <i class="bi bi-person-circle fs-3 text-secondary-subtle"></i>
                             <div>
-                                <span class="fw-bold d-block" style="font-size: 0.9rem;">
-                                    {{ groupMember.user.name|default(groupMember.user.email) }}
-                                </span>
-                                {% if groupMember.role == 'OWNER' %}
-                                    <span class="badge bg-warning-subtle text-warning-emphasis p-1 px-2" style="font-size: 0.65rem;">
-                                        <i class="bi bi-star-fill me-1"></i> FUNDADOR
-                                    </span>
-                                {% endif %}
+                                <span class="fw-bold d-block" style="font-size: 0.9rem;">{{ member.user.name|default(member.user.email) }}</span>
+                                {% if member.role == 'OWNER' %}<span class="badge bg-warning-subtle text-warning-emphasis p-1 px-2" style="font-size: 0.65rem;"><i class="bi bi-star-fill me-1"></i> FUNDADOR</span>{% endif %}
                             </div>
                         </div>
                     </div>
@@ -199,37 +180,30 @@
             </div>
         </div>
 
-        {# PESTAÑA AJUSTES #}
+        {# PESTAÑA AJUSTES (Original Restaurada) #}
         <div class="tab-pane fade" id="ajustes" role="tabpanel">
             <div class="row">
                 <div class="col-md-6 border-end">
                     <h6 class="fw-bold">Información General</h6>
                     <p class="small text-muted">{{ group.description|default('Sin descripción.') }}</p>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill">Editar Club</button>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Editar Club</button>
                 </div>
                 <div class="col-md-6 ps-md-4">
                     <h6 class="text-danger fw-bold">Zona de peligro</h6>
-                    <p class="small text-muted">Si abandonas el club, perderás acceso a esta cartelera.</p>
-                    <button class="btn btn-sm btn-danger rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#leaveModal">
-                        Darse de baja del club
-                    </button>
+                    <p class="small text-muted mb-3">Si abandonas el club, perderás acceso a tus votos y recomendaciones.</p>
+                    <button class="btn btn-sm btn-danger rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#leaveModal">Darse de baja del club</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-{# MODAL PARA ABANDONAR CLUB #}
+{# MODAL DE BAJA #}
 <div class="modal fade" id="leaveModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content border-0 shadow">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">¿Abandonar club?</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body py-0">
-                <p class="small text-muted">¿Estás seguro de que quieres dejar <strong>{{ group.name }}</strong>?</p>
-            </div>
+            <div class="modal-header border-0"><h5 class="modal-title fw-bold">¿Abandonar club?</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-body py-0"><p class="small text-muted">¿Estás seguro de que quieres dejar <strong>{{ group.name }}</strong>?</p></div>
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-light btn-sm rounded-pill" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-danger btn-sm rounded-pill px-3">Confirmar baja</button>
