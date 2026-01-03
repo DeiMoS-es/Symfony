@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Votar: {{ recommendation.movie.title }}{% endblock %}
+
+{% block body %}
+{# Usamos vh-100 (opcional) o un min-height para asegurar que el contenido se centre verticalmente en la pantalla #}
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center align-items-center">
+        <div class="col-md-10 col-lg-8">
+            
+            <div class="text-center mb-4">
+                <h1 class="h3 fw-bold mb-1">Tu puntuación</h1>
+                <p class="text-muted small text-uppercase tracking-wider">
+                    Para: <strong>{{ recommendation.movie.title }}</strong>
+                </p>
+            </div>
+
+            {# Agregamos d-flex y align-items-stretch para que las columnas tengan la misma altura #}
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="row g-0 align-items-center"> {# align-items-center aquí centra el formulario respecto al poster #}
+                    
+                    {# Columna del Poster #}
+                    <div class="col-md-5 d-none d-md-block">
+                        <img src="https://image.tmdb.org/t/p/w500{{ recommendation.movie.posterPath }}" 
+                             class="img-fluid h-100 w-100" 
+                             style="object-fit: cover; min-height: 500px;" 
+                             alt="Poster">
+                    </div>
+
+                    {# Columna del Formulario #}
+                    <div class="col-md-7">
+                        <div class="card-body p-4 p-lg-5">
+                            {{ form_start(form) }}
+                                
+                                <div class="mb-4 text-center text-md-start">
+                                    <label class="form-label fw-bold small mb-3 text-primary">
+                                        <i class="bi bi-star-fill me-1"></i> CATEGORÍAS (1 al 10)
+                                    </label>
+                                    
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            {{ form_label(form.scoreScript, 'Guion', {'label_attr': {'class': 'small fw-semibold'}}) }}
+                                            {{ form_widget(form.scoreScript, {'attr': {'class': 'form-select form-select-sm'}}) }}
+                                        </div>
+                                        <div class="col-6">
+                                            {{ form_label(form.scoreDirector, 'Dirección', {'label_attr': {'class': 'small fw-semibold'}}) }}
+                                            {{ form_widget(form.scoreDirector, {'attr': {'class': 'form-select form-select-sm'}}) }}
+                                        </div>
+                                        <div class="col-6">
+                                            {{ form_label(form.scoreMainActor, 'Actor Princ.', {'label_attr': {'class': 'small fw-semibold'}}) }}
+                                            {{ form_widget(form.scoreMainActor, {'attr': {'class': 'form-select form-select-sm'}}) }}
+                                        </div>
+                                        <div class="col-6">
+                                            {{ form_label(form.scoreMainActress, 'Actriz Princ.', {'label_attr': {'class': 'small fw-semibold'}}) }}
+                                            {{ form_widget(form.scoreMainActress, {'attr': {'class': 'form-select form-select-sm'}}) }}
+                                        </div>
+                                        <div class="col-12">
+                                            {{ form_label(form.scoreSecondaryActors, 'Reparto Secundario', {'label_attr': {'class': 'small fw-semibold'}}) }}
+                                            {{ form_widget(form.scoreSecondaryActors, {'attr': {'class': 'form-select form-select-sm'}}) }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    {{ form_label(form.comment, 'Comentario rápido', {'label_attr': {'class': 'small fw-semibold'}}) }}
+                                    {{ form_widget(form.comment, {'attr': {'placeholder': '¿Qué te ha parecido?', 'class': 'form-control form-control-sm'}}) }}
+                                </div>
+
+                                <div class="d-grid gap-2">
+                                    <button type="submit" class="btn btn-primary rounded-pill fw-bold shadow-sm">
+                                        Guardar mi voto
+                                    </button>
+                                    <a href="{{ path('app_group_show', {id: recommendation.group.id}) }}" class="btn btn-link btn-sm text-decoration-none text-muted">
+                                        Cancelar y volver
+                                    </a>
+                                </div>
+                            {{ form_end(form) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

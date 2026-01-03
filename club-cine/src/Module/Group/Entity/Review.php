@@ -17,7 +17,7 @@ class Review
     #[ORM\Column(type: 'uuid', unique: true)]
     private UuidInterface $id;
 
-    #[ORM\ManyToOne(targetEntity: Recommendation::class)]
+    #[ORM\ManyToOne(targetEntity: Recommendation::class, inversedBy: "reviews")]
     #[ORM\JoinColumn(name: "recommendation_id", referencedColumnName: "id", nullable: false, onDelete: 'CASCADE')]
     private Recommendation $recommendation;
 

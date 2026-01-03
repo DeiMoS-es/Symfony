@@ -5,19 +5,22 @@ namespace App\Module\Group\Entity;
 use App\Module\Auth\Entity\User;
 use App\Module\Movie\Entity\Movie;
 use App\Module\Group\Repository\RecommendationRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity(repositoryClass: RecommendationRepository::class)]
 #[ORM\Table(name: 'app_group_recommendation')]
 class Recommendation
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: "uuid", unique: true)]
+    private UuidInterface $id;
 
     #[ORM\ManyToOne(targetEntity: Group::class)]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Group $group;
 
     #[ORM\ManyToOne(targetEntity: Movie::class)]
@@ -28,132 +31,77 @@ class Recommendation
     #[ORM\JoinColumn(nullable: false)]
     private User $recommendedBy;
 
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $status; // 'OPEN', 'CLOSED'
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $deadline;
 
-    #[ORM\Column(length: 20)]
-    private string $status = 'OPEN'; // OPEN, CLOSED
-
+    // --- Campos de resultados tras el cierre ---
     #[ORM\Column(type: 'float', nullable: true)]
-    private ?float $finalScore = null;
+    private ?float $averageScore = null;
 
-    #[ORM\Column(type: 'integer', options: ['default' => 0])]
-    private int $totalVotes = 0;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $totalVotes = null;
 
-    // --- Campos Estadísticos (Medias por categoría) ---
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $stats = null;
 
-    #[ORM\Column(type: 'float', options: ['default' => 0])]
-    private float $avgScript = 0;
+    // --- Relación con las Reviews (Bidireccional) ---
+    #[ORM\OneToMany(mappedBy: 'recommendation', targetEntity: Review::class)]
+    private Collection $reviews;
 
-    #[ORM\Column(type: 'float', options: ['default' => 0])]
-    private float $avgMainActor = 0;
-
-    #[ORM\Column(type: 'float', options: ['default' => 0])]
-    private float $avgMainActress = 0;
-
-    #[ORM\Column(type: 'float', options: ['default' => 0])]
-    private float $avgSecondaryActors = 0;
-
-    #[ORM\Column(type: 'float', options: ['default' => 0])]
-    private float $avgDirector = 0;
-
-    public function __construct(Group $group, Movie $movie, User $user, \DateTimeImmutable $deadline)
-    {
+    public function __construct(
+        Group $group,
+        Movie $movie,
+        User $user,
+        \DateTimeImmutable $deadline
+    ) {
+        $this->id = Uuid::uuid4();
         $this->group = $group;
         $this->movie = $movie;
         $this->recommendedBy = $user;
         $this->deadline = $deadline;
+        $this->status = 'OPEN';
         $this->createdAt = new \DateTimeImmutable();
+        
+        // Inicializamos la colección aquí para que no sea un argumento del constructor
+        $this->reviews = new ArrayCollection();
     }
 
     // --- Getters ---
+    public function getId(): UuidInterface { return $this->id; }
+    public function getGroup(): Group { return $this->group; }
+    public function getMovie(): Movie { return $this->movie; }
+    public function getRecommendedBy(): User { return $this->recommendedBy; }
+    public function getStatus(): string { return $this->status; }
+    public function getDeadline(): \DateTimeImmutable { return $this->deadline; }
+    public function getAverageScore(): ?float { return $this->averageScore; }
+    public function getTotalVotes(): ?int { return $this->totalVotes; }
 
-    public function getId(): ?int
+    /**
+     * @return Collection<int, Review>
+     */
+    public function getReviews(): Collection
     {
-        return $this->id;
-    }
-    public function getGroup(): Group
-    {
-        return $this->group;
-    }
-    public function getMovie(): Movie
-    {
-        return $this->movie;
-    }
-    public function getRecommendedBy(): User
-    {
-        return $this->recommendedBy;
-    }
-    public function getDeadline(): \DateTimeImmutable
-    {
-        return $this->deadline;
-    }
-    public function getStatus(): string
-    {
-        return $this->status;
-    }
-    public function getFinalScore(): ?float
-    {
-        return $this->finalScore;
-    }
-    public function getTotalVotes(): int
-    {
-        return $this->totalVotes;
-    }
-
-    public function getAvgScript(): float
-    {
-        return $this->avgScript;
-    }
-    public function getAvgMainActor(): float
-    {
-        return $this->avgMainActor;
-    }
-    public function getAvgMainActress(): float
-    {
-        return $this->avgMainActress;
-    }
-    public function getAvgSecondaryActors(): float
-    {
-        return $this->avgSecondaryActors;
-    }
-    public function getAvgDirector(): float
-    {
-        return $this->avgDirector;
+        return $this->reviews;
     }
 
     // --- Lógica de Negocio ---
 
-    /**
-     * Cierra la recomendación y guarda todas las estadísticas calculadas
-     */
-    public function closeWithStats(float $finalScore, int $votes, array $stats): void
-    {
-        $this->finalScore = $finalScore;
-        $this->totalVotes = $votes;
-
-        $this->avgScript = $stats['script'] ?? 0;
-        $this->avgMainActor = $stats['mainActor'] ?? 0;
-        $this->avgMainActress = $stats['mainActress'] ?? 0;
-        $this->avgSecondaryActors = $stats['secondary'] ?? 0;
-        $this->avgDirector = $stats['director'] ?? 0;
-
-        $this->status = 'CLOSED';
-    }
-
-    public function isClosed(): bool
-    {
-        return $this->status === 'CLOSED';
-    }
-
     public function canAcceptVotes(): bool
     {
-        // Solo aceptamos votos si el status es OPEN y no hemos pasado la fecha límite
-        $now = new \DateTimeImmutable();
+        return $this->status === 'OPEN' && new \DateTimeImmutable() < $this->deadline;
+    }
 
-        return $this->status === 'OPEN' && $now < $this->deadline;
+    public function closeWithStats(float $average, int $total, array $stats): void
+    {
+        $this->status = 'CLOSED';
+        $this->averageScore = $average;
+        $this->totalVotes = $total;
+        $this->stats = $stats;
     }
 }
