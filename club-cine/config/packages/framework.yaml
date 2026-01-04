@@ -3,13 +3,11 @@ framework:
     secret: '%env(APP_SECRET)%'
     
     session:
-        # Al usar php_bridge, Symfony delega la gestión a la configuración de PHP
-        # que hemos definido en el index.php mediante ini_set.
-        storage_factory_id: session.storage.factory.php_bridge
-        handler_id: null
+        # Usamos la base de datos para que la sesión sea persistente en Vercel
+        handler_id: 'Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler'
         cookie_secure: auto
         cookie_samesite: lax
-        cookie_httponly: true
+        storage_factory_id: session.storage.factory.native
 
     # Activación explícita de la protección contra falsificación de peticiones
     csrf_protection: true

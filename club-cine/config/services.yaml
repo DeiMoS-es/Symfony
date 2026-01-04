@@ -1,62 +1,56 @@
+# config/services.yaml
+
+parameters:
+    tmdb.api_key: '%env(string:TMDB_API_KEY)%'
+    tmdb.read_token: '%env(string:TMDB_READ_TOKEN)%'
+
 services:
+    # Configuración por defecto para los servicios en este archivo
     _defaults:
-        autowire: true
-        autoconfigure: true
-        public: false
-        
+        autowire: true      # Inyecta automáticamente las dependencias en tus servicios
+        autoconfigure: true # Registra automáticamente tus servicios como comandos, suscriptores de eventos, etc.
+        public: false       # Por defecto, los servicios son privados por seguridad
+
+    # Registro de los controladores estándar de Symfony
     App\Controller\:
         resource: '../src/Controller'
         tags: ['controller.service_arguments']
         public: true
 
-
-    # Registro general de tus clases de la aplicación
+    # Registro general de las clases de la aplicación (excluyendo carpetas de datos/tests)
     App\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests}'
 
-    # Controladores y repositorios del módulo Auth
+    # --- Módulo Auth ---
+    
+    # Registro de servicios del módulo Auth
     App\Module\:
         resource: '../src/Module/*'
         exclude: '../src/Module/*/{Entity,Tests}'
 
-    # Módulo Auth
-    # Hacemos públicos los controladores manualmente (PSR-4 compatible)
+    # Hacemos públicos los controladores de Auth para el enrutamiento
     App\Module\Auth\Controller\:
         resource: '../src/Module/Auth/Controller/*'
         public: true
 
-    # Desactiva autowire para los DTOs
+    # Desactiva autowire para los DTOs ya que son objetos de datos, no servicios
     App\Module\Auth\DTO\:
         resource: '../src/Module/Auth/DTO/*'
         autowire: false
         public: false
-    # Fin módulo Auth
 
-    # Implementación del Generador de Tokens
-    # Si quieres especificar los argumentos manualmente, usa esta forma:
+    # Implementación del Generador de Tokens JWT
     App\Module\Auth\Security\JwtTokenGenerator:
-        class: App\Module\Auth\Security\JwtTokenGenerator # No es necesaria si se usa autowire, pero aclara
         arguments:
             $jwtManager: '@lexik_jwt_authentication.jwt_manager'
 
-    # Alias/Sustitución de interfaz: 
-    # Cuando alguien pida TokenGeneratorInterface, se le da JwtTokenGenerator
+    # Alias para la interfaz del generador de tokens
     App\Module\Auth\Security\TokenGeneratorInterface:
         alias: App\Module\Auth\Security\JwtTokenGenerator
-        # Hacemos el alias público para que pueda ser resuelto correctamente
         public: true
 
-    # Listener para inyectar el token JWT en las cookies de la respuesta
-    App\EventListener\JwtCookieInjectorListener:
-        tags:
-            - { name: kernel.event_listener, event: kernel.request, priority: 10 }
-
-    # Listener para controlar excepciones de TMDb
-    App\EventListener\TmdbExceptionListener:
-        tags:
-            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
-
+    # --- Módulo Movie (TMDb) ---
 
     # Servicio para consumir la API de TMDb
     App\Module\Movie\Service\TmdbService:
@@ -65,12 +59,35 @@ services:
             $apiKey: '%tmdb.api_key%'
             $readToken: '%tmdb.read_token%'
 
+    # Controladores del módulo de Películas
     App\Module\Movie\Controller\:
         resource: '../src/Module/Movie/Controller'
         public: true
         tags: ['controller.service_arguments']
 
+    # --- Listeners de Eventos ---
 
-parameters:
-    tmdb.api_key: '%env(string:TMDB_API_KEY)%'
-    tmdb.read_token: '%env(string:TMDB_READ_TOKEN)%'
+    # Listener para inyectar cookies JWT
+    App\EventListener\JwtCookieInjectorListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, priority: 10 }
+
+    # Listener para excepciones de la API de TMDb
+    App\EventListener\TmdbExceptionListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
+
+    # --- PERSISTENCIA DE SESIÓN (Crucial para Vercel) ---
+
+    # Este servicio conecta Symfony con la tabla 'sessions' que creaste en la base de datos.
+    # Evita que el Token CSRF sea inválido al cambiar de servidor en Vercel.
+    Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
+        arguments:
+            - '%env(DATABASE_URL)%'
+            - { 
+                db_table: 'sessions', 
+                db_id_col: 'sess_id', 
+                db_data_col: 'sess_data', 
+                db_time_col: 'sess_time', 
+                db_lifetime_col: 'sess_lifetime' 
+              }
