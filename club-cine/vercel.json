@@ -4,7 +4,7 @@
       "runtime": "vercel-php@0.7.1"
     }
   },
-  "buildCommand": "sh vercel-build.sh && composer install --no-dev --optimize-autoloader && php bin/console importmap:install",
+  "buildCommand": "composer install --no-dev --optimize-autoloader && php bin/console importmap:install",
   "routes": [
     { "src": "/build/(.*)", "dest": "/public/build/$1" },
     { "src": "/(.*)", "dest": "/api/index.php" }
