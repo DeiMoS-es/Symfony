@@ -3,6 +3,12 @@ services:
         autowire: true
         autoconfigure: true
         public: false
+        
+    App\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+        public: true
+
 
     # Registro general de tus clases de la aplicación
     App\:
