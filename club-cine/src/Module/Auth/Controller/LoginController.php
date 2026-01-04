@@ -23,6 +23,7 @@ class LoginController extends AbstractController
     #[Route('/auth/login', name: 'auth_login', methods: ['GET', 'POST'])]
     public function login(Request $request): Response
     {
+        $request->getSession()->start();
         if ($request->isMethod('GET')) {
             return $this->render('auth/login.html.twig', ['email' => '']);
         }

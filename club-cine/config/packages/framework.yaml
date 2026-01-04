@@ -1,15 +1,30 @@
+# config/packages/framework.yaml
 framework:
     secret: '%env(APP_SECRET)%'
     
     session:
+        # Al usar php_bridge, Symfony delega la gestión a la configuración de PHP
+        # que hemos definido en el index.php mediante ini_set.
+        storage_factory_id: session.storage.factory.php_bridge
         handler_id: null
-        save_path: '/tmp/sessions'
         cookie_secure: auto
         cookie_samesite: lax
-        storage_factory_id: session.storage.factory.native
+        cookie_httponly: true
 
+    # Activación explícita de la protección contra falsificación de peticiones
     csrf_protection: true
 
-    # Estos encabezados son los que envía Vercel
+    # Configuración de confianza para el balanceador de carga de Vercel
+    # Esto asegura que Symfony detecte correctamente el protocolo HTTPS
     trusted_proxies: '127.0.0.1,REMOTE_ADDR'
     trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix']
+
+    # Otros componentes estándar
+    php_errors:
+        log: true
+
+when@test:
+    framework:
+        test: true
+        session:
+            storage_factory_id: session.storage.factory.mock_file
