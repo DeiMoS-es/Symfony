@@ -1,28 +1,15 @@
-# config/packages/framework.yaml
 framework:
     secret: '%env(APP_SECRET)%'
-
-    # Configuración de sesión adaptada para Vercel
+    
     session:
-        # Usamos /tmp porque var/ es de solo lectura en Vercel
         handler_id: null
         save_path: '/tmp/sessions'
         cookie_secure: auto
         cookie_samesite: lax
         storage_factory_id: session.storage.factory.native
 
-    # Activamos la protección CSRF explícitamente
     csrf_protection: true
 
-    # Crucial para Vercel: Confiar en el Proxy para que el Token CSRF sea válido en HTTPS
+    # Estos encabezados son los que envía Vercel
     trusted_proxies: '127.0.0.1,REMOTE_ADDR'
     trusted_headers: ['x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix']
-
-    #esi: true
-    #fragments: true
-
-when@test:
-    framework:
-        test: true
-        session:
-            storage_factory_id: session.storage.factory.mock_file
