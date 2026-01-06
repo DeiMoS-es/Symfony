@@ -118,3 +118,32 @@ La configuración principal del módulo se encuentra en:
 - Implementación de protección CSRF en todos los formularios
 - Validación de datos tanto en el cliente como en el servidor
 - Los tests se realizan usando SQLite en memoria para no afectar la base de datos real
+
+🚀 Despliegue en Vercel y Gestión de Sesiones
+Este proyecto está optimizado para funcionar en Vercel utilizando una arquitectura Serverless. A diferencia de un servidor tradicional, Vercel no dispone de un sistema de archivos persistente, lo que planteó un reto técnico con la seguridad de Symfony.
+
+El Problema: Token CSRF Inválido
+Al desplegar inicialmente, el sistema de login devolvía siempre un error de "Token CSRF inválido".
+
+Causa técnica: Symfony guarda por defecto las sesiones en archivos locales (var/sessions). En Vercel:
+
+Las peticiones son atendidas por diferentes instancias (Lambdas) aisladas.
+
+Si la página de login se genera en una instancia y el envío del formulario llega a otra, la segunda instancia no tiene acceso al archivo de sesión de la primera.
+
+Al no encontrar la sesión, Symfony no puede validar el token CSRF, denegando el acceso por seguridad.
+
+La Solución: Sesiones Persistentes con PDO
+Para solucionar esto, hemos desacoplado la gestión de sesiones del sistema de archivos, moviéndolas a la base de datos de Clever Cloud.
+
+Pasos realizados:
+
+Infraestructura: Creación de una tabla sessions en MySQL para almacenar los datos de sesión de forma centralizada.
+
+Configuración de Symfony: - Se implementó el PdoSessionHandler en services.yaml para conectar Symfony con la tabla de la base de datos.
+
+Se configuró framework.yaml para utilizar este manejador de sesiones en lugar del almacenamiento por archivos.
+
+Trusted Proxies: Configuración de public/index.php para confiar en los proxies de Vercel, asegurando que Symfony detecte correctamente el protocolo HTTPS y las cabeceras de seguridad.
+
+Resultado: Ahora, cualquier instancia de Vercel puede consultar la sesión activa en la base de datos, permitiendo un flujo de autenticación estable y seguro.
