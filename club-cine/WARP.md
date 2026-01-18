@@ -81,8 +81,16 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
   - `Repository/MovieRepository`: además del CRUD, proporciona `searchByTitle(string $term)` para búsquedas en la BD local.
   - Los DTOs en `DTO/` definen la forma de los datos que viajan entre controladores, servicios y vistas (por ejemplo, `MovieCatalogItemDTO`, `MovieUpsertRequest`).
 - Controladores:
-  - `DashboardController` (prefijo de ruta `/movies`) usa `TmdbService::fetchPopularCatalog` para construir el dashboard de películas (`dashboard.html.twig`) y expone al template el `Group` asociado al usuario actual (si existe).
-  - `MovieCatalogController` maneja endpoints más específicos de catálogo (búsqueda, navegación), también apoyado en `MovieService::getSearchCatalog` y `TmdbService`.
+  - `DashboardController` (prefijo de ruta `/movies`) gestiona dos funcionalidades:
+    - Obtiene `q` del request (parámetro de búsqueda).
+    - Delega en `MovieService::getSearchCatalog($searchTerm, $page)` que internamente decide: si `$searchTerm` está vacío, devuelve catálogo popular; si no, busca en TMDb.
+    - Renderiza `dashboard.html.twig` pasando `searchTerm`, `movies` (con estructura `items` + paginación), `totalPages` y `currentPage`.
+  - `MovieCatalogController` maneja endpoints más específicos de catálogo (si existen).
+- Vistas:
+  - `dashboard.html.twig`: 
+    - Renderiza un formulario de búsqueda con campo `q` que envía a `/movies/dashboard` por GET.
+    - Muestra dinámicamente "Películas Populares" o "Resultados para: [término]" según hay búsqueda activa.
+    - Itera sobre `movies.items` (array de `MovieCatalogItemDTO`) y renderiza tarjetas con imagen, título, año y botón "Recomendar" (si el usuario pertenece a un grupo).
 - Manejo de errores:
   - `App\EventListener\TmdbExceptionListener` convierte excepciones relacionadas con TMDb en respuestas HTTP JSON con códigos apropiados (401/404/503/500), centralizando el manejo de errores de la API externa.
 

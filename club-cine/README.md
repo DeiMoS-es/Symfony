@@ -47,7 +47,8 @@ El proyecto está organizado en módulos independientes dentro de `src/Module`, 
 - ✅ Comando para cierre automático de recomendaciones (`app:close-recommendations`) y `RecommendationManager` (cálculo de estadísticas)
 - ✅ Backend: soporte de puntuación por aspectos, cálculo de `averageScore` y agregados; UI de votación pendiente
 - ✅ Persistencia de películas y géneros (tablas `movie`, `genre`, `movie_genres`) y sincronización desde TMDb
-- ✅ Búsqueda de películas por título en TMDb y en base de datos local
+- ✅ Búsqueda de películas por título en TMDb y en base de datos local con UI integrada en dashboard
+- ✅ Formulario de búsqueda funcional en `dashboard.html.twig` con filtrado dinámico
 - ✅ Sistema de refresh tokens y tabla `refresh_tokens` (rotación y revocación)
 - 🔜 Panel de administración
 - 🔜 Visualización de rankings y estadísticas agregadas (front-end)

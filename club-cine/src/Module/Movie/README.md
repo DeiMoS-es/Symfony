@@ -32,6 +32,8 @@ Movie/
   - [x] Sincronizar una película concreta desde TMDb (`getAndPersistFromTmdb`).
   - [x] Buscar películas por título en TMDb (`getSearchCatalog`).
 - [x] Controladores para dashboard y catálogo (`DashboardController`, `MovieCatalogController`).
+  - [x] `DashboardController::dashboard` integra búsqueda por parámetro `q` usando `MovieService::getSearchCatalog`.
+  - [x] Vista `dashboard.html.twig` con formulario de búsqueda y renderizado de resultados (populares o búsqueda).
 - [x] Botón "Recomendar" en el catálogo que permite recomendar la película al grupo del usuario (si está en un grupo).
 - [x] Listener global `TmdbExceptionListener` para mapear errores de TMDb a respuestas HTTP JSON con códigos adecuados.
 - [x] Test de integración `MovieServiceTest` para verificar la búsqueda de películas por título en TMDb.
@@ -53,11 +55,13 @@ Movie/
 4. Cuando es necesario persistir una película en la base de datos local, se utiliza `MovieService::getAndPersistFromTmdb($tmdbId)` o `findOrCreateFromUpsertDTO()` con el DTO adecuado.
 
 ### Búsqueda de películas por título
-1. El usuario busca una película por título en la interfaz.
-2. El controlador correspondiente invoca `MovieService::getSearchCatalog($query, $page)`.
-3. `MovieService` delega en `TmdbService::searchCatalog($query, $page)` para obtener resultados de TMDb.
-4. `TmdbService` realiza la petición a la API de TMDb y transforma los resultados en `MovieCatalogItemDTO`.
-5. Los resultados se devuelven con la estructura de paginación estándar.
+1. El usuario ingresa un término en el formulario de búsqueda en `dashboard.html.twig`.
+2. El formulario envía la búsqueda con parámetro `q` a `DashboardController::dashboard`.
+3. El controlador captura el parámetro `q` y lo pasa a `MovieService::getSearchCatalog($searchTerm, $page)`.
+4. `MovieService` valida la consulta: si está vacía, devuelve catálogo popular; si tiene contenido, delega en `TmdbService::searchCatalog()`.
+5. `TmdbService::searchCatalog` realiza la petición GET a `/search/movie` en TMDb, transforma los resultados en `MovieCatalogItemDTO` y devuelve estructura de paginación.
+6. Los resultados se pasan de vuelta a la vista con `searchTerm` para mostrar "Resultados para: [término]" en el encabezado.
+7. La vista renderiza las películas encontradas con el mismo layout que el catálogo popular.
 
 ## Errores y manejo de fallos
 - Si TMDb devuelve códigos 401, 404, 5xx o estados inesperados, `TmdbService` lanza excepciones tipadas (`TmdbUnauthorizedException`, `TmdbNotFoundException`, `TmdbUnavailableException`, `TmdbException`).
