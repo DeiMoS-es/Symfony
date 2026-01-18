@@ -59,7 +59,9 @@ El proyecto está organizado en módulos independientes dentro de `src/Module`, 
 - Nuevos métodos en `TmdbService`: `searchCatalog()` para búsquedas transformadas a DTOs. ✅
 - Nuevo método en `MovieRepository`: `searchByTitle()` para búsquedas en la base de datos local. 🗄️
 - Test de integración `MovieServiceTest` para verificar búsquedas por título contra TMDb. 🧪
-- Actualización de documentación del módulo Movie (README.md). 📚
+- **Implementación en controlador**: `DashboardController` integra búsqueda por parámetro GET `q`. 🎮
+- **UI mejorada**: Formulario de búsqueda en `dashboard.html.twig` con campos visuales para búsqueda en tiempo real. 🎨
+- Actualización de documentación (README.md módulo Movie y WARP.md). 📚
 
 ---
 

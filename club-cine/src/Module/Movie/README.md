@@ -69,7 +69,8 @@ Movie/
 - En caso de fallos no críticos, `fetchPopularCatalog` devuelve una estructura vacía segura, evitando romper el dashboard.
 
 ## Próximos pasos
-- [ ] Crear endpoint REST para búsqueda de películas por título accesible desde la API.
+- [ ] Exponer endpoint API REST `/api/movies/search?q=...` para búsqueda desde cliente JavaScript.
 - [ ] Implementar búsqueda full-text en la base de datos local para películas almacenadas.
 - [ ] Integrar la información de recomendaciones y reviews del módulo `Group` en las vistas de detalle de película.
 - [ ] Añadir más tests de integración para cubrir casos edge (búsquedas vacías, resultados paginados, errores de API).
+- [ ] Paginación avanzada en la UI (botones anterior/siguiente, saltar a página).
