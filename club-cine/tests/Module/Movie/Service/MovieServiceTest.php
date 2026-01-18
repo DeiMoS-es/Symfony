@@ -5,6 +5,7 @@ use App\Module\Movie\Service\MovieService;
 use App\Module\Movie\DTO\MovieCatalogItemDTO;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
+// Test de integración. Es de integración porque prueba la comunicación entre varios componentes.
 class MovieServiceTest extends KernelTestCase
 {
     private MovieService $movieService;
@@ -21,6 +22,7 @@ class MovieServiceTest extends KernelTestCase
        // 1. Ejecutar la acción (que aún no existe)
         $searchTerm = 'Matrix';
         $results = $this->movieService->getSearchCatalog($searchTerm);
+        dump($results);
 
         // 2. Verificaciones (Assertions)
         $this->assertArrayHasKey('items', $results, 'La respuesta debe contener una clave "items"');

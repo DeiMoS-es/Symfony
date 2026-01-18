@@ -137,4 +137,18 @@ class MovieService
 
         return $movie;
     }
+
+    /**
+     * Obtiene el catálogo de búsqueda transformado en DTOs.
+     */
+    public function getSearchCatalog(string $query, int $page = 1): array
+    {
+        // Si la consulta está vacía, podríamos devolver populares o una lista vacía.
+        // De momento, delegamos directamente al servicio de TMDB.
+        if (empty(trim($query))) {
+            return $this->tmdbService->fetchPopularCatalog($page);
+        }
+
+        return $this->tmdbService->searchCatalog($query, $page);
+    }
 }

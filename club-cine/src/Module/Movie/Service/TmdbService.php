@@ -65,41 +65,11 @@ class TmdbService
     {
         $data = $this->fetchPopular($page);
 
-        // Si la API falló devolvemos estructura vacía
         if (empty($data)) {
-            return [
-                'error' => 'No se pudo obtener datos de TMDb',
-                'page' => $page,
-                'total_pages' => 0,
-                'total_results' => 0,
-                'items' => []
-            ];
+            return $this->emptyResponse($page);
         }
 
-        $results = $data['results'] ?? [];
-
-        $items = array_map(function ($movie) {
-            $release = null;
-            if (!empty($movie['release_date'])) {
-                try {
-                    $release = new \DateTimeImmutable($movie['release_date']);
-                } catch (\Throwable $e) {
-                }
-            }
-            return new MovieCatalogItemDTO(
-                (int) $movie['id'],
-                $movie['title'] ?? 'Untitled',
-                $movie['poster_path'] ?? null,
-                $release
-            );
-        }, $results);
-
-        return [
-            'page' => $data['page'] ?? $page,
-            'total_pages' => $data['total_pages'] ?? 0,
-            'total_results' => $data['total_results'] ?? 0,
-            'items' => $items
-        ];
+        return $this->mapToCatalogDTO($data, $page);
     }
 
 
@@ -138,5 +108,71 @@ class TmdbService
         }
 
         return $response->toArray();
+    }
+
+    /**
+     * Nuevo buscador que devuelve DTOs (Lo que el test espera)
+     */
+    public function searchCatalog(string $query, int $page = 1): array
+    {
+        $url = sprintf('%s/search/movie', self::BASE);
+        $response = $this->http->request('GET', $url, [
+            'headers' => $this->headers(),
+            'query' => [
+                'api_key' => $this->apiKey,
+                'query' => $query,
+                'page' => $page,
+                'language' => 'es-ES'
+            ]
+        ]);
+
+        if ($response->getStatusCode() !== 200) {
+            return $this->emptyResponse($page);
+        }
+
+        return $this->mapToCatalogDTO($response->toArray(), $page);
+    }
+
+    /**
+     * MÉTODO PRIVADO REUTILIZABLE (DRY - Don't Repeat Yourself)
+     * Convierte la respuesta cruda de TMDB en nuestro formato de DTOs
+     */
+    private function mapToCatalogDTO(array $data, int $page): array
+    {
+        $results = $data['results'] ?? [];
+
+        $items = array_map(function ($movie) {
+            $release = null;
+            if (!empty($movie['release_date'])) {
+                try {
+                    $release = new \DateTimeImmutable($movie['release_date']);
+                } catch (\Throwable) {
+                    // Si la fecha falla, se queda como null
+                }
+            }
+            return new MovieCatalogItemDTO(
+                (int) $movie['id'],
+                $movie['title'] ?? 'Untitled',
+                $movie['poster_path'] ?? null,
+                $release
+            );
+        }, $results);
+
+        return [
+            'page' => $data['page'] ?? $page,
+            'total_pages' => $data['total_pages'] ?? 0,
+            'total_results' => $data['total_results'] ?? 0,
+            'items' => $items
+        ];
+    }
+
+    private function emptyResponse(int $page): array
+    {
+        return [
+            'page' => $page,
+            'total_pages' => 0,
+            'total_results' => 0,
+            'items' => []
+        ];
     }
 }
