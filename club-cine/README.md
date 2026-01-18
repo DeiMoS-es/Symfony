@@ -47,19 +47,18 @@ El proyecto está organizado en módulos independientes dentro de `src/Module`, 
 - ✅ Comando para cierre automático de recomendaciones (`app:close-recommendations`) y `RecommendationManager` (cálculo de estadísticas)
 - ✅ Backend: soporte de puntuación por aspectos, cálculo de `averageScore` y agregados; UI de votación pendiente
 - ✅ Persistencia de películas y géneros (tablas `movie`, `genre`, `movie_genres`) y sincronización desde TMDb
+- ✅ Búsqueda de películas por título en TMDb y en base de datos local
 - ✅ Sistema de refresh tokens y tabla `refresh_tokens` (rotación y revocación)
 - 🔜 Panel de administración
 - 🔜 Visualización de rankings y estadísticas agregadas (front-end)
 
-## 📣 Últimos cambios (2026-01-02)
+## 📣 Últimos cambios (2026-01-18)
 
-- Refactor de varios controladores (Auth, Group) y limpieza de responsabilidades en servicios. 🔧
-- Añadidos mappers (`AuthMapper`, `UserMapper`) y refactor en `RegistrationService` / `RegistrationController`. ✅
-- Se añadió un test unitario: `tests/Module/Auth/Service/RegistrationServiceTest.php`. 🧪
-- Mejora en `app:close-recommendations` (cierre automático y cálculo de estadísticas). ⚙️
-- Nuevo `GroupService` y cambio de mensajes informativos multi-grupo. 💬
-- UI: aumento del timeout de mensajes de aviso y ajustes en la barra de navegación y formulario de grupo (`templates/base.html.twig`, `templates/components/_navbar.html.twig`, `templates/group/_form.html.twig`). 🖼️
-- Varias refactorizaciones menores y fixes. 🔁
+- Implementación de búsqueda de películas por título en TMDb mediante `MovieService::getSearchCatalog()`. 🔍
+- Nuevos métodos en `TmdbService`: `searchCatalog()` para búsquedas transformadas a DTOs. ✅
+- Nuevo método en `MovieRepository`: `searchByTitle()` para búsquedas en la base de datos local. 🗄️
+- Test de integración `MovieServiceTest` para verificar búsquedas por título contra TMDb. 🧪
+- Actualización de documentación del módulo Movie (README.md). 📚
 
 ---
 

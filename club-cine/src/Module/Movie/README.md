@@ -20,16 +20,21 @@ Movie/
 - [x] Método `fetchPopular(int $page)` para obtener películas populares directamente desde TMDb.
 - [x] Método `fetchPopularCatalog(int $page)` que transforma los resultados en una estructura amigable con `MovieCatalogItemDTO`.
 - [x] Método `fetchMovie(int $tmdbId)` para obtener el detalle completo de una película.
-- [x] Método `search(string $query, int $page)` para búsquedas por texto.
+- [x] Métodos de búsqueda por título:
+  - [x] `search(string $query, int $page)` - búsqueda raw en TMDb.
+  - [x] `searchCatalog(string $query, int $page)` - búsqueda en TMDb transformada a DTOs.
+  - [x] `MovieRepository::searchByTitle(string $term, int $limit, int $offset)` - búsqueda en la base de datos local.
 - [x] Entidades `Movie` y `Genre` persistidas en la base de datos local (migraciones creadas: `movie`, `genre`, `movie_genres`).
 - [x] `Movie` guarda campos `voteAverage` y `voteCount` que pueden ser sincronizados o calculados a partir de reviews.
 - [x] `MovieService` para:
   - [x] Crear/actualizar películas a partir de `MovieUpsertRequest`.
   - [x] Resolver/crear géneros asociados.
   - [x] Sincronizar una película concreta desde TMDb (`getAndPersistFromTmdb`).
+  - [x] Buscar películas por título en TMDb (`getSearchCatalog`).
 - [x] Controladores para dashboard y catálogo (`DashboardController`, `MovieCatalogController`).
 - [x] Botón "Recomendar" en el catálogo que permite recomendar la película al grupo del usuario (si está en un grupo).
 - [x] Listener global `TmdbExceptionListener` para mapear errores de TMDb a respuestas HTTP JSON con códigos adecuados.
+- [x] Test de integración `MovieServiceTest` para verificar la búsqueda de películas por título en TMDb.
 
 ## Configuración
 - Servicio `TmdbService` configurado en `config/services.yaml`:
@@ -40,10 +45,19 @@ Movie/
 - Listener `TmdbExceptionListener` registrado como `kernel.event_listener` para capturar excepciones del espacio `App\Module\Movie\Exception`.
 
 ## Flujo principal
+
+### Listado de películas populares
 1. El usuario accede al dashboard de películas (`/movies/dashboard`).
 2. `DashboardController` invoca `TmdbService::fetchPopularCatalog($page)` para obtener un listado paginado de películas populares.
 3. Los resultados se transforman en instancias de `MovieCatalogItemDTO` y se pasan a la vista Twig (`dashboard.html.twig`).
 4. Cuando es necesario persistir una película en la base de datos local, se utiliza `MovieService::getAndPersistFromTmdb($tmdbId)` o `findOrCreateFromUpsertDTO()` con el DTO adecuado.
+
+### Búsqueda de películas por título
+1. El usuario busca una película por título en la interfaz.
+2. El controlador correspondiente invoca `MovieService::getSearchCatalog($query, $page)`.
+3. `MovieService` delega en `TmdbService::searchCatalog($query, $page)` para obtener resultados de TMDb.
+4. `TmdbService` realiza la petición a la API de TMDb y transforma los resultados en `MovieCatalogItemDTO`.
+5. Los resultados se devuelven con la estructura de paginación estándar.
 
 ## Errores y manejo de fallos
 - Si TMDb devuelve códigos 401, 404, 5xx o estados inesperados, `TmdbService` lanza excepciones tipadas (`TmdbUnauthorizedException`, `TmdbNotFoundException`, `TmdbUnavailableException`, `TmdbException`).
@@ -51,6 +65,7 @@ Movie/
 - En caso de fallos no críticos, `fetchPopularCatalog` devuelve una estructura vacía segura, evitando romper el dashboard.
 
 ## Próximos pasos
-- [ ] Exponer endpoints adicionales para buscar y filtrar películas dentro del propio club (por ejemplo, películas ya puntuadas por el grupo).
+- [ ] Crear endpoint REST para búsqueda de películas por título accesible desde la API.
+- [ ] Implementar búsqueda full-text en la base de datos local para películas almacenadas.
 - [ ] Integrar la información de recomendaciones y reviews del módulo `Group` en las vistas de detalle de película.
-- [ ] Añadir tests de integración específicos para `TmdbService` y `MovieService` usando dobles de prueba del cliente HTTP.
+- [ ] Añadir más tests de integración para cubrir casos edge (búsquedas vacías, resultados paginados, errores de API).

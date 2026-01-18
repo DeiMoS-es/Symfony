@@ -71,15 +71,18 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 - Responsabilidad: integración con TMDb y persistencia local de películas y géneros.
 - Piezas principales:
   - `Service/TmdbService`: cliente HTTP central para TMDb, inyectado con `HttpClientInterface`, `tmdb.api_key` y `tmdb.read_token` (configurados en `services.yaml` y alimentados por `TMDB_API_KEY` / `TMDB_READ_TOKEN`).
-    - Proporciona `fetchPopular` para el listado popular bruto de TMDb, `fetchPopularCatalog` que mapea los resultados a `MovieCatalogItemDTO` y devuelve estructura de paginación + items, `fetchMovie` para detalle de película y `search` para búsquedas por texto.
+    - Métodos para catálogo: `fetchPopular` (raw), `fetchPopularCatalog` (DTOs con paginación), `fetchMovie` (detalle).
+    - Métodos de búsqueda: `search` (raw) y `searchCatalog` (transformados a `MovieCatalogItemDTO` con paginación).
     - Lanza excepciones tipadas (`TmdbUnauthorizedException`, `TmdbNotFoundException`, `TmdbUnavailableException`, `TmdbException`) según el código de estado.
   - `Service/MovieService`: orquesta la persistencia de entidades `Movie` y `Genre` a partir de un DTO `MovieUpsertRequest` o de datos obtenidos vía `TmdbService`.
     - `findOrCreateFromUpsertDTO` crea o actualiza una película y sus géneros.
     - `getAndPersistFromTmdb` obtiene detalles desde TMDb, construye el DTO y delega en `findOrCreateFromUpsertDTO`, haciendo `flush` al final.
+    - `getSearchCatalog` busca películas por título, delegando a `TmdbService::searchCatalog` si la consulta es válida.
+  - `Repository/MovieRepository`: además del CRUD, proporciona `searchByTitle(string $term)` para búsquedas en la BD local.
   - Los DTOs en `DTO/` definen la forma de los datos que viajan entre controladores, servicios y vistas (por ejemplo, `MovieCatalogItemDTO`, `MovieUpsertRequest`).
 - Controladores:
   - `DashboardController` (prefijo de ruta `/movies`) usa `TmdbService::fetchPopularCatalog` para construir el dashboard de películas (`dashboard.html.twig`) y expone al template el `Group` asociado al usuario actual (si existe).
-  - `MovieCatalogController` maneja endpoints más específicos de catálogo (búsqueda, navegación), también apoyado en `TmdbService`.
+  - `MovieCatalogController` maneja endpoints más específicos de catálogo (búsqueda, navegación), también apoyado en `MovieService::getSearchCatalog` y `TmdbService`.
 - Manejo de errores:
   - `App\EventListener\TmdbExceptionListener` convierte excepciones relacionadas con TMDb en respuestas HTTP JSON con códigos apropiados (401/404/503/500), centralizando el manejo de errores de la API externa.
 
