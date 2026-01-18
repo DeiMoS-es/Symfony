@@ -18,13 +18,36 @@
 			</div>
 		{% endif %}
 
-		{# Sección de Título y Buscador (Espacio preparado para el buscador) #}
+		{# Sección de Título y Buscador #}
 		<div class="row align-items-end mb-3">
 			<div class="col-md-8">
 				<h4 class="fw-bold mb-1">
 					<i class="bi bi-film"></i>
-					Películas Populares</h4>
+					{# Si hay búsqueda, mostramos el texto buscado. Si no, "Populares" #}
+					{{ searchTerm ? 'Resultados para: "' ~ searchTerm ~ '"' : 'Películas Populares' }}
+				</h4>
 				<p class="text-muted small mb-0">Selecciona una joya para verla con tu club esta semana.</p>
+			</div>
+
+			{# Formulario de búsqueda #}
+			<div class="col-md-4 mt-3 mt-md-0">
+				<form action="{{ path('user_dashboard') }}" method="get">
+					<div class="input-group shadow-sm" style="border-radius: 10px; overflow: hidden;">
+						<span class="input-group-text bg-white border-end-0">
+							<i class="bi bi-search text-primary"></i>
+						</span>
+						<input type="text" name="q" class="form-control border-start-0 ps-0" placeholder="Buscar película..." value="{{ searchTerm }}">
+
+						{% if searchTerm %}
+							{# Botón para limpiar la búsqueda si hay algo escrito #}
+							<a href="{{ path('user_dashboard') }}" class="btn btn-outline-secondary border-start-0">
+								<i class="bi bi-x-lg"></i>
+							</a>
+						{% endif %}
+
+						<button type="submit" class="btn btn-primary px-4">Ir</button>
+					</div>
+				</form>
 			</div>
 		</div>
 
@@ -89,7 +112,7 @@
 
 				{# Botón Anterior #}
 				<li class="page-item {{ currentPage == 1 ? 'disabled' : '' }}">
-					<a class="page-item shadow-sm border-0 rounded-pill px-3 py-2 btn {{ currentPage == 1 ? 'btn-light text-muted' : 'btn-outline-primary' }}" href="{{ path('user_dashboard', { page: currentPage - 1 }) }}" tabindex="-1">
+					<a class="..." href="{{ path('user_dashboard', { page: currentPage - 1, q: searchTerm }) }}">
 						<i class="bi bi-chevron-left me-1"></i>
 						Anterior
 					</a>
@@ -105,7 +128,7 @@
 
 				{# Botón Siguiente #}
 				<li class="page-item {{ currentPage == totalPages ? 'disabled' : '' }}">
-					<a class="page-item shadow-sm border-0 rounded-pill px-3 py-2 btn {{ currentPage == totalPages ? 'btn-light text-muted' : 'btn-outline-primary' }}" href="{{ path('user_dashboard', { page: currentPage + 1 }) }}">
+					<a class="..." href="{{ path('user_dashboard', { page: currentPage + 1, q: searchTerm }) }}">
 						Siguiente
 						<i class="bi bi-chevron-right ms-1"></i>
 					</a>
