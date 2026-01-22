@@ -1,0 +1,7 @@
+# config/packages/test/messenger.yaml
+framework:
+    messenger:
+        transports:
+            # Esto sobreescribe el 'async' del otro archivo solo en entorno de test
+            async: 'sync://'
+            failed: 'sync://'

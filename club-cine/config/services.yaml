@@ -1,86 +1,60 @@
 # config/services.yaml
-
 parameters:
     tmdb.api_key: '%env(string:TMDB_API_KEY)%'
     tmdb.read_token: '%env(string:TMDB_READ_TOKEN)%'
 
 services:
-    # Configuración por defecto para los servicios en este archivo
     _defaults:
-        autowire: true      # Inyecta automáticamente las dependencias en tus servicios
-        autoconfigure: true # Registra automáticamente tus servicios como comandos, suscriptores de eventos, etc.
-        public: false       # Por defecto, los servicios son privados por seguridad
+        autowire: true      
+        autoconfigure: true 
+        public: true       
 
-    # Registro de los controladores estándar de Symfony
-    App\Controller\:
-        resource: '../src/Controller'
-        tags: ['controller.service_arguments']
-        public: true
-
-    # Registro general de las clases de la aplicación (excluyendo carpetas de datos/tests)
+    # 1. CARGA GENERAL
     App\:
         resource: '../src/*'
-        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests}'
+        exclude:
+            - '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php,EventListener}'
+            - '../src/Module/**/{Entity,DTO,Exception}'
 
-    # --- Módulo Auth ---
-    
-    # Registro de servicios del módulo Auth
-    App\Module\:
-        resource: '../src/Module/*'
-        exclude: '../src/Module/*/{Entity,Tests}'
-
-    # Hacemos públicos los controladores de Auth para el enrutamiento
-    App\Module\Auth\Controller\:
-        resource: '../src/Module/Auth/Controller/*'
-        public: true
-
-    # Desactiva autowire para los DTOs ya que son objetos de datos, no servicios
-    App\Module\Auth\DTO\:
-        resource: '../src/Module/Auth/DTO/*'
-        autowire: false
-        public: false
-
-    # Implementación del Generador de Tokens JWT
+    # 2. MÓDULOS (Configuración manual necesaria)
     App\Module\Auth\Security\JwtTokenGenerator:
         arguments:
             $jwtManager: '@lexik_jwt_authentication.jwt_manager'
 
-    # Alias para la interfaz del generador de tokens
     App\Module\Auth\Security\TokenGeneratorInterface:
         alias: App\Module\Auth\Security\JwtTokenGenerator
-        public: true
 
-    # --- Módulo Movie (TMDb) ---
-
-    # Servicio para consumir la API de TMDb
     App\Module\Movie\Service\TmdbService:
         arguments:
             $http: '@http_client'
             $apiKey: '%tmdb.api_key%'
             $readToken: '%tmdb.read_token%'
 
-    # Controladores del módulo de Películas
-    App\Module\Movie\Controller\:
-        resource: '../src/Module/Movie/Controller'
-        public: true
+    App\Module\Notification\Service\EmailService: ~
+
+    # 3. CONTROLADORES
+    App\Controller\:
+        resource: '../src/Controller'
         tags: ['controller.service_arguments']
 
-    # --- Listeners de Eventos ---
+    App\Module\Auth\Controller\:
+        resource: '../src/Module/Auth/Controller'
+        tags: ['controller.service_arguments']
 
-    # Listener para inyectar cookies JWT
+    App\Module\Movie\Controller\:
+        resource: '../src/Module/Movie/Controller'
+        tags: ['controller.service_arguments']
+
+    # 4. LISTENERS (Ajustados con el método exacto)
     App\EventListener\JwtCookieInjectorListener:
         tags:
-            - { name: kernel.event_listener, event: kernel.request, priority: 10 }
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
 
-    # Listener para excepciones de la API de TMDb
     App\EventListener\TmdbExceptionListener:
         tags:
             - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
 
-    # --- PERSISTENCIA DE SESIÓN (Crucial para Vercel) ---
-
-    # Este servicio conecta Symfony con la tabla 'sessions' que creaste en la base de datos.
-    # Evita que el Token CSRF sea inválido al cambiar de servidor en Vercel.
+    # 5. PERSISTENCIA DE SESIÓN
     Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler:
         arguments:
             - '%env(DATABASE_URL)%'
