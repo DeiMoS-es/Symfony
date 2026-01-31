@@ -1,0 +1,26 @@
+{# templates/group/welcome.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}¡Bienvenido al grupo!{% endblock %}
+
+{% block body %}
+<div class="container mt-5 text-center">
+    <div class="card shadow p-5">
+        <h1 class="display-4 text-success">¡Enhorabuena!</h1>
+        <p class="lead">Ya eres miembro del grupo: <strong>{{ group.name }}</strong></p>
+        
+        <hr class="my-4">
+        
+        <p>Ahora puedes empezar a compartir películas y ver las recomendaciones de tus amigos.</p>
+        
+        <div class="mt-4">
+            <a href="{{ path('app_group_show', {'id': group.id}) }}" class="btn btn-primary btn-lg">
+                Ir al grupo
+            </a>
+            <a href="{{ path('user_dashboard') }}" class="btn btn-outline-secondary btn-lg">
+                Mi Panel
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
