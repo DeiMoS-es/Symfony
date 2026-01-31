@@ -158,4 +158,46 @@ class Group
     {
         $this->generateSlug();
     }
+
+    // --- Métodos adicionales ---
+    public function addUser(User $user, string $role = 'MEMBER'): void
+    {
+        // 1. Evitar duplicados: ¿Ya existe este usuario en el grupo?
+        foreach ($this->members as $member) {
+            if ($member->getUser()->getId()->toString() === $user->getId()->toString()) {
+                return;
+            }
+        }
+
+        // 2. Crear el "pegamento"
+        // Al pasar $this, el GroupMember ya sabe a qué grupo pertenece
+        $newMember = new GroupMember($this, $user, $role);
+
+        // 3. Añadirlo a la colección del Grupo
+        $this->members->add($newMember);
+    }
+
+    public function removeUser(User $user): void
+    {
+        foreach ($this->members as $member) {
+            if ($member->getUser()->getId() === $user->getId()) {
+                $this->members->removeElement($member);
+                $this->updatedAt = new \DateTimeImmutable();
+                return;
+            }
+        }
+    }
+
+    //Get user
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        $users = new ArrayCollection();
+        foreach ($this->members as $member) {
+            $users->add($member->getUser());
+        }
+        return $users;
+    }
 }

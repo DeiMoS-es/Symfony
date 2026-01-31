@@ -59,23 +59,23 @@ class GroupController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/invite', name: 'app_group_invite', methods: ['POST'])]
-    #[IsGranted('ROLE_USER')]
-    public function invite(Request $request, Group $group): Response
-    {
-        if ($group->getOwner() !== $this->getUser()) {
-            throw $this->createAccessDeniedException('No tienes permiso.');
-        }
+    // #[Route('/{id}/invite', name: 'app_group_invite', methods: ['POST'])]
+    // #[IsGranted('ROLE_USER')]
+    // public function invite(Request $request, Group $group): Response
+    // {
+    //     if ($group->getOwner() !== $this->getUser()) {
+    //         throw $this->createAccessDeniedException('No tienes permiso.');
+    //     }
 
-        $form = $this->createForm(GroupInvitationType::class);
-        $form->handleRequest($request);
+    //     $form = $this->createForm(GroupInvitationType::class);
+    //     $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $result = $this->groupService->processInvitation($group, $form->get('email')->getData());
-            [$type, $message] = explode('|', $result);
-            $this->addFlash($type, $message);
-        }
+    //     if ($form->isSubmitted() && $form->isValid()) {
+    //         $result = $this->groupService->processInvitation($group, $form->get('email')->getData());
+    //         [$type, $message] = explode('|', $result);
+    //         $this->addFlash($type, $message);
+    //     }
 
-        return $this->redirectToRoute('app_group_show', ['id' => $group->getId()]);
-    }
+    //     return $this->redirectToRoute('app_group_show', ['id' => $group->getId()]);
+    // }
 }
