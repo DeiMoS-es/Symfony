@@ -22,9 +22,9 @@ class EmailService
                 'groupName' => $groupName,
                 'token' => $invitationToken,
                 // En local:
-                // 'url' => 'http://localhost:8000/join/group/' . $invitationToken
+                'url' => 'http://localhost:8000/join/group/' . $invitationToken
                 // En producción:
-                'url' => 'https://symfony-6a8yfzw9m-deimoss-projects.vercel.app/join/group/' . $invitationToken 
+                // 'url' => 'https://symfony-6a8yfzw9m-deimoss-projects.vercel.app/join/group/' . $invitationToken 
             ]);
 
         $this->mailer->send($email);

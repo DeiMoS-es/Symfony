@@ -15,7 +15,7 @@ class InvitationController extends AbstractController
      * Ruta: POST /group/{id}/invite
      */
     #[Route('/group/{id}/invite', name: 'app_group_invite', methods: ['POST'])]
-    public function invite(string $id, Request $request, InvitationService $invitationService): Response
+    public function invite(string $id, Request $request, InvitationService $invitationService, \Psr\Log\LoggerInterface $logger): Response
     {
         $email = $request->request->get('email');
 
@@ -30,6 +30,9 @@ class InvitationController extends AbstractController
         } catch (\InvalidArgumentException $e) {
             $this->addFlash('error', 'Validación: ' . $e->getMessage());
         } catch (\Exception $e) {
+            // dd($e->getMessage());
+            // Registrar error completo para poder inspeccionarlo en logs
+            $logger->error('Error al enviar invitación', ['email' => $email, 'groupId' => $id, 'exception' => $e]);
             $this->addFlash('error', 'Error al enviar la invitación. Intenta más tarde.');
         }
 
