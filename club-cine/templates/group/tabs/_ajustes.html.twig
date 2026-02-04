@@ -1,0 +1,15 @@
+{# templates/group/tabs/_ajustes.html.twig #}
+<div class="tab-pane fade" id="ajustes" role="tabpanel">
+    <div class="row">
+        <div class="col-md-6 border-end">
+            <h6 class="fw-bold">Información General</h6>
+            <p class="small text-muted">{{ group.description|default('Sin descripción.') }}</p>
+            <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Editar Club</button>
+        </div>
+        <div class="col-md-6 ps-md-4">
+            <h6 class="text-danger fw-bold">Zona de peligro</h6>
+            <p class="small text-muted mb-3">Si abandonas el club, perderás acceso a tus votos y recomendaciones.</p>
+            <button class="btn btn-sm btn-danger rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#leaveModal">Darse de baja del club</button>
+        </div>
+    </div>
+</div>

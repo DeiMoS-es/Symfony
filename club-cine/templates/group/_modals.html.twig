@@ -1,0 +1,22 @@
+{# Modales de Valoración Personal #}
+{% for rec in recommendations %}
+    {% for review in rec.reviews %}
+        {% if review.user.id == app.user.id %}
+            <div class="modal fade" id="modalMyReview{{ review.id }}" tabindex="-1" aria-hidden="true">
+                {# ... contenido del modal de mi review ... #}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    {# Modales de Resultados Globales #}
+    {% if rec.status == 'CLOSED' %}
+        <div class="modal fade" id="modalGlobal{{ rec.id }}" tabindex="-1" aria-hidden="true">
+            {# ... contenido del modal global ... #}
+        </div>
+    {% endif %}
+{% endfor %}
+
+{# Modal de Baja del Club #}
+<div class="modal fade" id="leaveModal" tabindex="-1" aria-hidden="true">
+    {# ... contenido del modal de baja ... #}
+</div>

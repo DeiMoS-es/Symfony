@@ -1,0 +1,82 @@
+<div class="tab-pane fade show active" id="cartelera" role="tabpanel">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for rec in recommendations %}
+            {% set myReview = null %}
+            {% for review in rec.reviews %}
+                {% if review.user.id == app.user.id %}
+                    {% set myReview = review %}
+                {% endif %}
+            {% endfor %}
+
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm position-relative overflow-hidden rounded-3 transition-all hover-shadow">
+                    
+                    {# Poster con Badge de Nota Global #}
+                    <div class="position-relative">
+                        {% if rec.movie.posterPath %}
+                            <img src="https://image.tmdb.org/t/p/w500{{ rec.movie.posterPath }}" 
+                                 class="img-fluid w-100 {{ rec.status == 'CLOSED' ? 'grayscale' : '' }}" 
+                                 alt="{{ rec.movie.title }}" 
+                                 style="aspect-ratio: 2/3; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-secondary d-flex align-items-center justify-content-center text-white" style="aspect-ratio: 2/3;">
+                                <i class="bi bi-camera-video fs-1 opacity-25"></i>
+                            </div>
+                        {% endif %}
+
+                        {# Badge superior #}
+                        <div class="position-absolute top-0 end-0 m-2">
+                            {% if rec.status == 'CLOSED' %}
+                                <span class="badge bg-primary shadow border border-white p-2">
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                    {{ rec.averageScore|number_format(1) }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-success shadow-sm p-2">ABIERTA</span>
+                            {% endif %}
+                        </div>
+
+                        {# Overlay inferior de acciones #}
+                        <div class="position-absolute bottom-0 start-0 end-0 p-2 bg-dark bg-opacity-75 backdrop-blur">
+                            {% if rec.status == 'OPEN' %}
+                                {% if myReview %}
+                                    <div class="text-center">
+                                        <div class="badge bg-light text-dark border w-100 py-2 mb-1" style="font-size: 0.7rem;">
+                                            <i class="bi bi-check-circle-fill text-success"></i>
+                                            Tu nota: {{ myReview.averageScore|number_format(1) }}
+                                        </div>
+                                        <button class="btn btn-link btn-sm text-white text-decoration-none p-0" 
+                                                style="font-size: 0.65rem;" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#modalMyReview{{ myReview.id }}">
+                                            <i class="bi bi-eye"></i> Ver mi detalle
+                                        </button>
+                                    </div>
+                                {% else %}
+                                    <a href="{{ path('app_review_new', {id: rec.id}) }}" class="btn btn-success btn-sm w-100 fw-bold rounded-pill">
+                                        <i class="bi bi-pencil-square me-1"></i> VOTAR
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <div class="d-grid gap-1">
+                                    <button class="btn btn-primary btn-sm rounded-pill fw-bold" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#modalGlobal{{ rec.id }}">
+                                        <i class="bi bi-bar-chart-fill me-1"></i> RESULTADOS
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="card-body p-2 text-center">
+                        <h6 class="fw-bold text-truncate mb-0 small" title="{{ rec.movie.title }}">{{ rec.movie.title }}</h6>
+                        <small class="text-muted" style="font-size: 0.65rem;">
+                            Por: {{ rec.recommendedBy.name|default(rec.recommendedBy.email|split('@')[0]) }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

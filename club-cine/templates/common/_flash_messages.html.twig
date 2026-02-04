@@ -1,0 +1,11 @@
+{# templates/common/_flash_messages.html.twig #}
+
+{% for label, messages in app.flashes %}
+    {% for message in messages %}
+        <div class="alert alert-{{ label == 'error' or label == 'danger' ? 'danger' : 'success' }} alert-dismissible fade show rounded-3 shadow-sm py-2 mb-4" role="alert" style="font-size: 0.85rem;">
+            <i class="bi {{ label == 'error' or label == 'danger' ? 'bi-exclamation-triangle' : 'bi-check-circle' }} me-2"></i>
+            {{ message }}
+            <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+{% endfor %}
