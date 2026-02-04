@@ -9,55 +9,47 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * InvitationService
- * 
- * Maneja el ciclo completo de invitaciones a grupos:
+ * * Maneja el ciclo completo de invitaciones:
  * - Crear y enviar invitaciones
  * - Validar tokens
- * - Aceptar invitaciones y agregar usuarios al grupo
+ * - Preparar sesión para nuevos registros
+ * - Aceptar invitaciones y limpiar sesión
  */
 class InvitationService
 {
     public function __construct(
         private EntityManagerInterface $em,
         private MailerInterface $mailer,
-        private UrlGeneratorInterface $urlGenerator
+        private UrlGeneratorInterface $urlGenerator,
+        private RequestStack $requestStack
     ) {}
 
     /**
-     * Crea una invitación a un grupo y envía el email
-     * 
-     * @param string $email    Email del invitado
-     * @param string $groupId  ID (UUID) del grupo
-     * 
-     * @throws \InvalidArgumentException si el grupo no existe o el email es inválido
-     * @throws \Exception si hay error al enviar el email
+     * Crea una invitación y envía el email
      */
     public function sendInvitation(string $email, string $groupId): void
     {
         $this->validateEmail($email);
-        
+
         $group = $this->em->getRepository(Group::class)->find($groupId);
         if (!$group) {
             throw new \InvalidArgumentException("El grupo con ID {$groupId} no existe.");
         }
 
-        // Crear invitación usando el constructor (que genera token y expiration)
         $invitation = new GroupInvitation($email, $group);
 
         $this->em->persist($invitation);
         $this->em->flush();
 
-        // Enviar email con link de aceptación
         $this->sendInvitationEmail($invitation);
     }
 
     /**
-     * Obtiene y valida una invitación por token
-     * 
-     * @return GroupInvitation|null null si no existe o ha expirado
+     * Valida un token y maneja la expiración automáticamente
      */
     public function getValidInvitation(string $token): ?GroupInvitation
     {
@@ -77,27 +69,42 @@ class InvitationService
     }
 
     /**
-     * Acepta una invitación y añade el usuario al grupo
-     * 
-     * @throws \Exception si hay error al procesar
+     * Guarda el token en sesión para que el RegistrationController lo use tras el registro
+     */
+    public function prepareSessionForRegistration(GroupInvitation $invitation): void
+    {
+        $session = $this->requestStack->getSession();
+        $session->set('pending_invitation_token', $invitation->getToken());
+        $session->set('pending_invitation_email', $invitation->getEmail());
+    }
+
+    /**
+     * Une al usuario al grupo, valida el email y limpia la sesión
      */
     public function acceptInvitation(GroupInvitation $invitation, User $user): Group
     {
+        // Seguridad: El email del usuario logueado debe coincidir con el de la invitación
+        if ($user->getEmail() !== $invitation->getEmail()) {
+            throw new \LogicException("Este enlace de invitación pertenece a otra cuenta de correo.");
+        }
+
         $group = $invitation->getTargetGroup();
 
-        // Group::addUser ya evita duplicados internamente
+        // Añadimos el usuario al grupo (Group::addUser debería manejar la relación)
         $group->addUser($user);
 
-        // Eliminar la invitación una vez usada
+        // Borramos la invitación (ya se ha usado)
         $this->em->remove($invitation);
         $this->em->flush();
+
+        // Limpiamos la sesión
+        $session = $this->requestStack->getSession();
+        $session->remove('pending_invitation_token');
+        $session->remove('pending_invitation_email');
 
         return $group;
     }
 
-    /**
-     * Envía el email de invitación
-     */
     private function sendInvitationEmail(GroupInvitation $invitation): void
     {
         $acceptUrl = $this->urlGenerator->generate(
@@ -120,15 +127,31 @@ class InvitationService
         $this->mailer->send($emailMessage);
     }
 
-    /**
-     * Valida que el email sea válido
-     * 
-     * @throws \InvalidArgumentException
-     */
     private function validateEmail(string $email): void
     {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             throw new \InvalidArgumentException("El email '{$email}' no es válido.");
         }
+    }
+
+    /**
+     * Determina la ruta de redirección tras el registro exitoso
+     */
+    public function getAfterRegistrationRedirectRoute(): array
+    {
+        $session = $this->requestStack->getSession();
+        $pendingToken = $session->get('pending_invitation_token');
+
+        if ($pendingToken) {
+            return [
+                'route' => 'app_group_accept_invitation',
+                'params' => ['token' => $pendingToken]
+            ];
+        }
+
+        return [
+            'route' => 'app_dashboard',
+            'params' => []
+        ];
     }
 }

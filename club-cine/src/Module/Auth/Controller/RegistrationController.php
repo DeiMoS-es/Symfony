@@ -5,7 +5,8 @@ namespace App\Module\Auth\Controller;
 use App\Module\Auth\DTO\RegistrationRequest;
 use App\Module\Auth\Service\RegistrationService;
 use App\Module\Auth\Mapper\UserMapper;
-use App\Module\Auth\Entity\User; // <--- ESTO corrige el error "Undefined type"
+use App\Module\Auth\Entity\User;
+use App\Module\Group\Service\InvitationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
@@ -19,23 +20,25 @@ class RegistrationController extends AbstractController
 {
     public function __construct(
         private RegistrationService $registrationService,
-        private ValidatorInterface $validator
+        private ValidatorInterface $validator,
+        private InvitationService $invitationService // Inyectado para decidir el redirect
     ) {}
 
-    #[Route('/register/{token}', name: 'auth_register', methods: ['GET', 'POST'], defaults: ['token' => null])]
-    public function register(
-        Request $request, 
-        EntityManagerInterface $em, // <--- Necesario para buscar al usuario después
-        Security $security, 
-        ?string $token = null
-    ): Response {
+    #[Route('/register', name: 'auth_register', methods: ['GET', 'POST'])]
+    public function register(Request $request, EntityManagerInterface $em, Security $security): Response {
         
-        $invitationEmail = $this->registrationService->getInvitationEmail($token);
+        if ($this->getUser()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        $session = $request->getSession();
+
+        $emailFromInvite = $session->get('pending_invitation_email');
 
         if ($request->isMethod('GET')) {
             return $this->render('auth/register.html.twig', [
                 'errors' => [],
-                'email' => $invitationEmail,
+                'email' => $emailFromInvite,
                 'name' => '',
             ]);
         }
@@ -52,27 +55,24 @@ class RegistrationController extends AbstractController
         }
 
         try {
-            // 1. Registramos al usuario
             $userResponse = $this->registrationService->register($regRequest);
-            
-            // 2. Buscamos la entidad real para loguearla
             $user = $em->getRepository(User::class)->findOneBy(['email' => $userResponse->email]);
 
             if (!$user) {
                 throw new \Exception("Error al recuperar el usuario creado.");
             }
 
-            // 3. Login automático
             $security->login($user, 'form_login', 'main');
 
-            // 4. Redirección si hay invitación pendiente
-            $targetPath = $request->query->get('_target_path');
-            if ($targetPath) {
-                return $this->redirect($targetPath);
-            }
+            // El servicio mira la sesión y nos dice a dónde ir
+            $redirectData = $this->invitationService->getAfterRegistrationRedirectRoute();
 
             $this->addFlash('success', '¡Registro completado!');
-            return $this->redirectToRoute('user_dashboard');
+
+            return $this->redirectToRoute(
+                $redirectData['route'], 
+                $redirectData['params']
+            );
 
         } catch (\Exception $e) {
             return $this->renderError([$e->getMessage()], $request->request->all());

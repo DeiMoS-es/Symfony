@@ -44,6 +44,9 @@ class Group
     #[ORM\JoinColumn(name: 'owner_id', referencedColumnName: 'id', nullable: false)]
     private User $owner;
 
+    #[ORM\OneToMany(mappedBy: 'targetGroup', targetEntity: GroupInvitation::class, cascade: ['remove'])]
+    private Collection $invitations;
+
     public function __construct(string $name, User $owner, ?string $description = null)
     {
         $this->id = Uuid::uuid4();
@@ -60,6 +63,12 @@ class Group
     }
 
     // --- Getters y Setters ---
+    
+    public function getInvitations(): Collection
+    {
+        return $this->invitations;
+    }
+        
 
     public function getId(): UuidInterface
     {
