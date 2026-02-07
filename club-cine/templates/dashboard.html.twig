@@ -7,29 +7,27 @@
 {% block body %}
 	<div
 		class="container my-4">
-		{# Mensaje informativo si no hay grupo #}
-		{% if not user.groupId %}
+		{# MODIFICADO: Ahora mira si la lista de grupos está vacía #}
+		{% if groups is empty %}
 			<div class="alert alert-warning d-flex align-items-center border-0 shadow-sm" role="alert">
 				<i class="bi bi-stars me-3 fs-4"></i>
 				<div>
 					Para empezar a compartir cine con tus amigos, primero debes
-					<strong>crear tu club</strong>.
+					<strong>crear tu club</strong>
+					o aceptar una invitación.
 				</div>
 			</div>
 		{% endif %}
 
-		{# Sección de Título y Buscador #}
 		<div class="row align-items-end mb-3">
 			<div class="col-md-8">
 				<h4 class="fw-bold mb-1">
 					<i class="bi bi-film"></i>
-					{# Si hay búsqueda, mostramos el texto buscado. Si no, "Populares" #}
 					{{ searchTerm ? 'Resultados para: "' ~ searchTerm ~ '"' : 'Películas Populares' }}
 				</h4>
 				<p class="text-muted small mb-0">Selecciona una joya para verla con tu club esta semana.</p>
 			</div>
 
-			{# Formulario de búsqueda #}
 			<div class="col-md-4 mt-3 mt-md-0">
 				<form action="{{ path('user_dashboard') }}" method="get">
 					<div class="input-group shadow-sm" style="border-radius: 10px; overflow: hidden;">
@@ -37,28 +35,23 @@
 							<i class="bi bi-search text-primary"></i>
 						</span>
 						<input type="text" name="q" class="form-control border-start-0 ps-0" placeholder="Buscar película..." value="{{ searchTerm }}">
-
 						{% if searchTerm %}
-							{# Botón para limpiar la búsqueda si hay algo escrito #}
 							<a href="{{ path('user_dashboard') }}" class="btn btn-outline-secondary border-start-0">
 								<i class="bi bi-x-lg"></i>
 							</a>
 						{% endif %}
-
 						<button type="submit" class="btn btn-primary px-4">Ir</button>
 					</div>
 				</form>
 			</div>
 		</div>
 
-		{# LISTADO DE PELÍCULAS #}
 		<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
 			{% for movie in movies.items %}
 				<div class="col">
 					<div class="card h-100 shadow-sm border-0 movie-card">
 						<div class="position-relative overflow-hidden" style="border-radius: 12px 12px 0 0;">
 							{% if movie.posterPath %}
-
 								<img src="https://image.tmdb.org/t/p/w500{{ movie.posterPath }}" class="card-img-top d-block w-100" alt="{{ movie.title }}" style="object-fit: contain;">
 							{% else %}
 								<div class="bg-dark d-flex align-items-center justify-content-center" style="aspect-ratio: 2/3;">
@@ -66,7 +59,6 @@
 								</div>
 							{% endif %}
 
-							{# Badge de año flotante #}
 							<div class="position-absolute top-0 end-0 m-2">
 								<span class="badge bg-dark bg-opacity-75 backdrop-blur shadow-sm">
 									{{ movie.releaseDate ? movie.releaseDate|date('Y') : 'TBA' }}
@@ -84,9 +76,11 @@
 								<span>{{ movie.releaseDate ? movie.releaseDate|date('d/m/Y') : 'Sin fecha' }}</span>
 							</div>
 
-							{% if user.groupId %}
+							{# MODIFICADO: Si el usuario tiene al menos un grupo, puede recomendar #}
+							{% if groups is not empty %}
+								{% set firstGroup = groups|first %}
 								<div class="mt-auto">
-									<a href="{{ path('app_group_recommend_movie', { 'id': user.groupId, 'tmdbId': movie.tmdbId }) }}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2 transition-btn">
+									<a href="{{ path('app_group_recommend_movie', { 'id': firstGroup.id, 'tmdbId': movie.tmdbId }) }}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2 transition-btn">
 										<i class="bi bi-megaphone"></i>
 										<span>Recomendar</span>
 									</a>
@@ -104,36 +98,28 @@
 		</div>
 	</div>
 
-	{# Navegación de Paginación #}
+	{# Paginación (Sin cambios) #}
 	{% if totalPages > 1 %}
 		<nav aria-label="Navegación de películas" class="mt-5">
-			<ul
-				class="pagination pagination-sm justify-content-center gap-2">
-
-				{# Botón Anterior #}
+			<ul class="pagination pagination-sm justify-content-center gap-2">
 				<li class="page-item {{ currentPage == 1 ? 'disabled' : '' }}">
-					<a class="..." href="{{ path('user_dashboard', { page: currentPage - 1, q: searchTerm }) }}">
+					<a class="page-link" href="{{ path('user_dashboard', { page: currentPage - 1, q: searchTerm }) }}">
 						<i class="bi bi-chevron-left me-1"></i>
 						Anterior
 					</a>
 				</li>
-
-				{# Indicador de páginas (Opcional pero ayuda a la orientación) #}
 				<li class="d-flex align-items-center px-3">
 					<span class="text-muted small">Página
 						<strong>{{ currentPage }}</strong>
 						de
 						{{ totalPages }}</span>
 				</li>
-
-				{# Botón Siguiente #}
 				<li class="page-item {{ currentPage == totalPages ? 'disabled' : '' }}">
-					<a class="..." href="{{ path('user_dashboard', { page: currentPage + 1, q: searchTerm }) }}">
+					<a class="page-link" href="{{ path('user_dashboard', { page: currentPage + 1, q: searchTerm }) }}">
 						Siguiente
 						<i class="bi bi-chevron-right ms-1"></i>
 					</a>
 				</li>
-
 			</ul>
 		</nav>
 	{% endif %}
@@ -152,8 +138,7 @@
 		box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
 	}
 	.backdrop-blur {
-		backdrop-filter: blur(8px);
-		-webkit-backdrop-filter: blur(8px);
+		backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
 		border: 1px solid rgba(255, 255, 255, 0.2);
 	}
 	.transition-btn {

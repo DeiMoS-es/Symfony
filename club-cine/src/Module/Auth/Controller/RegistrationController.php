@@ -21,37 +21,39 @@ class RegistrationController extends AbstractController
     public function __construct(
         private RegistrationService $registrationService,
         private ValidatorInterface $validator,
-        private InvitationService $invitationService // Inyectado para decidir el redirect
+        private InvitationService $invitationService
     ) {}
 
     #[Route('/register', name: 'auth_register', methods: ['GET', 'POST'])]
-    public function register(Request $request, EntityManagerInterface $em, Security $security): Response {
-        
+    public function register(Request $request, EntityManagerInterface $em, Security $security): Response
+    {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_dashboard');
         }
 
         $session = $request->getSession();
-
         $emailFromInvite = $session->get('pending_invitation_email');
+        // NUEVO: Bandera booleana para saber si hay invitación activa
+        $isInvitation = (bool)$session->get('pending_invitation_token');
 
         if ($request->isMethod('GET')) {
             return $this->render('auth/register.html.twig', [
                 'errors' => [],
                 'email' => $emailFromInvite,
                 'name' => '',
+                'is_invitation' => $isInvitation, // <--- ENVIAR AQUÍ
             ]);
         }
 
         if (!$this->isCsrfTokenValid('auth_register', $request->request->get('_csrf_token'))) {
-            return $this->renderError(['Token de seguridad inválido.'], $request->request->all());
+            return $this->renderError(['Token de seguridad inválido.'], $request->request->all(), $isInvitation);
         }
 
         $regRequest = UserMapper::fromRequest($request);
         $errors = $this->validateBusinessRules($regRequest, $request->request->get('confirm_password'));
 
         if (count($errors) > 0) {
-            return $this->renderError($errors, $request->request->all());
+            return $this->renderError($errors, $request->request->all(), $isInvitation);
         }
 
         try {
@@ -64,18 +66,12 @@ class RegistrationController extends AbstractController
 
             $security->login($user, 'form_login', 'main');
 
-            // El servicio mira la sesión y nos dice a dónde ir
             $redirectData = $this->invitationService->getAfterRegistrationRedirectRoute();
+            $this->addFlash('success', '¡Registro completado y bienvenido!');
 
-            $this->addFlash('success', '¡Registro completado!');
-
-            return $this->redirectToRoute(
-                $redirectData['route'], 
-                $redirectData['params']
-            );
-
+            return $this->redirectToRoute($redirectData['route'], $redirectData['params']);
         } catch (\Exception $e) {
-            return $this->renderError([$e->getMessage()], $request->request->all());
+            return $this->renderError([$e->getMessage()], $request->request->all(), $isInvitation);
         }
     }
 
@@ -91,12 +87,13 @@ class RegistrationController extends AbstractController
         return $errors;
     }
 
-    private function renderError(array $errors, array $data): Response
+    private function renderError(array $errors, array $data, bool $isInvitation): Response
     {
         return $this->render('auth/register.html.twig', [
             'errors' => $errors,
             'email' => $data['email'] ?? '',
             'name' => $data['name'] ?? '',
+            'is_invitation' => $isInvitation
         ]);
     }
 }

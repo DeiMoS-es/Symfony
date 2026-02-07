@@ -1,43 +1,52 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h1 class="mb-4">Crear tu cuenta</h1>
+	<div class="container mt-5">
+		<div class="row justify-content-center">
+			<div class="col-md-6">
+				<h1 class="mb-4">Crear tu cuenta</h1>
 
-            {% for error in errors %}
-                <div class="alert alert-danger">{{ error }}</div>
-            {% endfor %}
+				{% for error in errors %}
+					<div class="alert alert-danger">{{ error }}</div>
+				{% endfor %}
 
-            <form method="post" action="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all)) }}">
-                <input type="hidden" name="_csrf_token" value="{{ csrf_token('auth_register') }}">
+				<form method="post" action="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all)) }}">
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token('auth_register') }}">
 
-                <div class="mb-3">
-                    <label for="name" class="form-label">Nombre</label>
-                    <input type="text" name="name" id="name" class="form-control" value="{{ name }}" required autofocus>
-                </div>
+					<div class="mb-3">
+						<label for="name" class="form-label">Nombre</label>
+						<input type="text" name="name" id="name" class="form-control" value="{{ name }}" required autofocus>
+					</div>
 
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" name="email" id="email" class="form-control" value="{{ email }}" required>
-                </div>
+					<div class="mb-3">
+						<label for="email" class="form-label">Email</label>
+						<input type="email" name="email" id="email" class="form-control" value="{{ email }}" required>
+					</div>
 
-                <div class="mb-3">
-                    <label for="password" class="form-label">Contraseña</label>
-                    <input type="password" name="password" id="password" class="form-control" required>
-                </div>
+					<div class="mb-3">
+						<label for="password" class="form-label">Contraseña</label>
+						<input type="password" name="password" id="password" class="form-control" required>
+					</div>
 
-                <div class="mb-3">
-                    <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
-                    <input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
-                </div>
+					<div class="mb-3">
+						<label for="confirm_password" class="form-label">Confirmar Contraseña</label>
+						<input type="password" name="confirm_password" id="confirm_password" class="form-control" required>
+					</div>
 
-                <button class="btn btn-primary w-100" type="submit">
-                    Registrarse y unirse al grupo
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
+					<div class="d-grid gap-2 d-md-block mt-4">
+						<button type="submit" class="btn btn-lg shadow-sm {% if is_invitation %}btn-primary{% else %}btn-success{% endif %} w-100 w-md-auto">
+
+							{% if is_invitation %}
+								{# Icono opcional si usas Bootstrap Icons #}
+								<i class="bi bi-person-plus-fill me-1"></i>
+								Registrarse y unirse al grupo
+							{% else %}
+								Crear cuenta
+							{% endif %}
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 {% endblock %}

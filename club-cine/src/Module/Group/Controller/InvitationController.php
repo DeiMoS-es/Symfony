@@ -3,86 +3,76 @@
 namespace App\Module\Group\Controller;
 
 use App\Module\Group\Service\InvitationService;
-use App\Module\Auth\Entity\User;
+use App\Module\Auth\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Psr\Log\LoggerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class InvitationController extends AbstractController
 {
+    public function __construct(
+        private InvitationService $invitationService,
+        private UserRepository $userRepository
+    ) {}
+
     /**
-     * Envía una invitación a un grupo por email (Desde el panel del grupo)
+     * Envia la invitación (POST desde el formulario del grupo)
      */
     #[Route('/group/{id}/invite', name: 'app_group_invite', methods: ['POST'])]
-    public function invite(string $id,  Request $request,  InvitationService $invitationService,  LoggerInterface $logger): Response
+    #[IsGranted('ROLE_USER')]
+    public function invite(Request $request, string $id): Response
     {
-
         $email = $request->request->get('email');
 
-        if (!$email) {
-            $this->addFlash('error', 'El email es obligatorio.');
-            return $this->redirectToRoute('app_group_show', ['id' => $id]);
-        }
-
         try {
-            $invitationService->sendInvitation($email, $id);
-            $this->addFlash('success', "Invitación enviada correctamente a {$email}");
-        } catch (\InvalidArgumentException $e) {
-            $this->addFlash('error', "Validación: {$e->getMessage()}");
-        } catch (\Exception $e) {
-            $logger->error('Error al enviar invitación', [
-                'email' => $email,
-                'groupId' => $id,
-                'exception' => $e->getMessage()
-            ]);
-            $this->addFlash('error', 'No se pudo enviar el correo. Revisa la configuración del servidor de email.');
+            $this->invitationService->processInvitation($email, $id);
+            $this->addFlash('success', "Invitación enviada a $email.");
+        } catch (\InvalidArgumentException | \LogicException $e) {
+            $this->addFlash('error', $e->getMessage());
         }
 
         return $this->redirectToRoute('app_group_show', ['id' => $id]);
     }
 
     /**
-     * Punto de entrada cuando el usuario pincha el link del email
+     * Punto de entrada cuando el usuario pulsa el botón del email
      */
-    #[Route('/join/group/{token}', name: 'app_group_accept_invitation', methods: ['GET'])]
-    public function acceptInvitation(string $token, InvitationService $invitationService): Response
+    #[Route('/invitation/accept/{token}', name: 'app_group_accept_invitation', methods: ['GET'])]
+    public function accept(string $token): Response
     {
-        // 1. Validar el token a través del servicio
-        $invitation = $invitationService->getValidInvitation($token);
+        $invitation = $this->invitationService->getValidInvitation($token);
 
         if (!$invitation) {
-            $this->addFlash('error', 'La invitación no es válida, ha expirado o ya fue utilizada.');
-            return $this->redirectToRoute('app_dashboard');
+            $this->addFlash('error', 'La invitación ha expirado o no es válida.');
+            return $this->redirectToRoute('user_dashboard');
         }
 
-        /** @var User|null $user */
-        $user = $this->getUser();
-
-        // 2. Si el usuario no está logueado, preparamos la sesión y al registro
-        if (!$user) {
-            $invitationService->prepareSessionForRegistration($invitation);
-            $this->addFlash('info', 'Para unirte al grupo, primero debes registrarte o iniciar sesión.');
-
-            return $this->redirectToRoute('auth_register', [
-                'email' => $invitation->getEmail() // Pasamos el email para pre-rellenar el formulario
-            ]);
+        // Caso 1: El usuario ya tiene la sesión iniciada
+        if ($this->getUser()) {
+            try {
+                $group = $this->invitationService->acceptInvitation($invitation, $this->getUser());
+                $this->addFlash('success', "¡Bienvenido al grupo {$group->getName()}!");
+                return $this->redirectToRoute('app_group_show', ['id' => $group->getId()]);
+            } catch (\LogicException $e) {
+                $this->addFlash('error', $e->getMessage());
+                return $this->redirectToRoute('user_dashboard');
+            }
         }
 
-        // 3. Si ya está logueado, intentamos procesar la unión directamente
-        try {
-            $group = $invitationService->acceptInvitation($invitation, $user);
-            $this->addFlash('success', "¡Felicidades! Ya eres miembro del grupo: {$group->getName()}");
+        // Caso 2: No está logueado. Preparamos la sesión.
+        $this->invitationService->prepareSessionForRegistration($invitation);
 
-            return $this->redirectToRoute('app_group_show', ['id' => $group->getId()]);
-        } catch (\LogicException $e) {
-            // El servicio lanza esto si el email del logueado no coincide con el invitado
-            $this->addFlash('warning', $e->getMessage());
-            return $this->redirectToRoute('app_dashboard');
-        } catch (\Exception $e) {
-            $this->addFlash('error', 'Ocurrió un error inesperado al unirte al grupo.');
-            return $this->redirectToRoute('app_dashboard');
+        // ¿El usuario ya tiene cuenta en la app?
+        $userExists = $this->userRepository->findOneBy(['email' => $invitation->getEmail()]);
+
+        if ($userExists) {
+            $this->addFlash('info', 'Inicia sesión para unirte al grupo.');
+            return $this->redirectToRoute('auth_login'); // Usa el nombre de tu ruta de login
         }
+
+        $this->addFlash('info', 'Crea una cuenta para unirte al grupo.');
+        return $this->redirectToRoute('auth_register'); // Usa el nombre de tu ruta de registro
     }
 }
