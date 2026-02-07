@@ -39,29 +39,43 @@ El proyecto está organizado en módulos independientes dentro de `src/Module`, 
 
 ## 📦 Estado actual del proyecto
 
+**Módulos principales:**
+- ✅ **Auth**: Registro, login con JWT + refresh token, cookies (`ACCESS_TOKEN`/`REFRESH_TOKEN`), rotación segura
+- ✅ **Group**: Creación de grupos, gestión de miembros, recomendaciones, reviews con puntuación por aspectos
+- ✅ **Movie**: Catálogo TMDb sincronizado, búsqueda por título, persistencia local de películas y géneros
+- ✅ **Group - Invitaciones**: Sistema completo de invitaciones por email con tokens, expiración y flujo seguro
+
+**Funcionalidades implementadas:**
 - ✅ Registro de usuarios (API JSON)
-- ✅ Inicio de sesión con JWT + refresh token (soporte por cookies `ACCESS_TOKEN`/`REFRESH_TOKEN` y rotación de refresh token)
-- ✅ Creación de grupos de amigos (modelo y migraciones)
-- ✅ Modelo de recomendaciones y reviews dentro de grupos (entidades `Recommendation` y `Review` con agregados y comentarios)
-- ✅ Recomendación desde catálogo y gestión básica en la interfaz (botón "Recomendar", vista de grupo)
-- ✅ Comando para cierre automático de recomendaciones (`app:close-recommendations`) y `RecommendationManager` (cálculo de estadísticas)
-- ✅ Backend: soporte de puntuación por aspectos, cálculo de `averageScore` y agregados; UI de votación pendiente
-- ✅ Persistencia de películas y géneros (tablas `movie`, `genre`, `movie_genres`) y sincronización desde TMDb
-- ✅ Búsqueda de películas por título en TMDb y en base de datos local con UI integrada en dashboard
-- ✅ Formulario de búsqueda funcional en `dashboard.html.twig` con filtrado dinámico
-- ✅ Sistema de refresh tokens y tabla `refresh_tokens` (rotación y revocación)
+- ✅ Inicio de sesión con JWT + refresh token y rotación automática
+- ✅ Creación de grupos de amigos (modelo y migraciones completas)
+- ✅ Sistema de recomendaciones y reviews dentro de grupos
+- ✅ Puntuación por aspectos (guion, dirección, actuación, etc.) con `averageScore` automático
+- ✅ Búsqueda de películas por título (TMDb + BD local) con UI integrada
+- ✅ Comando para cierre automático de recomendaciones y cálculo de estadísticas
+- ✅ **Invitaciones a grupos por email** (tokens únicos, expiración 48h, flujo de registro integrado)
+- ✅ Sistema de refresh tokens con rotación y revocación
+
+**En desarrollo / Próximos pasos:**
 - 🔜 Panel de administración
-- 🔜 Visualización de rankings y estadísticas agregadas (front-end)
+- 🔜 Visualización de rankings y estadísticas agregadas (UI avanzada)
+- 🔜 Endpoints de votación/edición de voto (API completa)
 
-## 📣 Últimos cambios (2026-01-18)
+## 📣 Últimos cambios (2026-02-07)
 
+**Sistema de Invitaciones a Grupos - COMPLETADO ✅**
+- Implementación del sistema completo de invitaciones por email (módulo Group).
+- Servicio `InvitationService` que orquesta: creación, validación y aceptación de invitaciones.
+- Controlador `InvitationController` con rutas POST (enviar) y GET (aceptar con token).
+- Flujo seguro: validación de emails, tokens únicos, expiración automática en 48h, control de integridad.
+- **Corrección crítica resuelta:** Email en `->from()` debe coincidir exactamente con la cuenta SMTP autenticada.
+- Configuración de email SMTP con **Mailtrap** para desarrollo/testing.
+- Documentación completa: [INVITATION_SYSTEM.md](INVITATION_SYSTEM.md) con arquitectura DDD y principios SOLID.
+- [Ver documentación de invitaciones](INVITATION_SYSTEM.md) para detalles técnicos y troubleshooting.
+
+**Cambios anteriores:**
 - Implementación de búsqueda de películas por título en TMDb mediante `MovieService::getSearchCatalog()`. 🔍
 - Nuevos métodos en `TmdbService`: `searchCatalog()` para búsquedas transformadas a DTOs. ✅
-- Nuevo método en `MovieRepository`: `searchByTitle()` para búsquedas en la base de datos local. 🗄️
-- Test de integración `MovieServiceTest` para verificar búsquedas por título contra TMDb. 🧪
-- **Implementación en controlador**: `DashboardController` integra búsqueda por parámetro GET `q`. 🎮
-- **UI mejorada**: Formulario de búsqueda en `dashboard.html.twig` con campos visuales para búsqueda en tiempo real. 🎨
-- Actualización de documentación (README.md módulo Movie y WARP.md). 📚
 
 ---
 
@@ -75,18 +89,28 @@ cd cineclub-app
 composer install
 
 # Configurar variables de entorno (editar .env o crear .env.local)
-# - DATABASE_URL (MySQL)
-# - JWT_SECRET_KEY / JWT_PUBLIC_KEY / JWT_PASSPHRASE
-# - TMDB_API_KEY / TMDB_READ_TOKEN
+# - DATABASE_URL (MySQL para producción; SQLite en memoria para tests)
+# - JWT_PRIVATE_KEY_PATH, JWT_PUBLIC_KEY_PATH, JWT_PASSPHRASE (autenticación JWT)
+# - TMDB_API_KEY, TMDB_READ_TOKEN (integración con TMDb para catálogo de películas)
+# - MAILER_DSN (configuración SMTP para invitaciones por email):
+#   Ejemplo Mailtrap (desarrollo): "smtp://usuario:contraseña@sandbox.smtp.mailtrap.io:2525"
+#   Ejemplo Gmail (producción): "smtp://email%40gmail.com:app_password@smtp.gmail.com:465?encryption=ssl&auth_mode=login"
 
-# Ejecutar migraciones de base de datos (entorno dev)
+# Ejecutar migraciones de base de datos
 php bin/console doctrine:migrations:migrate
 
+# Limpiar caché después de cambios en .env
+php bin/console cache:clear
+
 # Arrancar el servidor de desarrollo
-php -S localhost:8000 -t public
-# o, si tienes el CLI de Symfony:
-# symfony server:start -d
+symfony server:start -d
+# o: php -S localhost:8000 -t public
 ```
+
+**Notas importantes sobre email:**
+- El email en `->from()` debe coincidir exactamente con la cuenta autenticada en SMTP.
+- Para Gmail, se requiere **2FA** habilitado y usar una **App Password** (no la contraseña de la cuenta).
+- En desarrollo, **Mailtrap** es recomendado para pruebas sin restricciones de seguridad de Gmail.
 
 ---
 

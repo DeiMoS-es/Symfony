@@ -114,7 +114,7 @@ class InvitationService
         );
 
         $emailMessage = (new TemplatedEmail())
-            ->from('no-reply@clubdecine.com')
+            ->from('contacto.cineapp@gmail.com')
             ->to($invitation->getEmail())
             ->subject("¡Te han invitado a unirte a {$invitation->getTargetGroup()->getName()}!")
             ->htmlTemplate('emails/group_invitation.html.twig')

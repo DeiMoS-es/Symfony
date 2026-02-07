@@ -18,16 +18,20 @@ Group/
 - [x] Entidad `GroupMember` (vinculación usuario-grupo, rol, fecha de ingreso)
 - [x] Entidad `Recommendation` (group, movie, recommender, createdAt, deadline, status, métricas agregadas)
 - [x] Entidad `Review` (votos por usuario, puntuaciones desglosadas, **comentario** y `averageScore` calculado automáticamente)
-- [x] `GroupRepository`, `GroupMemberRepository`, `RecommendationRepository`, `ReviewRepository` con métodos básicos (`save`, `findBy...`, `findActiveByGroup`, `findExpiredToClose`)
-- [x] Migración creada para las tablas `app_group_member`, `app_group_recommendation` y `app_group_review` (ver `migrations/Version20251224103850.php`)
-- [x] Controladores básicos: crear grupo, mostrar grupo y recomendar película (pendiente: endpoints de votación/edición de votos en la API)
-- [ ] Servicios de aplicación: `GroupService`, `MembershipService`, `RecommendationService`, `ReviewService` (validaciones y casos de uso orientados a la API)
-- [x] Job/Command para cierre automático de recomendaciones (`CloseRecommendationsCommand`) y `RecommendationManager` (implementado: cierra recomendaciones y calcula estadísticas/medias por aspecto)
+- [x] Entidad `GroupInvitation` (email, token único, expiración automática en 48h, validación y aceptación)
+- [x] `GroupRepository`, `GroupMemberRepository`, `RecommendationRepository`, `ReviewRepository`, `GroupInvitationRepository` con métodos completos
+- [x] Migraciones creadas para tablas: `app_group`, `app_group_member`, `app_group_recommendation`, `app_group_review`, `app_group_invitation`
+- [x] Controladores: crear grupo, mostrar grupo, recomendar película, enviar invitación, aceptar invitación
+- [x] Sistema de invitaciones por email con flujo seguro (POST /group/{id}/invite, GET /join/group/{token})
+- [ ] Servicios de aplicación: `GroupService`, `MembershipService`, `RecommendationService`, `ReviewService` (validaciones avanzadas)
+- [x] Job/Command para cierre automático de recomendaciones (`CloseRecommendationsCommand`) y `RecommendationManager` (cierra y calcula estadísticas)
 - [ ] Tests automatizados del flujo completo (recomendación → votación → cierre → cálculo)
 
 ## Detalles de implementación 🔧
 - `Recommendation` incluye métodos útiles: `canAcceptVotes()` y `closeWithStats(float $finalScore, int $votes, array $stats)` para marcarla como cerrada, almacenar el `finalScore`, el total de votos y las medias por categoría.
 - `Review` implementa validaciones en el constructor: asegura que la recomendación esté abierta (`canAcceptVotes()`), valida que las puntuaciones estén entre 1 y 10 y calcula `averageScore` automáticamente.
+- `GroupInvitation` valida expiración automáticamente (`isExpired()`), genera tokens únicos seguros y se elimina al aceptarse.
+- `InvitationService` orquesta flujo seguro: validación de email, creación con token, envío de email, validación de invitación y aceptación con unión al grupo.
 - Se añadió una restricción de unicidad a nivel de BD para evitar que un mismo usuario vote más de una vez por la misma recomendación (`UNIQUE INDEX unique_user_recommendation (recommendation_id, user_id)`).
 - `RecommendationRepository::findExpiredToClose()` devuelve recomendaciones que han pasado su `deadline` y siguen en estado `OPEN` — se usa desde `RecommendationManager` y el `CloseRecommendationsCommand`.
 
@@ -52,9 +56,12 @@ Group/
    - [ ] Crear fixtures y pruebas para `CloseRecommendationsCommand` y reglas de agregación
 
 ## Estado Actual
-- Fase actual: **Dominios, repositorios, comando de cierre automático y controladores básicos (crear grupo, recomendar, mostrar grupo)** implementados (incluyendo migraciones y restricciones de integridad). Las vistas muestran la cartelera del grupo y permiten recomendar desde el catálogo.
-- Próxima tarea lógica: implementar servicios de aplicación y endpoints HTTP, seguido por tests del flujo completo y afinado de agregaciones.
-- Status: **En progreso** — listo para desarrollar casos de uso y exponer la API.
+- Fase actual: **Sistema completo de grupos con invitaciones por email** (2026-02-07).
+- Implementados: dominios, repositorios, comando de cierre automático, controladores (crear grupo, recomendar, mostrar grupo, invitar, aceptar invitación).
+- Las vistas muestran la cartelera del grupo y permiten recomendar desde el catálogo e invitar por email.
+- Sistema de invitaciones: totalmente funcional con SMTP (Mailtrap en dev, Gmail en producción).
+- Próximas tareas: servicios de aplicación avanzados, endpoints de votación/edición, tests completos.
+- Status: **Implementado y funcional** — Invitaciones testadas y validadas en desarrollo.
 
 ## Notas de Diseño (decisiones y consideraciones)
 - Las recomendaciones deben estar restringidas a miembros del grupo; la visibilidad del `finalScore` y detalles individuales seguirá siendo para miembros por defecto.

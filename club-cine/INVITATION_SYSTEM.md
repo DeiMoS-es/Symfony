@@ -163,6 +163,33 @@ class GroupInvitation {
 5. Controller muestra error y redirige
 ```
 
+## Estado Actual
+
+**✅ COMPLETADO (2026-02-07)**
+- Sistema de invitaciones **totalmente funcional** con todas las capas implementadas:
+  - Entidad `GroupInvitation` con lógica de dominio (validación de expiración, tokens únicos)
+  - Servicio `InvitationService` con orquestación completa (crear, validar, aceptar invitaciones)
+  - Controlador `InvitationController` con rutas POST (enviar) y GET (aceptar con token)
+  - Template de email profesional (`emails/group_invitation.html.twig`)
+  - Manejo robusto de errores y validaciones a múltiples niveles
+  
+- **Resolución de issues críticos (2026-02-07):**
+  - ✅ **Corrección de email en `->from()`**: Debe coincidir EXACTAMENTE con la cuenta SMTP autenticada
+  - ✅ Configuración SMTP/TLS correcta para Mailtrap (desarrollo) y Gmail (producción)
+  - ✅ URL-encoding de caracteres especiales en DSN (`@` → `%40`, etc.)
+  - ✅ Manejo completo de flujo de expiración automática de invitaciones (48h)
+  - ✅ Integración de sesión para el flujo de registro de usuarios no autenticados
+  
+- **Testing verificado (2026-02-07):**
+  - ✅ Invitaciones se envían exitosamente vía Mailtrap (sandbox SMTP)
+  - ✅ Tokens se validan correctamente y se marcan como expirados pasadas 48h
+  - ✅ Flujo de usuario registrado: acepta invitación y se une al grupo
+  - ✅ Flujo de usuario no registrado: redirige a registro con email y token en sesión
+  - ✅ Expiración automática y limpieza de invitaciones expiradas
+  - ✅ Mensajes flash informativos en cada paso del flujo
+  
+- Status: **Implementado, testado y validado en desarrollo** — Listo para migrar a Gmail en producción con App Password válida.
+
 ## Mejoras Futuras (Extendibilidad)
 
 El diseño permite fácilmente agregar:
@@ -217,5 +244,32 @@ El diseño permite fácilmente agregar:
 
 ---
 
-**Última actualización:** 31 de Enero de 2026
-**Autor:** Refactorización SOLID
+**Última actualización:** 7 de Febrero de 2026
+**Autor:** Refactorización SOLID + Resolución de issues SMTP
+
+---
+
+## Configuración de Email (Guía de Setup)
+
+### En Desarrollo (Mailtrap)
+```dotenv
+MAILER_DSN="smtp://usuario:contraseña@sandbox.smtp.mailtrap.io:2525"
+```
+El email en `->from()` puede ser cualquiera (no necesita coincidir con credenciales).
+
+### En Producción (Gmail)
+```dotenv
+MAILER_DSN="smtp://correo%40gmail.com:app_password@smtp.gmail.com:465?encryption=ssl&auth_mode=login"
+```
+
+**Requisitos:**
+1. 2FA habilitado en la cuenta Google
+2. App Password generada en Google Account → Security → App passwords
+3. Email en `->from()` DEBE coincidir exactamente con el email autenticado
+4. Caracteres especiales en DSN deben estar URL-encoded (`@` → `%40`)
+
+**Troubleshooting:**
+- **Error 534 "Please log in with your web browser"**: Google está bloqueando. Acceder a https://accounts.google.com/DisplayUnlockCaptcha desde el navegador.
+- **Error 535 "Invalid credentials"**: App Password inválida o contraseña normal usada en lugar de App Password.
+- **Error con email FROM**: El email en `->from()` no coincide con el usuario autenticado. Debe ser idéntico.
+- **SMTP connection refused**: Verificar puertos (25, 465, 587 para Gmail) y firewall.
