@@ -3,9 +3,8 @@ name: Tareas Diarias ClubCine
 on:
   schedule:
     - cron: '0 0 * * *'
-  workflow_dispatch: 
+  workflow_dispatch:
 
-# Definimos las variables aquí arriba para que afecten a TODO el proceso
 env:
   APP_ENV: prod
   APP_DEBUG: 0
@@ -13,6 +12,7 @@ env:
 jobs:
   close-movies:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
@@ -24,14 +24,30 @@ jobs:
           extensions: mbstring, xml, ctype, iconv, mysql
           coverage: none
 
-      - name: Instalar dependencias
-        # Eliminamos temporalmente los scripts post-install para evitar que falle si la caché se pone terca
-        run: composer install --no-dev --optimize-autoloader --no-scripts
+      - name: Limpiar cache Symfony
+        run: |
+          rm -rf club-cine/var/cache/*
+
+      - name: Mostrar entorno real antes de composer
         working-directory: club-cine
+        run: |
+          php -r 'echo "APP_ENV real antes de composer: ".(getenv("APP_ENV") ?: "null").PHP_EOL;'
+
+      - name: Instalar dependencias
+        working-directory: club-cine
+        run: |
+          APP_ENV=prod APP_DEBUG=0 composer install --no-dev --optimize-autoloader --no-scripts
+
+      - name: Verificar entorno Symfony CLI
+        working-directory: club-cine
+        run: |
+          php -r 'echo "APP_ENV CLI: ".($_SERVER["APP_ENV"] ?? getenv("APP_ENV") ?? "null").PHP_EOL;'
 
       - name: Ejecutar comando de cierre de películas
+        working-directory: club-cine
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        # Añadimos --no-debug para estar 100% seguros
-        run: php bin/console app:group:close-expired --no-debug -vvv
-        working-directory: club-cine
+          APP_ENV: prod
+          APP_DEBUG: 0
+        run: |
+          php -d variables_order=EGPCS bin/console app:group:close-expired --env=prod --no-debug -vvv
