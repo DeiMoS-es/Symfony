@@ -2,8 +2,9 @@ name: Tareas Diarias ClubCine
 
 on:
   schedule:
+    # Se ejecuta a las 00:00 UTC todos los días
     - cron: '0 0 * * *'
-  workflow_dispatch: 
+  workflow_dispatch: # Permite el botón manual en GitHub
 
 jobs:
   close-movies:
@@ -20,7 +21,8 @@ jobs:
           coverage: none
 
       - name: Instalar dependencias
-        # Entramos en la carpeta club-cine para instalar
+        env:
+          APP_ENV: prod
         run: composer install --no-dev --optimize-autoloader
         working-directory: club-cine
 
@@ -28,6 +30,6 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           APP_ENV: prod
-        # Entramos en la carpeta club-cine para ejecutar el comando
-        run: php bin/console app:group:close-expired
+          APP_DEBUG: 0
+        run: php bin/console app:group:close-expired -vvv
         working-directory: club-cine
