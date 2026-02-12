@@ -2,9 +2,13 @@ name: Tareas Diarias ClubCine
 
 on:
   schedule:
-    # Se ejecuta a las 00:00 UTC todos los días
     - cron: '0 0 * * *'
-  workflow_dispatch: # Activa el botón para ejecutarlo manualmente
+  workflow_dispatch: 
+
+# Definimos las variables aquí arriba para que afecten a TODO el proceso
+env:
+  APP_ENV: prod
+  APP_DEBUG: 0
 
 jobs:
   close-movies:
@@ -21,16 +25,13 @@ jobs:
           coverage: none
 
       - name: Instalar dependencias
-        env:
-          APP_ENV: prod # Forzamos entorno prod para que ignore el DebugBundle
-        run: composer install --no-dev --optimize-autoloader
+        # Eliminamos temporalmente los scripts post-install para evitar que falle si la caché se pone terca
+        run: composer install --no-dev --optimize-autoloader --no-scripts
         working-directory: club-cine
 
       - name: Ejecutar comando de cierre de películas
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          APP_ENV: prod
-          APP_DEBUG: 0
-        # El flag -vvv nos mostrará detalles si hay errores de conexión
-        run: php bin/console app:group:close-expired -vvv
+        # Añadimos --no-debug para estar 100% seguros
+        run: php bin/console app:group:close-expired --no-debug -vvv
         working-directory: club-cine
