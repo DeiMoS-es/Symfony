@@ -5,10 +5,6 @@ on:
     - cron: '0 0 * * *'
   workflow_dispatch:
 
-env:
-  APP_ENV: prod
-  APP_DEBUG: 0
-
 jobs:
   close-movies:
     runs-on: ubuntu-latest
@@ -21,33 +17,31 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: mbstring, xml, ctype, iconv, mysql
+          extensions: mbstring, xml, ctype, iconv, pdo_mysql
           coverage: none
 
-      - name: Limpiar cache Symfony
-        run: |
-          rm -rf club-cine/var/cache/*
-
-      - name: Mostrar entorno real antes de composer
-        working-directory: club-cine
-        run: |
-          php -r 'echo "APP_ENV real antes de composer: ".(getenv("APP_ENV") ?: "null").PHP_EOL;'
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
 
       - name: Instalar dependencias
         working-directory: club-cine
         run: |
-          APP_ENV=prod APP_DEBUG=0 composer install --no-dev --optimize-autoloader --no-scripts
+          composer install \
+            --no-dev \
+            --prefer-dist \
+            --no-progress \
+            --no-interaction \
+            --classmap-authoritative
 
-      - name: Verificar entorno Symfony CLI
-        working-directory: club-cine
-        run: |
-          php -r 'echo "APP_ENV CLI: ".($_SERVER["APP_ENV"] ?? getenv("APP_ENV") ?? "null").PHP_EOL;'
-
-      - name: Ejecutar comando de cierre de películas
+      - name: Ejecutar cierre automático
         working-directory: club-cine
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           APP_ENV: prod
           APP_DEBUG: 0
         run: |
-          php -d variables_order=EGPCS bin/console app:group:close-expired --env=prod --no-debug -vvv
+          php bin/console app:group:close-expired --env=prod --no-debug -vvv
