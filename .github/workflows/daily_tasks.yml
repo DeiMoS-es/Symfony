@@ -20,4 +20,4 @@ jobs:
       - name: Ejecutar script
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: php scripts/close-expired.php
+        run: php club-cine/scripts/close-expired.php
