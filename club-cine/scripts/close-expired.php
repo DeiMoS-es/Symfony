@@ -16,7 +16,7 @@ $pdo = new PDO(
 $sql = "
     UPDATE app_group_recommendation
     SET status = 'closed'
-    WHERE vote_deadline < NOW()
+    WHERE deadline < NOW()
     AND status = 'open'
 ";
 
