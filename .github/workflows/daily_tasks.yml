@@ -1,4 +1,4 @@
-name: Tareas Diarias ClubCine
+name: Cerrar películas caducadas
 
 on:
   schedule:
@@ -6,42 +6,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  close-movies:
+  close:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Configurar PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: mbstring, xml, ctype, iconv, pdo_mysql
-          coverage: none
 
-      - name: Cache Composer
-        uses: actions/cache@v4
-        with:
-          path: ~/.composer/cache
-          key: composer-${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: composer-${{ runner.os }}-
-
-      - name: Instalar dependencias
-        working-directory: club-cine
-        run: |
-          composer install \
-            --no-dev \
-            --prefer-dist \
-            --no-progress \
-            --no-interaction \
-            --classmap-authoritative
-
-      - name: Ejecutar cierre automático
-        working-directory: club-cine
+      - name: Ejecutar script
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          APP_ENV: prod
-          APP_DEBUG: 0
-        run: |
-          php bin/console app:group:close-expired --env=prod --no-debug -vvv
+        run: php scripts/close-expired.php
