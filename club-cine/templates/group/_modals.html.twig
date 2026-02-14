@@ -1,22 +1,93 @@
-{# Modales de Valoración Personal #}
+{# 1. MODALES DE REVIEWS PROPIAS #}
 {% for rec in recommendations %}
     {% for review in rec.reviews %}
         {% if review.user.id == app.user.id %}
             <div class="modal fade" id="modalMyReview{{ review.id }}" tabindex="-1" aria-hidden="true">
-                {# ... contenido del modal de mi review ... #}
+                <div class="modal-dialog modal-dialog-centered modal-sm">
+                    <div class="modal-content text-dark">
+                        <div class="modal-header bg-light py-2">
+                            <h6 class="modal-title fw-bold">Mi Valoración</h6>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <div class="text-center mb-3">
+                                <span class="display-6 fw-bold text-success">{{ review.averageScore|number_format(1) }}</span>
+                            </div>
+                            <div class="small">
+                                {% set criteria = {
+                                    'Guion': review.scoreScript,
+                                    'Dirección': review.scoreDirector,
+                                    'Actor P.': review.scoreMainActor,
+                                    'Actriz P.': review.scoreMainActress,
+                                    'Reparto Sec.': review.scoreSecondaryActors
+                                } %}
+                                {% for label, score in criteria %}
+                                    <div class="d-flex justify-content-between border-bottom py-1">
+                                        <span>{{ label }}</span>
+                                        <strong>{{ score }}</strong>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         {% endif %}
     {% endfor %}
 
-    {# Modales de Resultados Globales #}
+    {# 2. MODALES DE RESULTADOS GLOBALES (Solo si está cerrada) #}
     {% if rec.status == 'CLOSED' %}
         <div class="modal fade" id="modalGlobal{{ rec.id }}" tabindex="-1" aria-hidden="true">
-            {# ... contenido del modal global ... #}
+            <div class="modal-dialog modal-dialog-centered modal-sm">
+                <div class="modal-content text-dark border-0 shadow">
+                    <div class="modal-header bg-primary text-white py-2">
+                        <h6 class="modal-title fw-bold">Consenso del Club</h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <div class="mb-3">
+                            <div class="h3 fw-bold text-primary mb-0">{{ rec.averageScore|number_format(1) }}</div>
+                            <small class="text-muted">{{ rec.totalVotes }} votos</small>
+                        </div>
+                        {% if rec.stats %}
+                            <div class="text-start small">
+                                {% for key, score in rec.stats %}
+                                    {% set label = key|replace({'mainActor': 'Actor', 'mainActress': 'Actriz', 'secondary': 'Reparto', 'script': 'Guion', 'director': 'Dir.'}) %}
+                                    <div class="mb-2">
+                                        <div class="d-flex justify-content-between mb-1 text-capitalize">
+                                            <span>{{ label }}</span>
+                                            <strong>{{ score|number_format(1) }}</strong>
+                                        </div>
+                                        <div class="progress" style="height: 4px;">
+                                            <div class="progress-bar bg-primary" style="width: {{ score * 10 }}%"></div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
     {% endif %}
 {% endfor %}
 
-{# Modal de Baja del Club #}
+{# 3. MODAL DE BAJA DEL CLUB #}
 <div class="modal fade" id="leaveModal" tabindex="-1" aria-hidden="true">
-    {# ... contenido del modal de baja ... #}
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">¿Abandonar club?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-3">
+                <p class="small text-muted mb-0">¿Estás seguro de que quieres dejar <strong>{{ group.name }}</strong>?</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light btn-sm rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger btn-sm rounded-pill px-3">Confirmar baja</button>
+            </div>
+        </div>
+    </div>
+</div>
 </div>
