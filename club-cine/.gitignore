@@ -17,7 +17,7 @@
 ###< phpunit/phpunit ###
 
 ###> symfony/asset-mapper ###
-/public/assets/
+# /public/assets/
 ###< symfony/asset-mapper ###
 
 ###> lexik/jwt-authentication-bundle ###
