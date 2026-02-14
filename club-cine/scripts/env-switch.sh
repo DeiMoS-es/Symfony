@@ -37,6 +37,7 @@ case "$1" in
     echo "→ Añadiendo archivos necesarios..."
     # git add -f vendor/ importmap.php assets/vendor/ 2>/dev/null
     git add importmap.php assets/vendor/ 2>/dev/null
+    git add -f public/assets/
     git add .  # por si hay otros cambios
 
     echo "→ Haciendo commit..."
