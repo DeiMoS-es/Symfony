@@ -21,10 +21,11 @@ case "$1" in
   prod)
     echo "→ Generando BUILD DE PRODUCCIÓN para Vercel..."
     rm -rf vendor/
+    php bin/console cache:clear --env=prod
     APP_ENV=prod composer install --no-dev --optimize-autoloader
     APP_ENV=prod php bin/console importmap:install
     APP_ENV=prod php bin/console asset-map:compile
-    php bin/console cache:clear --env=prod
+    php bin/console cache:warmup --env=prod
 
     echo ""
     echo "✔ Build de producción generada."
