@@ -23,6 +23,7 @@ case "$1" in
     rm -rf vendor/
     APP_ENV=prod composer install --no-dev --optimize-autoloader
     APP_ENV=prod php bin/console importmap:install
+    APP_ENV=prod php bin/console asset-map:compile
     php bin/console cache:clear --env=prod
 
     echo ""
