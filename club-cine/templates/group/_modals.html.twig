@@ -36,7 +36,7 @@
     {% endfor %}
 
     {# 2. MODALES DE RESULTADOS GLOBALES (Solo si está cerrada) #}
-    {% if rec.status == 'CLOSED' %}
+    {% if rec.status|upper == 'CLOSED' %}
         <div class="modal fade" id="modalGlobal{{ rec.id }}" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-sm">
                 <div class="modal-content text-dark border-0 shadow">

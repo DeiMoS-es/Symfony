@@ -15,7 +15,7 @@
                     <div class="position-relative">
                         {% if rec.movie.posterPath %}
                             <img src="https://image.tmdb.org/t/p/w500{{ rec.movie.posterPath }}" 
-                                 class="img-fluid w-100 {{ rec.status == 'CLOSED' ? 'grayscale' : '' }}" 
+                                 class="img-fluid w-100 {{ rec.status|upper == 'CLOSED' ? 'grayscale' : '' }}" 
                                  alt="{{ rec.movie.title }}" 
                                  style="aspect-ratio: 2/3; object-fit: cover;">
                         {% else %}
@@ -38,7 +38,7 @@
 
                         {# Overlay inferior de acciones #}
                         <div class="position-absolute bottom-0 start-0 end-0 p-2 bg-dark bg-opacity-75 backdrop-blur">
-                            {% if rec.status == 'OPEN' %}
+                            {% if rec.status|upper == 'OPEN' %}
                                 {% if myReview %}
                                     <div class="text-center">
                                         <div class="badge bg-light text-dark border w-100 py-2 mb-1" style="font-size: 0.7rem;">
