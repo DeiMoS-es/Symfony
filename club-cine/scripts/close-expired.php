@@ -38,14 +38,53 @@ $pdo = new PDO(
     ]
 );
 
-$sql = "
-    UPDATE app_group_recommendation
-    SET status = 'closed'
+// Primero verifica si hay registros que cumplan la condición
+$checkSql = "
+    SELECT id, deadline, status 
+    FROM app_group_recommendation
     WHERE deadline < NOW()
     AND status = 'open'
 ";
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute();
+$checkStmt = $pdo->prepare($checkSql);
+$checkStmt->execute();
+$records = $checkStmt->fetchAll(PDO::FETCH_ASSOC);
 
-echo "Filas afectadas: " . $stmt->rowCount() . PHP_EOL;
+if (empty($records)) {
+    echo "No hay registros expirados para cerrar.\n";
+    
+    // Debug: mostrar registros abiertos
+    $debugSql = "
+        SELECT id, deadline, status, NOW() as ahora
+        FROM app_group_recommendation
+        WHERE status = 'open'
+        LIMIT 5
+    ";
+    $debugStmt = $pdo->prepare($debugSql);
+    $debugStmt->execute();
+    $debugRecords = $debugStmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    if (!empty($debugRecords)) {
+        echo "DEBUG - Registros abiertos encontrados:\n";
+        foreach ($debugRecords as $record) {
+            echo "  ID: {$record['id']}, Deadline: {$record['deadline']}, Ahora: {$record['ahora']}\n";
+        }
+    } else {
+        echo "DEBUG - No hay registros abiertos en la tabla.\n";
+    }
+} else {
+    echo "Registros expirados encontrados: " . count($records) . "\n";
+    
+    // Ejecutar el UPDATE
+    $sql = "
+        UPDATE app_group_recommendation
+        SET status = 'closed'
+        WHERE deadline < NOW()
+        AND status = 'open'
+    ";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    
+    echo "Filas afectadas: " . $stmt->rowCount() . PHP_EOL;
+}
