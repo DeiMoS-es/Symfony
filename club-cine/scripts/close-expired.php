@@ -23,20 +23,37 @@ if (!$databaseUrl) {
     die("ERROR: DATABASE_URL no está configurada. Configúrala en .env.local o como variable de entorno.\n");
 }
 
+// Remover comillas si existen
+$databaseUrl = trim($databaseUrl, '"\'');
+
+// Parsear URL
 $parts = parse_url($databaseUrl);
 
-if (!isset($parts['host']) || !isset($parts['user']) || !isset($parts['password'])) {
-    die("ERROR: DATABASE_URL tiene un formato inválido.\n");
+// Validar componentes requeridos
+if (!isset($parts['host']) || !isset($parts['user']) || !isset($parts['pass'])) {
+    echo "ERROR: DATABASE_URL tiene un formato inválido.\n";
+    echo "Contenido parseado: " . json_encode($parts) . "\n";
+    die();
 }
 
-$pdo = new PDO(
-    "mysql:host={$parts['host']};dbname=" . ltrim($parts['path'], '/'),
-    $parts['user'],
-    $parts['password'],
-    [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-    ]
-);
+// Obtener puerto (por defecto 3306 para MySQL)
+$port = isset($parts['port']) ? $parts['port'] : 3306;
+
+// Obtener base de datos del path (remover barra inicial)
+$database = ltrim($parts['path'], '/');
+
+try {
+    $pdo = new PDO(
+        "mysql:host={$parts['host']};port={$port};dbname={$database}",
+        $parts['user'],
+        $parts['pass'],
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]
+    );
+} catch (PDOException $e) {
+    die("ERROR: No se pudo conectar a la base de datos: " . $e->getMessage() . "\n");
+}
 
 // Primero verifica si hay registros que cumplan la condición
 $checkSql = "
