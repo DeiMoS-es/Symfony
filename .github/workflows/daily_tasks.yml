@@ -2,8 +2,8 @@ name: Tareas Diarias Symfony
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Se ejecuta cada día a medianoche
-  workflow_dispatch:     # Permite ejecutarlo manualmente para probar
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   symfony-tasks:
@@ -16,16 +16,20 @@ jobs:
       - name: Configurar PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2' # Asegúrate de que coincida con tu proyecto
+          php-version: '8.2'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
           coverage: none
 
       - name: Instalar Dependencias (Composer)
+        # USAMOS 'working-directory' para entrar en club-cine
+        working-directory: ./club-cine
         run: composer install --no-dev --optimize-autoloader --no-scripts
 
       - name: Ejecutar Comando de Symfony
+        working-directory: ./club-cine
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           APP_ENV: prod
           APP_SECRET: ${{ secrets.APP_SECRET }}
-        run: php bin/console app:daily-tasks # Sustituye por tu comando real
+        # Asegúrate de que el nombre del comando sea el correcto
+        run: php bin/console app:daily-tasks
