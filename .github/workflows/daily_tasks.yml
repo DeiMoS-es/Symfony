@@ -2,8 +2,8 @@ name: Tareas Diarias Symfony
 
 on:
   schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+    - cron: '0 0 * * *' # Se ejecuta cada día a medianoche
+  workflow_dispatch:     # Botón para ejecutarlo a mano y probar
 
 jobs:
   symfony-tasks:
@@ -28,9 +28,15 @@ jobs:
         working-directory: ./club-cine
         env:
           APP_ENV: prod
-          APP_SECRET: ${{ secrets.APP_SECRET || '3f3e4e5d6c7b8a90123456789abcdef0' }}
+          # Variables reales (Sácalas de Secrets de GitHub)
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY || 'no_necesaria_aqui' }}
-          MAILER_DSN: ${{ secrets.MAILER_DSN || 'null://localhost' }}
-        # RUTA FINAL VERIFICADA POR TU LS:
+          APP_SECRET: ${{ secrets.APP_SECRET || '3f3e4e5d6c7b8a90123456789abcdef0' }}
+          
+          # Variables "Dummy" (Para engañar a Symfony y que no bloquee el arranque)
+          TMDB_API_KEY: "dummy_value_for_kernel"
+          TMDB_READ_TOKEN: "dummy_value_for_kernel"
+          MAILER_DSN: "null://localhost"
+          MESSENGER_TRANSPORT_DSN: "doctrine://default"
+          
+        # Ruta y nombre confirmados por tu 'ls -l'
         run: php scripts/close-expired.php
