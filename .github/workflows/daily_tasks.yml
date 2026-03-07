@@ -1,23 +1,31 @@
-name: Cerrar películas caducadas
+name: Tareas Diarias Symfony
 
 on:
   schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+    - cron: '0 0 * * *' # Se ejecuta cada día a medianoche
+  workflow_dispatch:     # Permite ejecutarlo manualmente para probar
 
 jobs:
-  close:
+  symfony-tasks:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout del código
+        uses: actions/checkout@v4
 
       - name: Configurar PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.2' # Asegúrate de que coincida con tu proyecto
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
+          coverage: none
 
-      - name: Ejecutar script
+      - name: Instalar Dependencias (Composer)
+        run: composer install --no-dev --optimize-autoloader --no-scripts
+
+      - name: Ejecutar Comando de Symfony
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: php club-cine/scripts/close-expired.php
+          APP_ENV: prod
+          APP_SECRET: ${{ secrets.APP_SECRET }}
+        run: php bin/console app:daily-tasks # Sustituye por tu comando real
