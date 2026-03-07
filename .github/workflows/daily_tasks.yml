@@ -2,8 +2,8 @@ name: Tareas Diarias Symfony
 
 on:
   schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+    - cron: '0 0 * * *' # Se ejecuta cada día a medianoche
+  workflow_dispatch:     # Permite ejecutarlo manualmente desde la pestaña Actions
 
 jobs:
   symfony-tasks:
@@ -16,7 +16,7 @@ jobs:
       - name: Configurar PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3' # <--- CAMBIADO DE 8.2 A 8.3
+          php-version: '8.3'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
           coverage: none
 
@@ -30,4 +30,5 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           APP_ENV: prod
           APP_SECRET: ${{ secrets.APP_SECRET }}
-        run: php bin/console app:daily-tasks
+        # Usamos el nombre exacto de tu comando y evitamos preguntas interactivas
+        run: php bin/console app:group:close-expired --no-interaction -v
