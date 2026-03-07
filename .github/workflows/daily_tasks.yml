@@ -16,12 +16,11 @@ jobs:
       - name: Configurar PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
+          php-version: '8.3' # <--- CAMBIADO DE 8.2 A 8.3
           extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite
           coverage: none
 
       - name: Instalar Dependencias (Composer)
-        # USAMOS 'working-directory' para entrar en club-cine
         working-directory: ./club-cine
         run: composer install --no-dev --optimize-autoloader --no-scripts
 
@@ -31,5 +30,4 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           APP_ENV: prod
           APP_SECRET: ${{ secrets.APP_SECRET }}
-        # Asegúrate de que el nombre del comando sea el correcto
         run: php bin/console app:daily-tasks
