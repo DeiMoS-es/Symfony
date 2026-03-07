@@ -30,9 +30,8 @@ jobs:
           APP_ENV: prod
           APP_SECRET: ${{ secrets.APP_SECRET }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          # Symfony NECESITA que estas existan para que el Kernel haga el 'boot'
-          # Si no las tienes en Secrets, pon un valor cualquiera para "engañar" al Kernel
-          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY || 'dummy_key' }}
+          # Engañamos al Kernel para que no pida estas keys si no las usas aquí
+          TMDB_API_KEY: ${{ secrets.TMDB_API_KEY || 'no_necesaria_aqui' }}
           MAILER_DSN: ${{ secrets.MAILER_DSN || 'null://localhost' }}
-        # Ejecutamos tu archivo PHP directamente
-        run: php scripts/daily_tasks.php
+        # Si el archivo está en la raíz de 'club-cine', el comando es este:
+        run: php close-expired.php
