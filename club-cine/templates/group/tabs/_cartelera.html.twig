@@ -1,5 +1,8 @@
+{# templates/group/tabs/_cartelera.html.twig #}
+
 <div class="tab-pane fade show active" id="cartelera" role="tabpanel">
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    {# Mobile-First: row-cols-2 en móvil, row-cols-lg-4 en escritorio #}
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4">
         {% for rec in recommendations %}
             {% set myReview = null %}
             {% for review in rec.reviews %}
@@ -9,9 +12,9 @@
             {% endfor %}
 
             <div class="col">
-                <div class="card h-100 border-0 shadow-sm position-relative overflow-hidden rounded-3 transition-all hover-shadow">
+                <div class="movie-card-glass h-100 position-relative overflow-hidden rounded-4 {{ rec.status|upper == 'CLOSED' ? 'closed' : '' }}">
                     
-                    {# Poster con Badge de Nota Global #}
+                    {# Poster #}
                     <div class="position-relative">
                         {% if rec.movie.posterPath %}
                             <img src="https://image.tmdb.org/t/p/w500{{ rec.movie.posterPath }}" 
@@ -19,47 +22,46 @@
                                  alt="{{ rec.movie.title }}" 
                                  style="aspect-ratio: 2/3; object-fit: cover;">
                         {% else %}
-                            <div class="bg-secondary d-flex align-items-center justify-content-center text-white" style="aspect-ratio: 2/3;">
+                            <div class="bg-dark d-flex align-items-center justify-content-center text-white" style="aspect-ratio: 2/3;">
                                 <i class="bi bi-camera-video fs-1 opacity-25"></i>
                             </div>
                         {% endif %}
 
-                        {# Badge superior #}
+                        {# Badge superior (Nota o Estado) #}
                         <div class="position-absolute top-0 end-0 m-2">
                             {% if rec.status|upper == 'CLOSED' %}
-                                <span class="badge bg-primary shadow border border-white p-2">
-                                    <i class="bi bi-star-fill text-warning"></i>
+                                <span class="badge glass-badge p-2">
+                                    <i class="bi bi-star-fill text-warning me-1"></i>
                                     {{ rec.averageScore|number_format(1) }}
                                 </span>
                             {% else %}
-                                <span class="badge bg-success shadow-sm p-2">ABIERTA</span>
+                                <span class="badge bg-success shadow-sm p-2" style="font-size: 0.6rem;">ABIERTA</span>
                             {% endif %}
                         </div>
 
-                        {# Overlay inferior de acciones #}
-                        <div class="position-absolute bottom-0 start-0 end-0 p-2 bg-dark bg-opacity-75 backdrop-blur">
+                        {# Overlay inferior de acciones con Glassmorphism #}
+                        <div class="position-absolute bottom-0 start-0 end-0 p-2 glass-action-overlay">
                             {% if rec.status|upper == 'OPEN' %}
                                 {% if myReview %}
                                     <div class="text-center">
-                                        <div class="badge bg-light text-dark border w-100 py-2 mb-1" style="font-size: 0.7rem;">
+                                        <div class="glass-badge border-0 w-100 py-1 mb-1" style="font-size: 0.65rem;">
                                             <i class="bi bi-check-circle-fill text-success"></i>
                                             Tu nota: {{ myReview.averageScore|number_format(1) }}
                                         </div>
-                                        <button class="btn btn-link btn-sm text-white text-decoration-none p-0" 
-                                                style="font-size: 0.65rem;" 
+                                        <button class="btn btn-link btn-sm text-white text-decoration-none p-0 x-small" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#modalMyReview{{ myReview.id }}">
-                                            <i class="bi bi-eye"></i> Ver mi detalle
+                                            <i class="bi bi-eye"></i> Detalle
                                         </button>
                                     </div>
                                 {% else %}
-                                    <a href="{{ path('app_review_new', {id: rec.id}) }}" class="btn btn-success btn-sm w-100 fw-bold rounded-pill">
+                                    <a href="{{ path('app_review_new', {id: rec.id}) }}" class="btn btn-success btn-sm w-100 fw-bold rounded-pill shadow-sm">
                                         <i class="bi bi-pencil-square me-1"></i> VOTAR
                                     </a>
                                 {% endif %}
                             {% else %}
-                                <div class="d-grid gap-1">
-                                    <button class="btn btn-primary btn-sm rounded-pill fw-bold" 
+                                <div class="d-grid">
+                                    <button class="btn btn-primary btn-sm rounded-pill fw-bold shadow-sm" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#modalGlobal{{ rec.id }}">
                                         <i class="bi bi-bar-chart-fill me-1"></i> RESULTADOS
@@ -69,11 +71,12 @@
                         </div>
                     </div>
 
-                    <div class="card-body p-2 text-center">
-                        <h6 class="fw-bold text-truncate mb-0 small" title="{{ rec.movie.title }}">{{ rec.movie.title }}</h6>
-                        <small class="text-muted" style="font-size: 0.65rem;">
+                    {# Título y Recomendador #}
+                    <div class="p-2 text-center">
+                        <h6 class="text-white text-truncate mb-0" style="font-size: 0.85rem; font-weight: 600;">{{ rec.movie.title }}</h6>
+                        <p class="x-small text-white-50 mb-0">
                             Por: {{ rec.recommendedBy.name|default(rec.recommendedBy.email|split('@')[0]) }}
-                        </small>
+                        </p>
                     </div>
                 </div>
             </div>

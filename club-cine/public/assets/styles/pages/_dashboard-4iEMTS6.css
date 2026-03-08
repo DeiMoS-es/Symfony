@@ -1,0 +1,58 @@
+/* assets/styles/pages/_dashboard.css */
+
+.dashboard-container {
+    padding-bottom: 3rem;
+}
+
+/* Buscador estilo cristal */
+.glass-search-input {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+    transition: all 0.3s ease;
+}
+
+.glass-search-input:focus-within {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.glass-search-input input {
+    background: transparent !important;
+    border: none !important;
+    color: white !important;
+    box-shadow: none !important;
+    padding-left: 10px;
+}
+
+.glass-search-input input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Botones y Paginación */
+.glass-btn {
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.3s ease !important;
+}
+
+.glass-btn:hover {
+    background: white !important;
+    color: black !important;
+}
+
+.page-link.glass-panel {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 50% !important;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -1,0 +1,15 @@
+/* assets/styles/components/_glass.css */
+.glass-panel, .movie-card-glass {
+    background: rgba(255, 255, 255, 0.03) !important;
+    /* Saturate(180%) hace que los colores bajo el cristal resalten mucho más */
+    backdrop-filter: blur(16px) saturate(180%) brightness(110%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) brightness(110%) !important;
+    
+    /* Borde sutil con luz en la parte superior y lateral */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.25) !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.15) !important;
+    
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    border-radius: 20px !important;
+}

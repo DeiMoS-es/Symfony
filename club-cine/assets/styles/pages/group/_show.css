@@ -1,0 +1,25 @@
+/* assets/styles/pages/_group.css */
+
+.group-container {
+    padding: 1rem;
+}
+
+@media (min-width: 992px) {
+    .group-container {
+        padding: 3rem 0;
+    }
+}
+
+/* Ajuste para las pestañas de navegación */
+.nav-tabs-glass .nav-link {
+    border: none;
+    color: rgba(255,255,255,0.5);
+    border-radius: 0.75rem;
+    margin-right: 0.5rem;
+}
+
+.nav-tabs-glass .nav-link.active {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    backdrop-filter: blur(5px);
+}

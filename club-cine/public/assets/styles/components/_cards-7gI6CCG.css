@@ -1,0 +1,24 @@
+/* assets/styles/components/_cards.css */
+
+.dashboard-card-glass {
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 20px !important;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+/* Eliminamos el fondo blanco del cuerpo de la card */
+.dashboard-card-glass .card-body {
+    background: transparent !important;
+    color: white !important;
+    padding: 1rem !important;
+}
+
+.dashboard-card-glass:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}

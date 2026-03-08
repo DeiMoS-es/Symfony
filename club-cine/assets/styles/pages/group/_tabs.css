@@ -1,0 +1,10 @@
+/* assets/styles/pages/group/_tabs.css */
+.tab-content {
+    background: transparent !important;
+    border: none !important;
+    padding-top: 2rem;
+}
+
+.nav-tabs {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}

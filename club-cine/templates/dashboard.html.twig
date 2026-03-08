@@ -1,156 +1,116 @@
 {# templates/dashboard.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard - Club de Cine
-{% endblock %}
+{% block title %}Dashboard - Club de Cine{% endblock %}
 
 {% block body %}
-	<div
-		class="container my-4">
-		{# MODIFICADO: Ahora mira si la lista de grupos está vacía #}
-		{% if groups is empty %}
-			<div class="alert alert-warning d-flex align-items-center border-0 shadow-sm" role="alert">
-				<i class="bi bi-stars me-3 fs-4"></i>
-				<div>
-					Para empezar a compartir cine con tus amigos, primero debes
-					<strong>crear tu club</strong>
-					o aceptar una invitación.
-				</div>
-			</div>
-		{% endif %}
+    <div class="container my-4 dashboard-container">
+        
+        {% if groups is empty %}
+            <div class="glass-panel p-3 mb-4 d-flex align-items-center border-warning" role="alert">
+                <i class="bi bi-stars me-3 fs-4 text-warning"></i>
+                <div class="text-white">
+                    Para empezar a compartir cine con tus amigos, primero debes
+                    <strong class="text-warning">crear tu club</strong> o aceptar una invitación.
+                </div>
+            </div>
+        {% endif %}
 
-		<div class="row align-items-end mb-3">
-			<div class="col-md-8">
-				<h4 class="fw-bold mb-1">
-					<i class="bi bi-film"></i>
-					{{ searchTerm ? 'Resultados para: "' ~ searchTerm ~ '"' : 'Películas Populares' }}
-				</h4>
-				<p class="text-muted small mb-0">Selecciona una joya para verla con tu club esta semana.</p>
-			</div>
+        <div class="row align-items-center mb-4">
+            <div class="col-md-7">
+                <h2 class="fw-bold mb-1 text-white">
+                    <i class="bi bi-film text-primary me-2"></i>
+                    {{ searchTerm ? 'Resultados para: "' ~ searchTerm ~ '"' : 'Películas Populares' }}
+                </h2>
+                <p class="text-white-50 small mb-0">Selecciona una joya para verla con tu club esta semana.</p>
+            </div>
 
-			<div class="col-md-4 mt-3 mt-md-0">
-				<form action="{{ path('user_dashboard') }}" method="get">
-					<div class="input-group shadow-sm" style="border-radius: 10px; overflow: hidden;">
-						<span class="input-group-text bg-white border-end-0">
-							<i class="bi bi-search text-primary"></i>
-						</span>
-						<input type="text" name="q" class="form-control border-start-0 ps-0" placeholder="Buscar película..." value="{{ searchTerm }}">
-						{% if searchTerm %}
-							<a href="{{ path('user_dashboard') }}" class="btn btn-outline-secondary border-start-0">
-								<i class="bi bi-x-lg"></i>
-							</a>
-						{% endif %}
-						<button type="submit" class="btn btn-primary px-4">Ir</button>
-					</div>
-				</form>
-			</div>
-		</div>
+            <div class="col-md-5 mt-3 mt-md-0">
+                <form action="{{ path('user_dashboard') }}" method="get">
+                    <div class="glass-search-input">
+                        <i class="bi bi-search ms-3 text-white-50"></i>
+                        <input type="text" name="q" class="form-control" placeholder="Buscar película..." value="{{ searchTerm }}">
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 m-1">Explorar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-		<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-			{% for movie in movies.items %}
-				<div class="col">
-					<div class="card h-100 shadow-sm border-0 movie-card">
-						<div class="position-relative overflow-hidden" style="border-radius: 12px 12px 0 0;">
-							{% if movie.posterPath %}
-								<img src="https://image.tmdb.org/t/p/w500{{ movie.posterPath }}" class="card-img-top d-block w-100" alt="{{ movie.title }}" style="object-fit: contain;">
-							{% else %}
-								<div class="bg-dark d-flex align-items-center justify-content-center" style="aspect-ratio: 2/3;">
-									<i class="bi bi-camera-video text-secondary fs-1"></i>
-								</div>
-							{% endif %}
+        {# Cambiado a row-cols-2 en móvil para consistencia con el grupo #}
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4">
+            {% for movie in movies.items %}
+                <div class="col">
+                    <div class="dashboard-card-glass h-100 d-flex flex-column">
+                        <div class="position-relative overflow-hidden">
+                            {% if movie.posterPath %}
+                                <img src="https://image.tmdb.org/t/p/w500{{ movie.posterPath }}" 
+                                     class="card-img-top d-block w-100" 
+                                     alt="{{ movie.title }}" 
+                                     style="aspect-ratio: 2/3; object-fit: cover;">
+                            {% else %}
+                                <div class="bg-dark d-flex align-items-center justify-content-center" style="aspect-ratio: 2/3;">
+                                    <i class="bi bi-camera-video text-secondary fs-1"></i>
+                                </div>
+                            {% endif %}
 
-							<div class="position-absolute top-0 end-0 m-2">
-								<span class="badge bg-dark bg-opacity-75 backdrop-blur shadow-sm">
-									{{ movie.releaseDate ? movie.releaseDate|date('Y') : 'TBA' }}
-								</span>
-							</div>
-						</div>
+                            <div class="position-absolute top-0 end-0 m-2">
+                                <span class="badge glass-badge">
+                                    {{ movie.releaseDate ? movie.releaseDate|date('Y') : 'TBA' }}
+                                </span>
+                            </div>
+                        </div>
 
-						<div class="card-body d-flex flex-column pt-3">
-							<h5 class="card-title h6 fw-bold mb-2 text-truncate" title="{{ movie.title }}">
-								{{ movie.title }}
-							</h5>
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <h6 class="text-white fw-bold mb-2 text-truncate" title="{{ movie.title }}">
+                                {{ movie.title }}
+                            </h6>
 
-							<div class="d-flex align-items-center text-muted mb-3" style="font-size: 0.8rem;">
-								<i class="bi bi-calendar-event me-2 text-primary"></i>
-								<span>{{ movie.releaseDate ? movie.releaseDate|date('d/m/Y') : 'Sin fecha' }}</span>
-							</div>
+                            <div class="d-flex align-items-center text-white-50 mb-3" style="font-size: 0.75rem;">
+                                <i class="bi bi-calendar-event me-2"></i>
+                                <span>{{ movie.releaseDate ? movie.releaseDate|date('d/m/Y') : 'Sin fecha' }}</span>
+                            </div>
 
-							{# MODIFICADO: Si el usuario tiene al menos un grupo, puede recomendar #}
-							{% if groups is not empty %}
-								{% set firstGroup = groups|first %}
-								<div class="mt-auto">
-									<a href="{{ path('app_group_recommend_movie', { 'id': firstGroup.id, 'tmdbId': movie.tmdbId }) }}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2 py-2 transition-btn">
-										<i class="bi bi-megaphone"></i>
-										<span>Recomendar</span>
-									</a>
-								</div>
-							{% endif %}
-						</div>
-					</div>
-				</div>
-			{% else %}
-				<div class="col-12 text-center py-5">
-					<i class="bi bi-search fs-1 text-muted"></i>
-					<p class="text-muted mt-2">No hemos encontrado películas disponibles.</p>
-				</div>
-			{% endfor %}
-		</div>
-	</div>
+                            {% if groups is not empty %}
+                                {% set firstGroup = groups|first %}
+                                <div class="mt-auto">
+                                    <a href="{{ path('app_group_recommend_movie', { 'id': firstGroup.id, 'tmdbId': movie.tmdbId }) }}" 
+                                       class="btn btn-outline-light btn-sm w-100 rounded-pill py-2 glass-btn">
+                                        <i class="bi bi-megaphone me-1"></i>
+                                        Recomendar
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-center py-5">
+                    <i class="bi bi-search fs-1 text-white-50"></i>
+                    <p class="text-white-50 mt-2">No hemos encontrado películas disponibles.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 
-	{# Paginación (Sin cambios) #}
-	{% if totalPages > 1 %}
-		<nav aria-label="Navegación de películas" class="mt-5">
-			<ul class="pagination pagination-sm justify-content-center gap-2">
-				<li class="page-item {{ currentPage == 1 ? 'disabled' : '' }}">
-					<a class="page-link" href="{{ path('user_dashboard', { page: currentPage - 1, q: searchTerm }) }}">
-						<i class="bi bi-chevron-left me-1"></i>
-						Anterior
-					</a>
-				</li>
-				<li class="d-flex align-items-center px-3">
-					<span class="text-muted small">Página
-						<strong>{{ currentPage }}</strong>
-						de
-						{{ totalPages }}</span>
-				</li>
-				<li class="page-item {{ currentPage == totalPages ? 'disabled' : '' }}">
-					<a class="page-link" href="{{ path('user_dashboard', { page: currentPage + 1, q: searchTerm }) }}">
-						Siguiente
-						<i class="bi bi-chevron-right ms-1"></i>
-					</a>
-				</li>
-			</ul>
-		</nav>
-	{% endif %}
+    {# Paginación estilizada #}
+    {% if totalPages > 1 %}
+        <nav class="mt-5 pb-5">
+            <ul class="pagination pagination-sm justify-content-center gap-2">
+                <li class="page-item {{ currentPage == 1 ? 'disabled' : '' }}">
+                    <a class="page-link glass-panel" href="{{ path('user_dashboard', { page: currentPage - 1, q: searchTerm }) }}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                <li class="glass-panel px-4 d-flex align-items-center rounded-pill">
+                    <span class="text-white small">Página <strong>{{ currentPage }}</strong> de {{ totalPages }}</span>
+                </li>
+                <li class="page-item {{ currentPage == totalPages ? 'disabled' : '' }}">
+                    <a class="page-link glass-panel" href="{{ path('user_dashboard', { page: currentPage + 1, q: searchTerm }) }}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
 
-	<style>:root
-	{
-		--card-border-radius: 12px;
-	}
-	.movie-card {
-		transition: all 0.25s ease;
-		border-radius: var(--card-border-radius);
-		background: #fff;
-	}
-	.movie-card:hover {
-		transform: translateY(-8px);
-		box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
-	}
-	.backdrop-blur {
-		backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-		border: 1px solid rgba(255, 255, 255, 0.2);
-	}
-	.transition-btn {
-		transition: all 0.2s;
-		font-weight: 600;
-		border-radius: 8px;
-		text-transform: uppercase;
-		font-size: 0.75rem;
-		letter-spacing: 0.5px;
-	}
-	.transition-btn:hover {
-		filter: contrast(1.1);
-		transform: scale(1.03);
-	}
-</style>{% endblock %}
+{% endblock %}
