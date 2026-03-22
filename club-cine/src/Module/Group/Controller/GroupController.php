@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 #[Route('/groups')]
 class GroupController extends AbstractController
@@ -57,6 +58,23 @@ class GroupController extends AbstractController
             'recommendations' => $recRepo->findBy(['group' => $group], ['createdAt' => 'DESC']),
             'invitationForm' => $this->createForm(GroupInvitationType::class)->createView()
         ]);
+    }
+
+    #[Route('/group/{id}/delete', name: 'app_group_delete', methods: ['POST', 'GET'])]
+    public function delete(Group $group, GroupService $groupService): Response
+    {
+        try {
+            $groupName = $group->getName();
+
+            // Llamamos al servicio
+            $groupService->deleteGroup($group);
+
+            $this->addFlash('success', "El club '$groupName' ha sido disuelto correctamente.");
+            return $this->redirectToRoute('user_dashboard');
+        } catch (AccessDeniedHttpException $e) {
+            $this->addFlash('danger', $e->getMessage());
+            return $this->redirectToRoute('app_group_show', ['id' => $group->getId()]);
+        }
     }
 
     // #[Route('/{id}/invite', name: 'app_group_invite', methods: ['POST'])]

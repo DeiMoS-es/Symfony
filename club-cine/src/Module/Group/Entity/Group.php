@@ -47,6 +47,9 @@ class Group
     #[ORM\OneToMany(mappedBy: 'targetGroup', targetEntity: GroupInvitation::class, cascade: ['remove'])]
     private Collection $invitations;
 
+    #[ORM\OneToMany(mappedBy: 'group', targetEntity: Recommendation::class, cascade: ['remove'], orphanRemoval: true)]
+    private Collection $recommendations;
+
     public function __construct(string $name, User $owner, ?string $description = null)
     {
         $this->id = Uuid::uuid4();
@@ -56,8 +59,12 @@ class Group
         $this->updatedAt = new \DateTimeImmutable();
         $this->isActive = true;
         $this->owner = $owner;
+        
+        // Inicializamos TODAS las colecciones
         $this->members = new ArrayCollection();
-        // Al crear el grupo, vinculamos al dueño automáticamente como el primer socio
+        $this->recommendations = new ArrayCollection(); 
+        $this->invitations = new ArrayCollection();
+
         $this->members->add(new GroupMember($this, $owner, 'OWNER'));
         $this->generateSlug();
     }
@@ -208,5 +215,13 @@ class Group
             $users->add($member->getUser());
         }
         return $users;
+    }
+
+    /**
+     * @return Collection<int, Recommendation>
+     */
+    public function getRecommendations(): Collection
+    {
+        return $this->recommendations;
     }
 }
