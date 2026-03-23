@@ -10,7 +10,7 @@
 					<div class="alert alert-danger">{{ error }}</div>
 				{% endfor %}
 
-				<form method="post" action="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all)) }}">
+				<form data-turbo="false" method="post" action="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge(app.request.query.all)) }}">
 					<input type="hidden" name="_csrf_token" value="{{ csrf_token('auth_register') }}">
 
 					<div class="mb-3">

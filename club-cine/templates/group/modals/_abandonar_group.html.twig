@@ -1,0 +1,23 @@
+{# templates/_modals/_abandonar_group.html.twig #}
+<div class="modal fade" id="abandonarGroupModal" tabindex="-1" aria-labelledby="abandonarGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-panel border-danger shadow-lg" style="border-width: 2px !important;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title text-white fw-bold" id="abandonarGroupModalLabel">
+                    <i class="bi bi-exclamation-octagon-fill text-danger me-2"></i>
+                    Abandonar "{{ group.name }}"
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-white-50 py-4">
+                <p class="mb-0">¿Estás seguro de que deseas abandonar este club?</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-light rounded-pill px-4 btn-sm fw-bold" data-bs-dismiss="modal">CANCELAR</button>
+                <a data-turbo="false" href="{{ path('app_group_delete', {'id': group.id}) }}" class="btn btn-danger rounded-pill px-4 btn-sm fw-bold shadow-sm">
+                    ABANDONAR CLUB
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
