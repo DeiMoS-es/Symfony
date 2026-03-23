@@ -91,4 +91,49 @@ class GroupService
         $this->em->remove($group);
         $this->em->flush();
     }
+
+    /**
+     * Abandonar grupo
+     */
+    public function leaveGroup(Group $group): void
+    {
+        /** @var User $user */
+        $user = $this->security->getUser();
+
+        // 1. Buscamos al miembro usando tu lógica de filtro (que es buena)
+        $member = $group->getMembers()->filter(
+            fn($m) => $m->getUser()->getId()->toString() === $user->getId()->toString()
+        )->first();
+
+        if (!$member) {
+            // Opcional: lanzar una excepción si intentan abandonar un sitio donde no están
+            throw new \LogicException("No eres miembro de este grupo.");
+        }
+
+        // 2. LÓGICA DE SUCESIÓN: ¿Es el dueño el que se va?
+        if ($group->getOwner() === $user) {
+            // Buscamos al siguiente candidato (el que no sea el actual)
+            $successor = $group->getMembers()->filter(fn($m) => $m !== $member)->first();
+
+            if ($successor) {
+                // Transferimos la propiedad del club
+                $group->setOwner($successor->getUser());
+                $successor->setRole('OWNER');
+                $this->em->persist($group);
+                $this->em->persist($successor);
+            } else {
+                // Si no hay nadie más, el club se disuelve
+                $this->em->remove($group);
+                $this->em->flush();
+                return; // Salimos, ya no hay más que borrar
+            }
+        }
+
+        // 3. Borramos el vínculo del miembro
+        $this->em->remove($member);
+        $this->em->flush();
+
+        // 4. Limpieza de estado (importante para que el selector se actualice)
+        $this->em->refresh($user);
+    }
 }

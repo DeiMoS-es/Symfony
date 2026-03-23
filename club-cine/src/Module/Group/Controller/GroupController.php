@@ -77,6 +77,26 @@ class GroupController extends AbstractController
         }
     }
 
+    /**Endopint para abandonar el grupo */
+    #[Route('/{id}/leave', name: 'app_group_leave', methods: ['POST'])]
+    public function leave(Group $group, GroupService $groupService): Response
+    {
+        try {
+            $groupName = $group->getName();
+
+            // Delegamos TODA la lógica al servicio (sucesión de owner, borrado de miembro, etc.)
+            $groupService->leaveGroup($group);
+
+            $this->addFlash('success', "Has abandonado el club '$groupName' correctamente.");
+        } catch (\Exception $e) {
+            // Capturamos cualquier error (por ejemplo, si no era miembro)
+            $this->addFlash('danger', "No se pudo abandonar el grupo: " . $e->getMessage());
+        }
+
+        // Redirigimos al dashboard porque el usuario ya no debería ver la página del grupo
+        return $this->redirectToRoute('user_dashboard');
+    }
+
     // #[Route('/{id}/invite', name: 'app_group_invite', methods: ['POST'])]
     // #[IsGranted('ROLE_USER')]
     // public function invite(Request $request, Group $group): Response

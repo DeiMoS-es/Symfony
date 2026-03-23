@@ -44,6 +44,7 @@ class GroupMember{
     public function getGroup(): Group { return $this->group; }
     public function getUser(): User { return $this->user; }
     public function getRole(): string { return $this->role; }
+    public function setRole(string $role): void { $this->role = $role; }
     public function getJoinedAt(): \DateTimeImmutable { return $this->joinedAt; }
 }
 
